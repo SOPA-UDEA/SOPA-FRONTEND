@@ -9,6 +9,7 @@ import {
   } from "@heroicons/react/24/outline";
   
   import Image from "next/image";
+import Link from "next/link";
   
   export default function Sidebar() {
     return (
@@ -25,39 +26,39 @@ import {
   
           {/* Menu */}
           <nav className="space-y-2">
-            <a
-              href="#"
+            <Link
+              href="/pensum"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100 font-medium"
             >
               <Squares2X2Icon className="h-5 w-5" />
-              <span>Pesum</span>
-            </a>
+              <span>Pensum</span>
+            </Link>
   
-            <a
-              href="#"
+            <Link
+              href="history"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
               <DocumentTextIcon className="h-5 w-5" />
               <span>Historial de programaciones</span>
-            </a>
+            </Link>
   
-            <a
-              href="#"
+            <Link
+              href="/classrooms"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
               <BuildingOffice2Icon className="h-5 w-5" />
               <span>Gestión de aulas</span>
-            </a>
+            </Link>
   
-            <a
-              href="#"
+            <Link
+              href="/groups"
               className="flex items-center justify-between px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
               <div className="flex items-center space-x-3">
                 <UsersIcon className="h-5 w-5" />
                 <span>Gestión de grupos</span>
               </div>
-            </a>
+            </Link>
   
             <a
               href="#"
@@ -67,7 +68,6 @@ import {
                 <Cog6ToothIcon className="h-5 w-5" />
                 <span>Configuración</span>
               </div>
-              <ChevronDownIcon className="h-4 w-4 text-gray-500" />
             </a>
           </nav>
         </div>
