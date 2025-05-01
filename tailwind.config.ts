@@ -18,7 +18,7 @@ const config: Config = {
         },
         background: "#fbfffb",
         complementary: {
-          633: "#0076A8", // Duplicate of secondary.633
+          633: "#0076A8", // 633
           7650: "#702082",
         },
         error: {

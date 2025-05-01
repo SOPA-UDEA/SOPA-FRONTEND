@@ -18,7 +18,7 @@ import {
           <div className="flex items-center mb-10 space-x-3">
             <div className="w-8 h-8 rounded-full bg-green-700" />
             <div>
-              <p className="text-sm font-semibold">SOPA</p>
+              <p className="text-sm font-semibold text-primary-349">SOPA</p>
               <p className="text-xs text-gray-400">Panel principal</p>
             </div>
           </div>
@@ -52,7 +52,13 @@ import {
               <span>Historial de programaciones</span>
             </a>
 
-
+            <a
+              href="#"
+              className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
+            >
+              <BuildingOffice2Icon className="h-5 w-5" />
+              <span>Gestión de aulas</span>
+            </a>
             <a
               href="#"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100 font-medium"
@@ -74,13 +80,7 @@ import {
               <ChevronDownIcon className="h-4 w-4 text-gray-500" />
             </a>
 
-            <a
-              href="#"
-              className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
-            >
-              <BuildingOffice2Icon className="h-5 w-5" />
-              <span>Gestión de aulas</span>
-            </a>
+
           </nav>
         </div>
 
