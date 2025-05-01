@@ -2,55 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #f3f6f3;
-  --foreground: #2b3e27;
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply text-primary-foreground bg-background font-sans;
 }
 
+/* Utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
+/* Scrollbar styles */
 *::-webkit-scrollbar {
-  @apply w-2;
-  @apply bg-background;
+  @apply w-2 bg-background;
 }
 
 *::-webkit-scrollbar-thumb {
-  @apply bg-gray-300;
-  @apply rounded-full;
+  @apply bg-secondary rounded-full;
 }
 
+/* Markdown content */
 .markdown-content {
   @apply text-sm;
 }
 
 .markdown-content h1 {
-  @apply text-xl font-bold mb-1;
+  @apply text-xl font-bold mb-1 text-primary;
 }
 
 .markdown-content h2 {
-  @apply text-lg font-bold mb-1;
+  @apply text-lg font-bold mb-1 text-primary;
 }
 
 .markdown-content h3 {
-  @apply text-base font-semibold mb-1;
+  @apply text-base font-semibold mb-1 text-primary;
 }
 
 .markdown-content p {
-  @apply mb-4;
+  @apply mb-4 text-neutral-1000;
 }
 
 .markdown-content a {
-  @apply underline transition-colors duration-200 text-default-600;
+  @apply underline transition-colors duration-200 text-primary;
 }
 
 .markdown-content a:hover {
@@ -61,11 +55,12 @@ body {
   @apply list-disc pl-6 mb-3;
 }
 
+/* Global headers */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  @apply font-sansation text-foreground;
+  @apply font-sans text-primary-foreground;
 }
