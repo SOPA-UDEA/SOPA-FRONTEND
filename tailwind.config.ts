@@ -44,6 +44,7 @@ const config: Config = {
         background: "#fbfffb",
         primary: newPrimaryColors,
         secondary: newSecondaryColors,
+        brand: "70205B", // button color
       },
       fontFamily: {
         sansation: ["var(--font-sansation)", "sans-serif"],
