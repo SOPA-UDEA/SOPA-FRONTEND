@@ -8,60 +8,143 @@ import {
   useDisclosure,
 } from "@heroui/react";
 
-import { 
-    ArrowTopRightOnSquareIcon 
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@heroui/react";
 
-} from "@heroicons/react/24/outline";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+
+import { TimeInput } from "@heroui/react";
+
+import { Time } from "@internationalized/date";
+
+import { Select, SelectItem } from "@heroui/react";
+
+export const classrooms = [
+  { key: "xx-xxx", label: "18-218" },
+  { key: "xx-xxx", label: "18-305" },
+  { key: "No aula", label: "No aula" },
+];
 
 export default function App() {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   return (
     <>
-      <Button 
-      onPress={onOpen}
-      endContent={<ArrowTopRightOnSquareIcon className="h-4 w-4" />}
-    size="sm"
-    radius="full"
-    
-      >Gestionar</Button>
-      <Modal 
-      isOpen={isOpen} 
-      onOpenChange={onOpenChange} 
-      backdrop="opaque"
-      isDismissable={false}
-      isKeyboardDismissDisabled={true}
-      scrollBehavior="inside"
-      size="5xl"  >
+      <Button
+        onPress={onOpen}
+        endContent={<ArrowTopRightOnSquareIcon className="h-4 w-4" />}
+        size="sm"
+        radius="full"
+      >
+        Gestionar
+      </Button>
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        backdrop="opaque"
+        isDismissable={false}
+        isKeyboardDismissDisabled={true}
+        scrollBehavior="inside"
+        size="5xl"
+      >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Asignar aula(s)</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">
+                Asignar aula(s)
+              </ModalHeader>
               <ModalBody>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non
-                  risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor
-                  quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non
-                  risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor
-                  quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit dolor
-                  adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit
-                  officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem eiusmod et. Culpa
-                  deserunt nostrud ad veniam.
-                </p>
+                <Table
+                  removeWrapper
+                >
+                  <TableHeader >
+                    <TableColumn>Dia de la semana</TableColumn>
+                    <TableColumn>Hora de inicio</TableColumn>
+                    <TableColumn>Hora de fin</TableColumn>
+                    <TableColumn>Aula</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow key="1">
+                      <TableCell>xxxxx</TableCell>
+                      <TableCell>
+                        <TimeInput
+                          isReadOnly
+                          defaultValue={new Time(11, 45)}
+                          label={null}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TimeInput
+                          isReadOnly
+                          defaultValue={new Time(11, 45)}
+                          label={null}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {" "}
+                        <Select
+                          className="max-w-xs"
+                          defaultSelectedKeys={["No aula"]}
+                          scrollShadowProps={{
+                            isEnabled: false,
+                          }}
+                        >
+                          {classrooms.map((classroom) => (
+                            <SelectItem key={classroom.key}>
+                              {classroom.label}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow key="2">
+                      <TableCell>xxxxx</TableCell>
+                      <TableCell>
+                        <TimeInput
+                          isReadOnly
+                          defaultValue={new Time(11, 45)}
+                          label={null}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TimeInput
+                          isReadOnly
+                          defaultValue={new Time(11, 45)}
+                          label={null}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {" "}
+                        <Select
+                          className="max-w-xs"
+                          defaultSelectedKeys={["No aula"]}
+                          scrollShadowProps={{
+                            isEnabled: false,
+                          }}
+                        >
+                          {classrooms.map((classroom) => (
+                            <SelectItem key={classroom.key}>
+                              {classroom.label}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </ModalBody>
-              <ModalFooter>
+              <ModalFooter >
                 <Button color="danger" variant="light" onPress={onClose}>
-                  Close
+                  Restaurar
                 </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
+                <Button color="secondary" onPress={onClose}>
+                  Aplicar cambios
                 </Button>
               </ModalFooter>
             </>
