@@ -5,13 +5,10 @@ import {
     BuildingOffice2Icon,
     UsersIcon,
     Cog6ToothIcon,
-    ChevronDownIcon,
   } from "@heroicons/react/24/outline";
-import { Link, User } from "@heroui/react";
+import {User} from "@heroui/react";
 
-  
-  import Image from "next/image";
-import Link from "next/link";
+  import Link from "next/link";
 
   export default function Sidebar() {
     return (
@@ -100,9 +97,9 @@ import Link from "next/link";
         src: "https://avatars.githubusercontent.com/u/30373425?v=4",
       }}
       description={
-        <Link  size="sm">
+        <span className="text-sm text-blue-500">
           @jrgarciadev
-        </Link>
+        </span>
       }
       name="Junior Garcia"
     />
