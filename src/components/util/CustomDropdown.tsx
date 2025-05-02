@@ -1,9 +1,9 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { Pensum } from '@/app/interface/Pensum';
+import { Pensum } from '../../interface/Pensum';
 import { useState } from 'react'
-import { useFetchAcademicProgram } from '@/app/hooks/useFetchAcademicProgram';
-import { getAcademicProgramById } from '@/app/helpers/getAcademicProgramById';
+import { useAcademicProgram } from '@/hooks/useAcademicProgram';
+import { getAcademicProgramById } from '@/helpers/getAcademicProgramById';
 
 
 export default function CustomDropdown({
@@ -15,10 +15,10 @@ export default function CustomDropdown({
   selectedPensum: Pensum | null,
   onSelect: (pensum: Pensum) => void
 }) {
-  const { academicPrograms, loading } = useFetchAcademicProgram()
+  const { academicPrograms, isLoading } = useAcademicProgram()
 
-  if (loading) return <div>Loading...</div>
-
+  if (isLoading) return <div>Loading...</div>
+    
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>

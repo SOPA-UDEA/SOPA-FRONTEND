@@ -1,6 +1,6 @@
 import React from 'react'
 import { MenuItem } from '@headlessui/react'
-import { Pensum } from '@/app/interface/Pensum';
+import { Pensum } from '../../interface/Pensum';
 
 export default function CustomDropdownItem  (pensum: Pensum)  {
   return (

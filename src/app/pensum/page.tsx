@@ -1,19 +1,19 @@
 'use client';
-import CustomDropdown from "@/components/pensum/CustomDropdown"
-import { useFetchPensums } from "../hooks/useFetchPensums" 
-import {CustomDataGrid} from "@/components/pensum/CustomDataGrid"
-import { useFetchSubjetcByPensum } from "../hooks/useFetchSubjetcByPensum"
+import CustomDropdown from "@/components/util/CustomDropdown"
+import {CustomDataGrid} from "@/components/util/CustomDataGrid"
 import { useState } from "react"
-import { Pensum } from "../interface/Pensum"
+import {Pensum} from "../../interface/Pensum"
+import {usePensums} from "../../hooks/usePensums"
+import { useSubject } from "@/hooks/useSubject";
+
 
  const  PensumPage = () => {
         
-    const {pensums, loading} = useFetchPensums()
+    const {pensums, isLoading} = usePensums()
     const [selectedPensum, setSelectedPensum] = useState<Pensum | null>(null)
-    const {subjects, loadingSubject} = useFetchSubjetcByPensum(selectedPensum?.id || 0)
+    const {subjects, isLoading: loadingSubject} = useSubject(selectedPensum?.id || 0)
 
-    if (loading) return <div>Loading...</div> 
-    //if (loadingSubject) return <div>Loading Subjects...</div> 
+    if (isLoading) return <div>Loading...</div> 
     return (
         <>
             <div>Pensum</div>
@@ -23,7 +23,7 @@ import { Pensum } from "../interface/Pensum"
                 onSelect={setSelectedPensum}
             />
              
-             <div className="container mx-auto mt-4">
+             <div className="container mx-auto mt-4 pl-1">
                 <CustomDataGrid data={subjects}/>
             </div>
         </>
