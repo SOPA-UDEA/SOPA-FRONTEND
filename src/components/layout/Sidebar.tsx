@@ -7,27 +7,25 @@ import {
     Cog6ToothIcon,
     ChevronDownIcon,
   } from "@heroicons/react/24/outline";
-  
-  import Image from "next/image";
+import { Link, User } from "@heroui/react";
   
   export default function Sidebar() {
     return (
       <aside className="w-64 h-screen border-r flex flex-col justify-between bg-white">
         <div className="p-6">
-          {/* Logo */}
-          <div className="flex items-center mb-10 space-x-3">
-            <div className="w-8 h-8 rounded-full bg-green-700" />
-            <div>
-              <p className="text-sm font-semibold text-primary-349">SOPA</p>
-              <p className="text-xs text-gray-400">Panel principal</p>
-            </div>
-          </div>
-  
+            <User
+            className="Text-2xl font-bold"
+          avatarProps={{
+          src: "/src/assets/images/isotipo.png",
+          }}
+          name="SOPA"
+        />
           {/* Menu */}
           <nav className="space-y-2">
+          {/* classrooms */}
 
             <a
-              href="#"
+              href="../classrooms"
               className="flex items-center justify-between px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
               <div className="flex items-center space-x-3">
@@ -88,16 +86,17 @@ import {
   
         {/* User section */}
         <div className="p-6">
-          <div className="flex items-center space-x-3">
-            <Image
-              src="/" 
-              alt="Avatar"
-              width={32}
-              height={32}
-              className="rounded-full object-cover"
-            />
-            <span className="text-sm text-gray-800">Danny Admin</span>
-          </div>
+        <User
+      avatarProps={{
+        src: "https://avatars.githubusercontent.com/u/30373425?v=4",
+      }}
+      description={
+        <Link  size="sm">
+          @jrgarciadev
+        </Link>
+      }
+      name="Junior Garcia"
+    />
         </div>
       </aside>
     );

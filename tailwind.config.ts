@@ -42,7 +42,7 @@ const config: Config = {
           375: "#84BD00",
           7740: "#228848",
           DEFAULT: "#43B02A", // 361 C
-          foreground: "#ffffff",
+          foreground: "#228848", 
         },
         secondary: {
           334: "#00A78E",
@@ -79,13 +79,13 @@ const config: Config = {
           colors: {
             primary: {
               DEFAULT: "#43B02A",
-              foreground: "#ffffff",
+              foreground: "#228848",
             },
             secondary: {
               DEFAULT: "#00B2A9",
-              foreground: "#ffffff",
+              foreground: "#228848",
             },
-            background: "#fbfffb",
+            background: "#228848",
             foreground: "#2b3e27",
           },
         },
@@ -100,13 +100,13 @@ export const darkTheme = {
   colors: {
     primary: {
       DEFAULT: "#43B02A",
-      foreground: "#ffffff",
+      foreground: "#228848",
     },
     secondary: {
       DEFAULT: "#00B2A9",
-      foreground: "#ffffff",
+      foreground: "#228848",
     },
     background: "#1a1a1a",
-    foreground: "#ffffff",
+    foreground: "#228848",
   },
 };
