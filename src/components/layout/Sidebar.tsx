@@ -8,7 +8,11 @@ import {
     ChevronDownIcon,
   } from "@heroicons/react/24/outline";
 import { Link, User } from "@heroui/react";
+
   
+  import Image from "next/image";
+import Link from "next/link";
+
   export default function Sidebar() {
     return (
       <aside className="w-64 h-screen border-r flex flex-col justify-between bg-white">
@@ -24,7 +28,7 @@ import { Link, User } from "@heroui/react";
           <nav className="space-y-2">
           {/* classrooms */}
 
-            <a
+            <Link
               href="../classrooms"
               className="flex items-center justify-between px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
@@ -32,42 +36,48 @@ import { Link, User } from "@heroui/react";
                 <UsersIcon className="h-5 w-5" />
                 <span>Programación académica</span>
               </div>
-            </a>
+            </Link>
 
-            <a
-              href="#"
+            <Link
+              href="/pensum"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100 font-medium"
             >
               <Squares2X2Icon className="h-5 w-5" />
               <span>Pensum</span>
-            </a>
-  
-            <a
-              href="#"
+            </Link>  
+            <Link
+              href="history"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
               <DocumentTextIcon className="h-5 w-5" />
               <span>Historial de programaciones</span>
-            </a>
+            </Link>
 
-            <a
-              href="#"
+            <Link
+              href="/classrooms"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
               <BuildingOffice2Icon className="h-5 w-5" />
               <span>Gestión de aulas</span>
-            </a>
-            <a
+            </Link>
+            <Link
               href="#"
               className="flex items-center space-x-3 px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100 font-medium"
             >
               <Squares2X2Icon className="h-5 w-5" />
               <span>Acerca de</span>
-            </a>
+            </Link>
+            <Link
+              href="/groups"
+              className="flex items-center justify-between px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
+            >
+              <div className="flex items-center space-x-3">
+                <UsersIcon className="h-5 w-5" />
+                <span>Gestión de grupos</span>
+              </div>
+            </Link>
   
-
-  
-            <a
+            <Link
               href="#"
               className="flex items-center justify-between px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
             >
@@ -75,8 +85,7 @@ import { Link, User } from "@heroui/react";
                 <Cog6ToothIcon className="h-5 w-5" />
                 <span>Configuración</span>
               </div>
-              <ChevronDownIcon className="h-4 w-4 text-gray-500" />
-            </a>
+            </Link>
 
 
           </nav>
