@@ -17,9 +17,6 @@ const config: Config = {
           foreground: "#ffffff",
         },
         background: "#fbfffb",
-        primary: newPrimaryColors,
-        secondary: newSecondaryColors,
-        brand: "70205B", // button color
         complementary: {
           633: "#0076A8", // 633
           7650: "#702082",
