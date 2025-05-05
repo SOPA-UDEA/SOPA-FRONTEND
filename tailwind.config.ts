@@ -1,36 +1,6 @@
 import type { Config } from "tailwindcss";
 import { heroui } from "@heroui/react";
 
-const newPrimaryColors = {
-  "50": "#faf9f8",
-  "100": "#f3f1f0",
-  "200": "#e8e6e3",
-  "300": "#ddd9d6", // Your original base
-  "400": "#c4c0bd",
-  "500": "#aba7a4",
-  "600": "#928e8b",
-  "700": "#797572",
-  "800": "#605c59",
-  "900": "#474340",
-  foreground: "#2e2a27", // For text on primary
-  DEFAULT: "#ddd9d6",
-};
-
-const newSecondaryColors = {
-  "50": "#f4f3f2",
-  "100": "#e9e6e4",
-  "200": "#d4cdc8",
-  "300": "#beb3ab",
-  "400": "#a89a8f",
-  "500": "#928173",
-  "600": "#7c6b5e",
-  "700": "#65564a",
-  "800": "#4e4138",
-  "900": "#382d25",
-  foreground: "#ffffff",
-  DEFAULT: "#928173",
-};
-
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -38,46 +8,108 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
+        accent: {
+          DEFAULT: "#702082", // 7650 C
+          foreground: "#ffffff",
+        },
         background: "#fbfffb",
         primary: newPrimaryColors,
         secondary: newSecondaryColors,
         brand: "70205B", // button color
+        complementary: {
+          633: "#0076A8", // 633
+          7650: "#702082",
+        },
+        error: {
+          DEFAULT: "#EA1D25", // 032 C
+          foreground: "#ffffff",
+        },
+        info: {
+          DEFAULT: "#00A78E", // 334 C
+          foreground: "#ffffff",
+        },
+        neutral: {
+          10: "#e3e3e3",
+          50: "#b3b3b3",
+          100: "#ffffff",
+          500: "#a4a4a4",
+          1000: "#333333",
+        },
+        primary: {
+          349: "#007A33",
+          361: "#43B02A",
+          375: "#84BD00",
+          7740: "#228848",
+          DEFAULT: "#43B02A", // 361 C
+          foreground: "#228848", 
+        },
+        secondary: {
+          334: "#00A78E",
+          633: "#FFFFFFFF",
+          7465: "#00B2A9",
+          7718: "#007770",
+          DEFAULT: "#00B2A9",
+          foreground: "#ffffff",
+        },
+        success: {
+          DEFAULT: "#43B02A",
+          foreground: "#ffffff",
+        },
+        warning: {
+          DEFAULT: "#FAA61A", // 137 C
+          foreground: "#000000",
+        },
       },
       fontFamily: {
-        sansation: ["var(--font-sansation)", "sans-serif"],
-        inter: ["var(--font-inter)", "Arial"],
+        sans: ["Roboto", "sans-serif"],
+      },
+      fontSize: {
+        "h-1": ["48px", { lineHeight: "72px", fontWeight: "700" }],
+        "h-2": ["40px", { lineHeight: "60px", fontWeight: "900" }],
+        "h-3": ["34px", { lineHeight: "51px", fontWeight: "900" }],
+        "body-1": ["16px", { lineHeight: "24px", fontWeight: "400" }],
       },
     },
   },
-  darkMode: "class",
   plugins: [
     heroui({
       themes: {
         light: {
           colors: {
             primary: {
-              ...newPrimaryColors,
-              DEFAULT: newPrimaryColors.DEFAULT, // this ensures bg-primary works
+              DEFAULT: "#43B02A",
+              foreground: "#228848",
             },
-            secondary: newSecondaryColors,
-            background: "#fbfffb", // Base background for HeroUI light theme
-            foreground: "#2b3e27", // Base foreground for HeroUI light theme (kept from original)
+            secondary: {
+              DEFAULT: "#00B2A9",
+              foreground: "#228848",
+            },
+            background: "#228848",
+            foreground: "#2b3e27",
           },
         },
-        // Define your 'dark' theme here if needed
-        // dark: {
-        //   colors: {
-        //      primary: newPrimaryColors,
-        //      secondary: newSecondaryColors,
-        //      background: newSecondaryColors["900"], // Example
-        //      foreground: newPrimaryColors["100"],   // Example
-        //   }
-        // }
       },
     }),
   ],
 };
+
 export default config;
+
+export const darkTheme = {
+  colors: {
+    primary: {
+      DEFAULT: "#43B02A",
+      foreground: "#228848",
+    },
+    secondary: {
+      DEFAULT: "#00B2A9",
+      foreground: "#228848",
+    },
+    background: "#1a1a1a",
+    foreground: "#228848",
+  },
+};

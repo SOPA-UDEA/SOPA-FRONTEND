@@ -1,4 +1,3 @@
-import Nav from "@/components/layout/Sidebar";
 import "./globals.css";
 import type { Metadata } from "next";
 import Providers from "@/providers/providers";
@@ -9,7 +8,7 @@ export const metadata: Metadata = {
   description: "SOPA",
 };
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -17,15 +16,14 @@ export default function RootLayout({
   return (
     <Providers>
       <html lang="es">
-        <body className="min-h-screen bg-primary-200 text-primary-foreground">
+        <body className="min-h-screen bg-background text-primary-foreground font-sans">
           <div className="flex h-screen overflow-hidden">
             {/* Sidebar */}
             <Sidebar />
 
-            {/*  principal content  */}
+            {/* Principal content */}
             <div className="flex-1 overflow-auto">
-
-              {/* site content */}
+              {/* Site content */}
               <main className="px-6 sm:px-12 md:px-24 lg:px-32 xl:px-56 py-6">
                 {children}
               </main>
