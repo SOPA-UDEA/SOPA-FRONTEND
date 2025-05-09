@@ -13,22 +13,28 @@ import {
 } from "@heroui/react";
 
 export const columns = [
-  { name: "Nombre del aula", uid: "nombre" },
   { name: "ID", uid: "id" },
-  { name: "Estado", uid: "estado" },
-  { name: "Acciones", uid: "acciones" },
+  { name: "Departamento", uid: "departamento" },
+  { name: "Capacidad", uid: "capacidad" },
+  { name: "Ubicación", uid: "ubicacion" },
+  { name: "Es Virtual?", uid: "virtual" },
 ];
 
 export const aulas = [
   {
-    id: "19-000",
-    nombre: "A",
-    estado: "activa",
+    
+    id: 1,
+    departamento: "Ciencias",
+    capacidad: 30,
+    ubicacion: "18332",
+    virtual: "No",
   },
   {
-    id: "19-000",
-    nombre: "B",
-    estado: "activa",
+    id: 2,
+    departamento: "Ciencias",
+    capacidad: 30,
+    ubicacion: "19332",
+    virtual: "No",
   },
 ];
 
