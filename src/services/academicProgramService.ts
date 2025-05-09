@@ -3,5 +3,5 @@ import { AcademicProgram } from "../interface/AcademicProgram";
 
 export const getAcademicProgram = async (): Promise<AcademicProgram[]> => {
   const response = await api.get("/academic_program/lists");
-  return response.data.academic_program;
+  return response.data;
 };
