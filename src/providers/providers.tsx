@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 declare module "@react-types/shared" {
@@ -22,7 +22,11 @@ export default function Providers({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <HeroUIProvider navigate={router.push}>{children}</HeroUIProvider>
+      <HeroUIProvider navigate={router.push}>
+        {" "}
+        <ToastProvider />
+        {children}
+      </HeroUIProvider>
     </QueryClientProvider>
   );
 }

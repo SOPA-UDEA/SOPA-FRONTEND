@@ -1,170 +1,287 @@
-'use client';
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Chip,
-  Tooltip,
-  Button,
-} from "@heroui/react";
+  useClassrooms,
+  useCreateClassroom,
+  useUploadClassrooms,
+  useUpdateClassroom,
+  useDeleteClassroom,
+} from "@/hooks/useClassroom";
+import { addToast, Button, Modal, ModalContent } from "@heroui/react";
+import { MdDeleteForever } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 
-export const columns = [
+// Column definitions for table header
+const columns = [
   { name: "ID", uid: "id" },
-  { name: "Departamento", uid: "departamento" },
-  { name: "Capacidad", uid: "capacidad" },
-  { name: "Ubicación", uid: "ubicacion" },
-  { name: "Es Virtual?", uid: "virtual" },
+  { name: "Capacidad", uid: "capacity" },
+  { name: "Ubicación", uid: "location" },
+  { name: "Departamento", uid: "ownDepartment" },
+  { name: "Virtual", uid: "virtualMode" },
+  { name: "Acciones", uid: "actions" },
 ];
 
-export const aulas = [
-  {
-    
-    id: 1,
-    departamento: "Ciencias",
-    capacidad: 30,
-    ubicacion: "18332",
-    virtual: "No",
-  },
-  {
-    id: 2,
-    departamento: "Ciencias",
-    capacidad: 30,
-    ubicacion: "19332",
-    virtual: "No",
-  },
-];
+export default function ClassroomManager() {
+  const { data: classrooms, isLoading, error } = useClassrooms();
+  const createMutation = useCreateClassroom();
+  const uploadMutation = useUploadClassrooms();
+  const updateMutation = useUpdateClassroom();
+  const deleteMutation = useDeleteClassroom();
 
-export const EyeIcon = (props) => (
-  <svg {...props} viewBox="0 0 20 20" fill="none" height="1em" width="1em">
-    <path
-      d="M12.9833 10C12.9833 11.65 11.65 12.9833 10 12.9833C8.35 12.9833 7.01666 11.65 7.01666 10C7.01666 8.35 8.35 7.01666 10 7.01666C11.65 7.01666 12.9833 8.35 12.9833 10Z"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-    />
-    <path
-      d="M9.99999 16.8916C12.9417 16.8916 15.6833 15.1583 17.5917 12.1583C18.3417 10.9833 18.3417 9.00831 17.5917 7.83331C15.6833 4.83331 12.9417 3.09998 9.99999 3.09998C7.05833 3.09998 4.31666 4.83331 2.40833 7.83331C1.65833 9.00831 1.65833 10.9833 2.40833 12.1583C4.31666 15.1583 7.05833 16.8916 9.99999 16.8916Z"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-    />
-  </svg>
-);
+  // State for new classroom form
+  const [newCapacity, setNewCapacity] = useState(0);
+  const [newLocation, setNewLocation] = useState("");
+  const [newOwn, setNewOwn] = useState(false);
+  const [newVirtual, setNewVirtual] = useState(false);
 
-export const EditIcon = (props) => (
-  <svg {...props} viewBox="0 0 20 20" fill="none" height="1em" width="1em">
-    <path
-      d="M11.05 3.00002L4.20835 10.2417C3.95002 10.5167 3.70002 11.0584 3.65002 11.4334L3.34169 14.1334C3.23335 15.1084 3.93335 15.775 4.90002 15.6084L7.58335 15.15C7.95835 15.0834 8.48335 14.8084 8.74168 14.525L15.5834 7.28335C16.7667 6.03335 17.3 4.60835 15.4583 2.86668C13.625 1.14168 12.2334 1.75002 11.05 3.00002Z"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M2.5 18.3333H17.5"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+  // State for editing
+  const [editing, setEditing] = useState<boolean>(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editCapacity, setEditCapacity] = useState<number>(0);
+  const [editLocation, setEditLocation] = useState<string>("");
+  const [editOwn, setEditOwn] = useState<boolean>(false);
+  const [editVirtual, setEditVirtual] = useState<boolean>(false);
 
-export const DeleteIcon = (props) => (
-  <svg {...props} viewBox="0 0 20 20" fill="none" height="1em" width="1em">
-    <path
-      d="M7.08331 4.14169L7.26665 3.05002C7.39998 2.25835 7.49998 1.66669 8.90831 1.66669H11.0916C12.5 1.66669 12.6083 2.29169 12.7333 3.05835L12.9166 4.14169"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-    />
-    <path
-      d="M15.7084 7.61664L15.1667 16.0083C15.075 17.3166 15 18.3333 12.675 18.3333H7.32502C5.00002 18.3333 4.92502 17.3166 4.83335 16.0083L4.29169 7.61664"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-    />
-    <path
-      d="M2.5 4.98332H17.5"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-    />
-  </svg>
-);
+  // State for file upload
+  const [file, setFile] = useState<File | null>(null);
 
-const estadoColorMap = {
-  activa: "success",
-  mantenimiento: "warning",
-  cerrada: "danger",
-};
-
-export default function App() {
-  const renderCell = React.useCallback((aula, columnKey) => {
-    const value = aula[columnKey];
-
-    switch (columnKey) {
-      case "estado":
-        return (
-          <Chip className="capitalize" color={estadoColorMap[aula.estado]} size="sm" variant="flat">
-            {value}
-          </Chip>
-        );
-      case "acciones":
-        return (
-          <div className="flex gap-2">
-            <Tooltip content="Ver detalles">
-              <span className="text-lg text-default-400 cursor-pointer">
-                <EyeIcon />
-              </span>
-            </Tooltip>
-            <Tooltip content="Editar aula">
-              <span className="text-lg text-default-400 cursor-pointer">
-                <EditIcon />
-              </span>
-            </Tooltip>
-            <Tooltip color="danger" content="Eliminar aula">
-              <span className="text-lg text-danger cursor-pointer">
-                <DeleteIcon />
-              </span>
-            </Tooltip>
-          </div>
-        );
-      default:
-        return value;
+  // Populate edit form when selecting a classroom
+  useEffect(() => {
+    if (editing && editId !== null && classrooms) {
+      const room = classrooms.find((c) => c.id === editId);
+      if (room) {
+        setEditCapacity(room.capacity);
+        setEditLocation(room.location);
+        setEditOwn(room.ownDepartment);
+        setEditVirtual(room.virtualMode);
+      }
     }
-  }, []);
+  }, [editing, editId, classrooms]);
+
+  const handleCreate = () => {
+    createMutation.mutate(
+      {
+        capacity: newCapacity,
+        location: newLocation,
+        ownDepartment: newOwn,
+        virtualMode: newVirtual,
+      },
+      {
+        onSuccess: () => {
+          addToast({
+            title: "Aula creada",
+            description: "Aula creada correctamente",
+            variant: "solid",
+          });
+          setNewCapacity(0);
+          setNewLocation("");
+          setNewOwn(false);
+          setNewVirtual(false);
+        },
+      }
+    );
+  };
+
+  const handleUpload = () => {
+    if (!file) {
+      alert("Selecciona un archivo primero");
+      return;
+    }
+    uploadMutation.mutate(file, {
+      onSuccess: () => {
+        alert("Archivo subido correctamente");
+        addToast({
+          title: "Archivo subido",
+          description: "Archivo subido correctamente",
+          variant: "solid",
+        });
+        setFile(null);
+      },
+    });
+  };
+
+  const handleEditClick = (id: number) => {
+    setEditId(id);
+    setEditing(true);
+  };
+
+  const handleUpdate = () => {
+    if (editId === null) return;
+    updateMutation.mutate(
+      {
+        classroomId: editId,
+        classroom: {
+          capacity: editCapacity,
+          location: editLocation,
+          ownDepartment: editOwn,
+          virtualMode: editVirtual,
+        },
+      },
+      {
+        onSuccess: () => {
+          alert("Aula actualizada correctamente");
+          setEditing(false);
+          setEditId(null);
+        },
+      }
+    );
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm("¿Estás seguro de eliminar esta aula?")) {
+      deleteMutation.mutate(id, {
+        onSuccess: () =>
+          addToast({
+            title: "Aula eliminada",
+            description: "Aula eliminada correctamente",
+            variant: "solid",
+          }),
+      });
+    }
+  };
+
+  if (isLoading) return <div>Cargando...</div>;
+  if (error) return <div>Error al cargar los datos</div>;
 
   return (
-    <div className="p-4 space-y-4">
-      <Button color="primary" onClick={() => alert("Agregar nueva aula")}>
-        Agregar Aula
-      </Button>
-      <Table aria-label="Tabla de aulas">
-        <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn key={column.uid} align={column.uid === "acciones" ? "center" : "start"}>
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody items={aulas}>
-          {(item) => (
-            <TableRow key={item.id}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+    <div className="p-4 space-y-6">
+      {/* Create new classroom form */}
+      <div className="border p-4 rounded-lg shadow-sm">
+        <h2 className="text-xl mb-2">Crear nueva aula</h2>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center">
+          <input
+            type="number"
+            placeholder="Capacidad"
+            value={newCapacity}
+            onChange={(e) => setNewCapacity(Number(e.target.value))}
+            className="border p-2 rounded"
+          />
+          <input
+            type="text"
+            placeholder="Ubicación"
+            value={newLocation}
+            onChange={(e) => setNewLocation(e.target.value)}
+            className="border p-2 rounded"
+          />
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={newOwn}
+              onChange={(e) => setNewOwn(e.target.checked)}
+            />{" "}
+            Departamento
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={newVirtual}
+              onChange={(e) => setNewVirtual(e.target.checked)}
+            />{" "}
+            Virtual
+          </label>
+          <Button onPress={handleCreate}>Crear</Button>
+        </div>
+      </div>
+
+      {/* Upload Excel file */}
+      <div className="border p-4 rounded-lg shadow-sm">
+        <h2 className="text-xl mb-2">Subir aulas desde Excel</h2>
+        <input
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+        <Button onPress={handleUpload} disabled={!file}>
+          Subir
+        </Button>
+      </div>
+
+      {/* Classroom table */}
+      <table className="min-w-full border rounded-lg overflow-hidden">
+        <thead className="bg-gray-100">
+          <tr>
+            {columns.map((col) => (
+              <th key={col.uid} className="border px-4 py-2 text-center">
+                {col.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {classrooms?.map((room) => (
+            <tr key={room.id} className="hover:bg-gray-50">
+              <td className="border px-4 py-2 text-center">{room.id}</td>
+              <td className="border px-4 py-2 text-center">{room.capacity}</td>
+              <td className="border px-4 py-2 text-center">{room.location}</td>
+              <td className="border px-4 py-2 text-center">
+                {room.ownDepartment ? "Sí" : "No"}
+              </td>
+              <td className="border px-4 py-2 text-center">
+                {room.virtualMode ? "Sí" : "No"}
+              </td>
+              <td className="border px-4 py-2 flex gap-2 justify-center">
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  onPress={() => handleEditClick(room.id!)}>
+                  <FaEdit size={20} />
+                </Button>
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  onPress={() => handleDelete(room.id!)}>
+                  <MdDeleteForever size={20} />
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Edit modal */}
+      {editing && (
+        <Modal isOpen={editing} hideCloseButton>
+          <ModalContent>
+            <div className="bg-white p-6 rounded-lg shadow-lg space-y-4">
+              <h3 className="text-lg">Editar aula {editId}</h3>
+              <input
+                type="number"
+                value={editCapacity}
+                onChange={(e) => setEditCapacity(Number(e.target.value))}
+                className="border p-2 rounded w-full"
+              />
+              <input
+                type="text"
+                value={editLocation}
+                onChange={(e) => setEditLocation(e.target.value)}
+                className="border p-2 rounded w-full"
+              />
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={editOwn}
+                  onChange={(e) => setEditOwn(e.target.checked)}
+                />{" "}
+                Departamento
+              </label>
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={editVirtual}
+                  onChange={(e) => setEditVirtual(e.target.checked)}
+                />{" "}
+                Virtual
+              </label>
+              <div className="flex gap-2 justify-end">
+                <Button variant="flat" onPress={() => setEditing(false)}>
+                  Cancelar
+                </Button>
+                <Button onPress={handleUpdate}>Guardar</Button>
+              </div>
+            </div>
+          </ModalContent>
+        </Modal>
+      )}
     </div>
   );
 }
