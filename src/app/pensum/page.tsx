@@ -26,7 +26,7 @@ const PensumPage = () => {
       />
 
       <div className="container mx-auto mt-4 pl-1">
-        <CustomDataGrid data={subjects} />
+        <CustomDataGrid data={subjects}/>
       </div>
     </>
   );

@@ -2,7 +2,13 @@ import { CustomDataGridColumns } from "./CustomDataGridColumns"
 import { CustomDataGridItems } from "./CustomDataGridItems"
 import PropTypes from 'prop-types';
 
-export const CustomDataGrid = ({ data }: { data: any[] }) => {
+interface CustomDataGridProps {
+  data: any[];
+  actions?: boolean;
+  checkbox?: boolean;
+}
+
+export const CustomDataGrid = ({ data, actions = false, checkbox = false }: CustomDataGridProps) => {
   if (!data || data.length === 0) return (
     <table className="table-auto border-separate border-spacing-0 rounded-lg overflow-hidden border border-gray-400">
       <thead>
@@ -20,11 +26,11 @@ export const CustomDataGrid = ({ data }: { data: any[] }) => {
   return (
     <table className="table-auto border-separate border-spacing-0 rounded-lg overflow-hidden border border-gray-400">
         <thead>
-          <CustomDataGridColumns headers={headers}  />
+          <CustomDataGridColumns headers={headers} checkbox={checkbox} actions={actions}/>
 
         </thead>
         <tbody>
-          <CustomDataGridItems data={data} />
+          <CustomDataGridItems data={data} checkbox={checkbox} actions={actions}/>
         </tbody>
     </table>
   )
@@ -32,7 +38,6 @@ export const CustomDataGrid = ({ data }: { data: any[] }) => {
  }
 
  CustomDataGrid.propTypes = {
-  data: PropTypes.array.isRequired,
-  
+  data: PropTypes.array.isRequired
 }
  
