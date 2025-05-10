@@ -1,13 +1,13 @@
 import api from "../db/config";
-import { AcademicSchedule } from "../interface/AcademicSchedule";
+import { Group } from "../interface/Group";
 
-export const getGroups = async (): Promise<AcademicSchedule[]> => {
+export const getGroups = async (): Promise<Group[]> => {
   const response = await api.get("/group/lists");
   return response.data;
 };
 
-
-export const getGroupByAcdemicSchedulePenusm = async (academicScheduleId: number): Promise<AcademicSchedule[]> => {
-    const response = await api.get(`/academic_schedule_pensum/${academicScheduleId}/groups`);
-    return response.data;
-  };
+export const createGroup = async (group: Group): Promise<Group> => {
+  const response = await api.post("/group/create", group);
+  return response.data;
+}
+ 
