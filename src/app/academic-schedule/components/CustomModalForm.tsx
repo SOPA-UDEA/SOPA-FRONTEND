@@ -1,51 +1,55 @@
 import { useForm } from "@/hooks/useForm";
 import { CustomNotification } from "@/components/util/CustomNotification";
-import { useCreateAcademicSchedule } from "@/hooks/useAcademicScheduleCreate";
 import { Form, Input } from "@heroui/react"
 import { Button, Modal, ModalBody, ModalHeader,  ModalContent, useDisclosure } from '@heroui/react'
 import { useEffect, useRef, useState } from "react";
-import { AcademicSchedule, AcademicScheduleResponse } from "@/interface/AcademicSchedule";
+import { UseMutationResult } from "@tanstack/react-query";
 
-interface AcademicProgramFormProps {
-    onCreated: (schedule: AcademicScheduleResponse) => void;
-  }
+interface FormProps<T> {
+  onSubmitForm: UseMutationResult<T, unknown, any, unknown>;
+  defaultValues?: Record<string, any>;
+  onCreated: (data: any) => void;
+}
 
-export const AcademicProgramForm = ({ onCreated }: AcademicProgramFormProps) => {
 
-    const { onInputChange, onResetForm, semester } = useForm( {
-        semester: '',
-    } );
+export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: FormProps<T>) => {
+    const initialFormState = defaultValues || {};
+    const {formState, onInputChange, onResetForm, } = useForm(initialFormState);
+
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const onCloseRef = useRef<() => void>(() => {});
-    const { mutate, isSuccess, isError, error } = useCreateAcademicSchedule();
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
     
+    
+    
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault(); 
-        mutate(
-            { semester },
+        event.preventDefault();
+        onSubmitForm.mutate( formState ,
             {
               onSuccess: (data) => {
                 setShowSuccess(true);
                 onResetForm();
                 onCloseRef.current?.(); 
                 onCreated(data);
+                onOpenChange();
               },
-
               onError: () => {
                 setShowError(true);
+                onOpenChange();
               },
             }
-          );
+
+            
+        )
     };
     
     useEffect(() => {
-        if (isSuccess) {
+        if (onSubmitForm.isSuccess) {
           onResetForm();    
         }
-      }, [isSuccess]);
+      }, [onSubmitForm.isSuccess]);
 
 
   return (
@@ -72,19 +76,17 @@ export const AcademicProgramForm = ({ onCreated }: AcademicProgramFormProps) => 
                         </ModalHeader>
                         <ModalBody>
                         <Form onSubmit={handleSubmit}>
-                            <Input
-                            isRequired
-                            name="semester"
-                            label="Semestre académico"
-                            labelPlacement="outside"
-                            value={semester}
-                            onChange={onInputChange}
-                            validate={(value) => {
-                                if (value.length < 6) {
-                                return "semester must be at least 6 characters long";
-                                }
-                            }}
-                            />
+                            {Object.entries(formState).map(([key, value]) => (
+                              <Input
+                                key={key}
+                                name={key}
+                                label={key}
+                                value={value}
+                                labelPlacement="outside"
+                                onChange={onInputChange}
+                                isRequired
+                              />
+                            ))}
                             <div className="flex flex-wrap gap-4 items-center">
                             <Button color="default" type="submit">
                                 Crear

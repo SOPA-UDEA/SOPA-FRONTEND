@@ -1,5 +1,5 @@
 'use client';
-import CustomDropdown from "@/components/util/CustomDropdown";
+import CustomDropdown from "@/app/pensum/components/CustomDropdown";
 import { CustomDataGrid } from "@/components/util/CustomDataGrid";
 import { useState } from "react";
 import { Pensum } from "../../interface/Pensum";

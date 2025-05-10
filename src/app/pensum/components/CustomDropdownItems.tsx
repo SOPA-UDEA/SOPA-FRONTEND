@@ -1,6 +1,6 @@
 import { MenuItems } from '@headlessui/react';
-import { Pensum } from '../../interface/Pensum';
-import { AcademicProgram } from '../../interface/AcademicProgram';
+import { Pensum } from '../../../interface/Pensum';
+import { AcademicProgram } from '../../../interface/AcademicProgram';
 import CustomDropdownItem from './CustomDropdownItem';
 
 type Props = {

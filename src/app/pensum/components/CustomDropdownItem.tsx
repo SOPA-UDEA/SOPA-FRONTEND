@@ -1,6 +1,6 @@
 import { MenuItem } from '@headlessui/react';
-import { Pensum } from '../../interface/Pensum';
-import { AcademicProgram } from '../../interface/AcademicProgram';
+import { Pensum } from '../../../interface/Pensum';
+import { AcademicProgram } from '../../../interface/AcademicProgram';
 import { getAcademicProgramById } from '@/helpers/getAcademicProgramById';
 
 type Props = {
