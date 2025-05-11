@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSubjectByPensum } from "../services/subjectService";
+import { getSubjectByPensum } from "@/services/subjectService";
 
 export const useSubject = (id: number) => {
   const {

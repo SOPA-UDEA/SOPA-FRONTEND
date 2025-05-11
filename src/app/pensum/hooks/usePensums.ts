@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getPensums } from "../services/pensumService";
+import { getPensums } from "@/services/pensumService";
 
 export const usePensums = () => {
   const {

@@ -5,14 +5,14 @@ import { CustomModalForm } from './components/CustomModalForm'
 import { Toaster } from 'react-hot-toast';
 import { CustomDataGrid } from '@/components/util/CustomDataGrid';
 import { AcademicScheduleResponse} from '@/interface/AcademicSchedule';
-import { useCreateAcademicSchedule } from '@/hooks/useAcademicScheduleCreate';
-import { usePensums } from '@/hooks/usePensums';
-import { useSubject } from '@/hooks/useSubject';
-import { useAcademicProgram } from '@/hooks/useAcademicProgram';
+import { useCreateAcademicSchedule } from '@/app/academic-schedule/hooks/useAcademicScheduleCreate';
+import { usePensums } from '../pensum/hooks/usePensums';
+import { useSubject } from '../subjects/hooks/useSubject';
+import { useAcademicProgram } from '../academic-program/hooks/useAcademicProgram';
 import { Button, Checkbox, Form, Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/react';
 import { getAcademicProgramById } from '@/helpers/getAcademicProgramById';
 import { AcademicProgram } from '@/interface/AcademicProgram';
-import { useCreateGroup } from '@/hooks/useGroupCreate';
+import { useCreateGroup } from '@/app/groups/hooks/useGroupCreate';
 import { useForm } from '@/hooks/useForm';
 import { Subject } from '@/interface/Subject';
 

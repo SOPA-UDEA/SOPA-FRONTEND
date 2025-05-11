@@ -3,9 +3,9 @@ import CustomDropdown from "@/app/pensum/components/CustomDropdown";
 import { CustomDataGrid } from "@/components/util/CustomDataGrid";
 import { useState } from "react";
 import { Pensum } from "../../interface/Pensum";
-import { usePensums } from "../../hooks/usePensums";
-import { useSubject } from "@/hooks/useSubject";
-import { useAcademicProgram } from "@/hooks/useAcademicProgram"; // <-- importar el hook
+import { usePensums } from "./hooks/usePensums";
+import { useSubject } from "../subjects/hooks/useSubject";
+import { useAcademicProgram } from "../academic-program/hooks/useAcademicProgram"; 
 
 const PensumPage = () => {
   const { pensums, isLoading } = usePensums();
