@@ -9,7 +9,6 @@ export const useCreateAcademicSchedule = () => {
     mutationFn: (schedule: AcademicSchedule) => createAcademicSchedule(schedule),
 
     onSuccess: () => {
-      // Por ejemplo, refetch automático de la lista
       queryClient.invalidateQueries({ queryKey: ["academicSchedules"] });
     },
 
