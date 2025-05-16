@@ -10,19 +10,15 @@ interface CustomDataGridProps {
 
 export const CustomDataGrid = ({ data, actions = false, checkbox = false }: CustomDataGridProps) => {
   if (!data || data.length === 0) return (
-    <table className="table-auto border-separate border-spacing-0 rounded-lg overflow-hidden border border-gray-400">
-      <thead>
-        <tr>
-          {Object.keys(data[0] || {}).map((key) => (
-            <th key={key} className="px-4 py-2 text-left">{key}</th>
-          ))}
-        </tr>
-      </thead>
-    </table>
+    <div className="p-4">
+      <p className="text-center">No hay datos para mostrar</p>
+    </div>
   );
 
-
-  const headers = Object.keys(data[0]);
+  if (data.length >  0) {
+    const headers = Object.keys(data[0]);
+  };
+  
   return (
     <table className="table-auto border-separate border-spacing-0 rounded-lg overflow-hidden border border-gray-400">
         <thead>

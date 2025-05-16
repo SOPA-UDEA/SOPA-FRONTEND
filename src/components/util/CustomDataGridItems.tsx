@@ -1,3 +1,7 @@
+import { Button } from "@heroui/react";
+
+
+
 interface CustomDataGridProps {
   data: any[];
   actions?: boolean;
@@ -15,6 +19,7 @@ export const CustomDataGridItems = ({ data, actions, checkbox }: CustomDataGridP
                 {String(value)}
               </td>
             ))}
+            {actions &&( <td className="border border-gray-300 px-4 py-2"><Button>Boton</Button></td> )}
           </tr>
         ))}
       </>
