@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 // import ClassroomModal from "./components/ClassroomsModal";
+import CreateClassroombutton from "./components/CreateClassroomButton"
 import ClassroomTable from "./components/ClassroomsTable";
 
 export default function ClassroomsPage() {
@@ -12,6 +13,8 @@ export default function ClassroomsPage() {
 
       {/*  classroom component here */}
       {/* <ClassroomModal /> */}
+      {/* Classroom creator component */}
+      <CreateClassroombutton />
       <ClassroomTable />
     </div>
   );

@@ -1,17 +1,13 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import {
   useClassrooms,
-  useCreateClassroom,
-  useUploadClassrooms,
   useUpdateClassroom,
   useDeleteClassroom,
 } from "@/hooks/useClassroom";
-import { addToast, Button, Modal, ModalContent } from "@heroui/react";
+import { addToast, Button, Modal, ModalContent, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tooltip, Chip } from "@heroui/react";
 import { MdDeleteForever } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 
-// Column definitions for table header
 const columns = [
   { name: "ID", uid: "id" },
   { name: "Capacidad", uid: "capacity" },
@@ -21,31 +17,23 @@ const columns = [
   { name: "Acciones", uid: "actions" },
 ];
 
+const statusColorMap = {
+  true: "success",
+  false: "danger",
+};
+
 export default function ClassroomManager() {
   const { data: classrooms, isLoading, error } = useClassrooms();
-  const createMutation = useCreateClassroom();
-  const uploadMutation = useUploadClassrooms();
   const updateMutation = useUpdateClassroom();
   const deleteMutation = useDeleteClassroom();
-
-  // State for new classroom form
-  const [newCapacity, setNewCapacity] = useState(0);
-  const [newLocation, setNewLocation] = useState("");
-  const [newOwn, setNewOwn] = useState(false);
-  const [newVirtual, setNewVirtual] = useState(false);
-
-  // State for editing
-  const [editing, setEditing] = useState<boolean>(false);
+  const [editing, setEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [editCapacity, setEditCapacity] = useState<number>(0);
   const [editLocation, setEditLocation] = useState<string>("");
   const [editOwn, setEditOwn] = useState<boolean>(false);
   const [editVirtual, setEditVirtual] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  // State for file upload
-  const [file, setFile] = useState<File | null>(null);
-
-  // Populate edit form when selecting a classroom
   useEffect(() => {
     if (editing && editId !== null && classrooms) {
       const room = classrooms.find((c) => c.id === editId);
@@ -57,48 +45,6 @@ export default function ClassroomManager() {
       }
     }
   }, [editing, editId, classrooms]);
-
-  const handleCreate = () => {
-    createMutation.mutate(
-      {
-        capacity: newCapacity,
-        location: newLocation,
-        ownDepartment: newOwn,
-        virtualMode: newVirtual,
-      },
-      {
-        onSuccess: () => {
-          addToast({
-            title: "Aula creada",
-            description: "Aula creada correctamente",
-            variant: "solid",
-          });
-          setNewCapacity(0);
-          setNewLocation("");
-          setNewOwn(false);
-          setNewVirtual(false);
-        },
-      }
-    );
-  };
-
-  const handleUpload = () => {
-    if (!file) {
-      alert("Selecciona un archivo primero");
-      return;
-    }
-    uploadMutation.mutate(file, {
-      onSuccess: () => {
-        alert("Archivo subido correctamente");
-        addToast({
-          title: "Archivo subido",
-          description: "Archivo subido correctamente",
-          variant: "solid",
-        });
-        setFile(null);
-      },
-    });
-  };
 
   const handleEditClick = (id: number) => {
     setEditId(id);
@@ -119,7 +65,11 @@ export default function ClassroomManager() {
       },
       {
         onSuccess: () => {
-          alert("Aula actualizada correctamente");
+          addToast({
+            title: "Aula actualizada",
+            description: "Aula actualizada correctamente",
+            variant: "solid",
+          });
           setEditing(false);
           setEditId(null);
         },
@@ -128,14 +78,27 @@ export default function ClassroomManager() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("¿Estás seguro de eliminar esta aula?")) {
-      deleteMutation.mutate(id, {
-        onSuccess: () =>
+    setDeleteId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId !== null) {
+      deleteMutation.mutate(deleteId, {
+        onSuccess: () => {
           addToast({
             title: "Aula eliminada",
             description: "Aula eliminada correctamente",
             variant: "solid",
-          }),
+          });
+          setDeleteId(null);
+        },
+        onError: () => {
+          addToast({
+            title: "Error",
+            description: "No se pudo eliminar el aula, pues esta estas asignada a un grupo",
+            variant: "solid",
+          });
+        },
       });
     }
   };
@@ -144,139 +107,78 @@ export default function ClassroomManager() {
   if (error) return <div>Error al cargar los datos</div>;
 
   return (
-    <div className="p-4 space-y-6">
-      {/* Create new classroom form */}
-      <div className="border p-4 rounded-lg shadow-sm">
-        <h2 className="text-xl mb-2">Crear nueva aula</h2>
-        <div className="flex flex-col gap-2 md:flex-row md:items-center">
-          <input
-            type="number"
-            placeholder="Capacidad"
-            value={newCapacity}
-            onChange={(e) => setNewCapacity(Number(e.target.value))}
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Ubicación"
-            value={newLocation}
-            onChange={(e) => setNewLocation(e.target.value)}
-            className="border p-2 rounded"
-          />
-          <label className="flex items-center gap-1">
-            <input
-              type="checkbox"
-              checked={newOwn}
-              onChange={(e) => setNewOwn(e.target.checked)}
-            />{" "}
-            Departamento
-          </label>
-          <label className="flex items-center gap-1">
-            <input
-              type="checkbox"
-              checked={newVirtual}
-              onChange={(e) => setNewVirtual(e.target.checked)}
-            />{" "}
-            Virtual
-          </label>
-          <Button onPress={handleCreate}>Crear</Button>
-        </div>
-      </div>
+    <div className="p-6 space-y-6">
+      <Table aria-label="Gestión de Aulas">
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody items={classrooms}>
+          {(item) => (
+            <TableRow key={item.id}>
+              <TableCell>{item.id}</TableCell>
+              <TableCell>{item.capacity}</TableCell>
+              <TableCell>{item.location}</TableCell>
+              <TableCell>
+                <Chip color={statusColorMap[item.ownDepartment]} size="sm" variant="flat">
+                  {item.ownDepartment ? "Sí" : "No"}
+                </Chip>
+              </TableCell>
+              <TableCell>
+                <Chip color={statusColorMap[item.virtualMode]} size="sm" variant="flat">
+                  {item.virtualMode ? "Sí" : "No"}
+                </Chip>
+              </TableCell>
+              <TableCell className="flex gap-2 justify-center">
+                <Tooltip content="Editar">
+                  <Button isIconOnly variant="light" onPress={() => handleEditClick(item.id)}>
+                    <FaEdit size={20} />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Eliminar">
+                  <Button isIconOnly variant="light" onPress={() => handleDelete(item.id)}>
+                    <MdDeleteForever size={20} />
+                  </Button>
+                </Tooltip>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
-      {/* Upload Excel file */}
-      <div className="border p-4 rounded-lg shadow-sm">
-        <h2 className="text-xl mb-2">Subir aulas desde Excel</h2>
-        <input
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-        />
-        <Button onPress={handleUpload} disabled={!file}>
-          Subir
-        </Button>
-      </div>
-
-      {/* Classroom table */}
-      <table className="min-w-full border rounded-lg overflow-hidden">
-        <thead className="bg-gray-100">
-          <tr>
-            {columns.map((col) => (
-              <th key={col.uid} className="border px-4 py-2 text-center">
-                {col.name}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {classrooms?.map((room) => (
-            <tr key={room.id} className="hover:bg-gray-50">
-              <td className="border px-4 py-2 text-center">{room.id}</td>
-              <td className="border px-4 py-2 text-center">{room.capacity}</td>
-              <td className="border px-4 py-2 text-center">{room.location}</td>
-              <td className="border px-4 py-2 text-center">
-                {room.ownDepartment ? "Sí" : "No"}
-              </td>
-              <td className="border px-4 py-2 text-center">
-                {room.virtualMode ? "Sí" : "No"}
-              </td>
-              <td className="border px-4 py-2 flex gap-2 justify-center">
-                <Button
-                  isIconOnly
-                  variant="ghost"
-                  onPress={() => handleEditClick(room.id!)}>
-                  <FaEdit size={20} />
-                </Button>
-                <Button
-                  isIconOnly
-                  variant="ghost"
-                  onPress={() => handleDelete(room.id!)}>
-                  <MdDeleteForever size={20} />
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Edit modal */}
       {editing && (
         <Modal isOpen={editing} hideCloseButton>
           <ModalContent>
-            <div className="bg-white p-6 rounded-lg shadow-lg space-y-4">
-              <h3 className="text-lg">Editar aula {editId}</h3>
-              <input
-                type="number"
-                value={editCapacity}
-                onChange={(e) => setEditCapacity(Number(e.target.value))}
-                className="border p-2 rounded w-full"
-              />
-              <input
-                type="text"
-                value={editLocation}
-                onChange={(e) => setEditLocation(e.target.value)}
-                className="border p-2 rounded w-full"
-              />
+            <div className="p-6 bg-white rounded-lg shadow-lg space-y-4">
+              <h3 className="text-lg font-bold">Editar Aula {editId}</h3>
+              <input type="number" value={editCapacity} onChange={(e) => setEditCapacity(Number(e.target.value))} className="border p-2 rounded w-full" />
+              <input type="text" value={editLocation} onChange={(e) => setEditLocation(e.target.value)} className="border p-2 rounded w-full" />
               <label className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={editOwn}
-                  onChange={(e) => setEditOwn(e.target.checked)}
-                />{" "}
-                Departamento
+                <input type="checkbox" checked={editOwn} onChange={(e) => setEditOwn(e.target.checked)} /> Departamento
               </label>
               <label className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={editVirtual}
-                  onChange={(e) => setEditVirtual(e.target.checked)}
-                />{" "}
-                Virtual
+                <input type="checkbox" checked={editVirtual} onChange={(e) => setEditVirtual(e.target.checked)} /> Virtual
               </label>
               <div className="flex gap-2 justify-end">
-                <Button variant="flat" onPress={() => setEditing(false)}>
-                  Cancelar
-                </Button>
+                <Button variant="flat" onPress={() => setEditing(false)}>Cancelar</Button>
                 <Button onPress={handleUpdate}>Guardar</Button>
+              </div>
+            </div>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {deleteId !== null && (
+        <Modal isOpen={deleteId !== null} hideCloseButton>
+          <ModalContent>
+            <div className="p-6 bg-white rounded-lg shadow-lg space-y-4">
+              <h3 className="text-lg font-bold">¿Estás seguro de eliminar esta aula?</h3>
+              <div className="flex gap-2 justify-end">
+                <Button variant="flat" onPress={() => setDeleteId(null)}>Cancelar</Button>
+                <Button variant="solid" color="danger" onPress={confirmDelete}>Eliminar</Button>
               </div>
             </div>
           </ModalContent>

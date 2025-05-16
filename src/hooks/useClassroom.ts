@@ -3,7 +3,6 @@ import { Classroom } from "@/interface/Classroom";
 import {
     getClassrooms,
     createClassroom,
-    uploadClassrooms,
     updateClassroom,
     deleteClassroom,
 } from "@/services/classroom";
@@ -21,17 +20,6 @@ export function useCreateClassroom() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createClassroom,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["classrooms"] });
-        },
-    });
-}
-
-// Upload classrooms from Excel file
-export function useUploadClassrooms() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: uploadClassrooms,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["classrooms"] });
         },
