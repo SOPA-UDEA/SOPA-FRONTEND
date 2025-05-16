@@ -15,6 +15,12 @@ const PensumPage = () => {
 
   if (isLoading || loadingPrograms) return <div>Loading...</div>;
 
+  const enrichedSubjects = subjects.map(subject => {
+    return {
+      ...subjects,
+    };
+  });
+
   return (
     <>
       <div>Pensum</div>
@@ -26,7 +32,17 @@ const PensumPage = () => {
       />
 
       <div className="container mx-auto mt-4 pl-1">
-        <CustomDataGrid data={subjects}/>
+        <CustomDataGrid data={subjects}
+        columns={[
+            { field: 'name', headerName: 'Nombre' },
+            { field: 'level', headerName: 'nivel' },
+            { field: 'code', headerName: 'Modalidad'},
+            { field: 'credits', headerName: 'créditos'},
+            { field: 'preRequirements', headerName: 'Prerrequisitos'},
+            { field: 'coRequirements', headerName: 'Correquisitos'},
+            { field: 'creditRequirements', headerName: 'Créditos Prerrequisitos'}
+          ]}
+      />
       </div>
     </>
   );

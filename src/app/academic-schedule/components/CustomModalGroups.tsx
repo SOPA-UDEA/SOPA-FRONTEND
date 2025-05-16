@@ -13,16 +13,19 @@ interface CustomModalGroupsProps <T> {
     onCreated: (data: any) => void;
     pensums: Pensum[];
     academicPrograms: AcademicProgram[];
-    academicSchedule?: AcademicScheduleResponse | null;
+    academicSchedule: AcademicScheduleResponse;
+    isOpen: boolean;
+    onOpen: () => void;
+    onOpenChange: () => void;
+    selectedPensums: number[];
+    setSelectedPensums: React.Dispatch<React.SetStateAction<number[]>>;
 } 
 
 
-export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academicPrograms, academicSchedule }: CustomModalGroupsProps<T>) => {
+export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academicPrograms, academicSchedule, isOpen, onOpen, onOpenChange, selectedPensums, setSelectedPensums }: CustomModalGroupsProps<T>) => {
     
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {subjects} = useSubjectsByPensumIds(selectedPensums)
     const onCloseRef = useRef<() => void>(() => {});
-    const [selectedPensums, setSelectedPensums] = useState<number[]>([]);
-    const {subjects, isLoading: isLoadingSubjects } = useSubjectsByPensumIds(selectedPensums)
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
 
@@ -40,48 +43,47 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
           }
         };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            
-            if (academicSchedule) {
-                subjects.forEach((subject) => {
-                const groupData = {
-                    group: {
-                    groupSize: 20,
-                    modality: "Presencial",
-                    code: 1,
-                    mirrorGroupId: 1,
-                    subjectId: subject.id,
-                    academicSchedulePensumId: 0
-                    },
-                    mirror: {
-                    name: "Grupo espejo A",
-                    },
-                    academic: {
-                    pensumId: subject.pensumId,
-                    academicScheduleId: academicSchedule.id
-                    }
-                }
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!academicSchedule) return;
 
-                onSubmitForm.mutate(
-                groupData,
-                {
-                    onSuccess: (data) => {
-                        onCreated(data);
-                        onCloseRef.current?.(); 
-                        onOpenChange();
-                        setShowSuccess(true);
-                    },
-                    onError: () => {
-                        setShowError(true);
-                        onOpenChange();
-                    }
-                }
-                )
-            })
-
+      try {
+        const mutationPromises = subjects.map((subject) => {
+          const groupData = {
+            group: {
+              groupSize: 20,
+              modality: "Presencial",
+              code: 1,
+              mirrorGroupId: 1,
+              subjectId: subject.id,
+              academicSchedulePensumId: 0
+            },
+            mirror: {
+              name: "Grupo espejo A",
+            },
+            academic: {
+              pensumId: subject.pensumId,
+              academicScheduleId: academicSchedule.id
             }
-        }
+          };
+
+          return onSubmitForm.mutateAsync(groupData);
+        });
+
+        const results = await Promise.all(mutationPromises);
+
+        results.forEach((data) => {
+          onCreated(data);
+        });
+
+        onCloseRef.current?.();
+        onOpenChange();
+        setShowSuccess(true);
+      } catch (error) {
+        setShowError(true);
+        onOpenChange();
+      }
+    };
     
   return (
     <>
