@@ -52,7 +52,7 @@ export default function ClassroomManager() {
   const [editing, setEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [editCapacity, setEditCapacity] = useState<number>(0);
-  const [editLocation, setEditLocation] = useState<string>("");d
+  const [editLocation, setEditLocation] = useState<string>("");
   const [editOwn, setEditOwn] = useState<boolean>(false);
   const [editVirtual, setEditVirtual] = useState<boolean>(false);
 
