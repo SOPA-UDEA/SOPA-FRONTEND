@@ -4,4 +4,5 @@ export interface Classroom {
     location: string; // Location of the classroom (max length 255)
     ownDepartment: boolean; // Indicates if the classroom is owned by the department
     virtualMode: boolean; // Indicates if the classroom is virtual
+    enabled: boolean; // Indicates if the classroom is enabled
 }
