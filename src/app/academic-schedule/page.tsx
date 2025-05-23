@@ -8,23 +8,27 @@ import { useCreateAcademicSchedule } from '@/app/academic-schedule/hooks/useAcad
 import { usePensums } from '../pensum/hooks/usePensums';
 import { useAcademicProgram } from '../academic-program/hooks/useAcademicProgram';
 import { useCreateGroup } from '@/app/groups/hooks/useGroupCreate';
-import { Group } from '@/interface/Group';
 import { CustomDataGrid } from '@/components/util/CustomDataGrid';
 import { CustomModalGroups } from './components/CustomModalGroups';
 import { useDisclosure } from '@heroui/react';
-import { useSubjectsByPensumIds } from '../subjects/hooks/useSubjectsByPensumIds';
+import { useGroupsByScheduleId } from '../groups/hooks/useGroups';
 
-const page = () => {
+
+const Page = () => {
     const createAcademicSchedule = useCreateAcademicSchedule();
     const { pensums } = usePensums();
     const { academicPrograms } = useAcademicProgram();
     const createGroup = useCreateGroup()
-    const [groups, setGroups] = useState<Group[]>([]);
     const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [selectedPensums, setSelectedPensums] = useState<number[]>([]);
-    const { subjects } = useSubjectsByPensumIds(selectedPensums);
+    const groupResponse = useGroupsByScheduleId(academicSchedule?.id || 0);
+    // const groupResponse = useGroupsByScheduleId(1);
+    const [created, setCreated] = useState(Boolean);
 
+    const onCreated = () => {
+       setCreated(true);
+    }
 
     useEffect(() => {
       if (academicSchedule) {
@@ -32,14 +36,21 @@ const page = () => {
       }
     }, [academicSchedule]);
 
-    const enrichedGroups = groups.map(group => {
-    const subject = subjects.find(s => s.id === group.subjectId);
-    return {
-      subjectName: subject ? subject.name : 'Materia desconocida',
-      subjectCode: subject ? subject.code: 'Código materia conocida',
-      ...group,
-    };
-  });
+    useEffect(() => {
+    }, [created]);
+
+    const enrichedGroups = groupResponse.groups.map(group => {
+        return {
+        mirrorGroup: group.mirror_group.name,
+        subjectName: group.subject.name,
+        subjectCode: group.subject.code, 
+        subjectLevel: group.subject.level,
+        subjectModality: group.subject.pensum.academic_program.modalityAcademic,
+        lunes: group.classroom_x_group && group.classroom_x_group.length > 0 
+          ? group.classroom_x_group[0].mainSchedule : '',
+        ...group,
+      };
+    });
 
   return (
     <>
@@ -52,33 +63,43 @@ const page = () => {
         
         {academicSchedule && 
           <CustomModalGroups 
-            onSubmitForm={createGroup}
-            onCreated={(data) => {
-              setGroups(prev => [...prev, data]);
-            }}
-            pensums={pensums}
-            academicPrograms={academicPrograms}
-            isOpen={isOpen}
-            onOpen={onOpen}
-            onOpenChange={onOpenChange} 
-            academicSchedule={academicSchedule}    
-            selectedPensums={selectedPensums}
-            setSelectedPensums={setSelectedPensums}    
+          onSubmitForm={createGroup}
+          pensums={pensums}
+          academicPrograms={academicPrograms}
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onOpenChange={onOpenChange}
+          academicSchedule={academicSchedule}
+          selectedPensums={selectedPensums}
+          setSelectedPensums={setSelectedPensums} 
+          onCreated={onCreated}
           />
         }
-        
         <div className='p-2'>
-        {groups.length > 0 && <CustomDataGrid
+        {groupResponse.isLoading && <div>Cargando...</div>}
+        {groupResponse.groups.length > 0 && <CustomDataGrid
           data={enrichedGroups}
           checkbox={true}
           actions={true}
           columns={[
-            { field: 'subjectName', headerName: 'Materia' },
+            { field: 'mirrorGroup', headerName: 'Código espejo'},
+            { field: 'subjectModality', headerName: 'Modalidad'},
             { field: 'subjectCode', headerName: 'Código materia' },
-            { field: 'modality', headerName: 'Modalidad'},
-            { field: 'groupSize', headerName: 'Tamaño del grupo'},
+            { field: 'subjectName', headerName: 'Materia Materia' },
+            { field: 'maxSize', headerName: 'Max. cupos' },
+            { field: 'groupSize', headerName: 'Cupos'},
+            { field: 'registeredPlaces', headerName: 'Matriculados' },
             { field: 'code', headerName: 'Numero del grupo'},
-            { field: 'mirrorGrpoupId', headerName: 'Código espejo'},
+            { field: 'aula', headerName: 'Aula'},
+            { field: 'lunes', headerName: 'Lunes'},
+            { field: 'martes', headerName: 'Martes'},
+            { field: 'miercoles', headerName: 'Miercoles'},
+            { field: 'jueves', headerName: 'Jueves'},
+            { field: 'viernes', headerName: 'Viernes'},
+            { field: 'sabado', headerName: 'Sabado'},
+            { field: 'profesores', headerName: 'Profesores'},
+            { field: 'modality', headerName: 'Modalidad grupo'},
+            { field: 'subjectLevel', headerName: 'Nivel'},
           ]}
         />}  
         </div>
@@ -86,4 +107,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

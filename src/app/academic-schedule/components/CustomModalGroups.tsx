@@ -4,13 +4,13 @@ import { getAcademicProgramById } from "@/helpers/getAcademicProgramById";
 import { AcademicProgram } from "@/interface/AcademicProgram";
 import { AcademicScheduleResponse } from "@/interface/AcademicSchedule";
 import { Pensum } from "@/interface/Pensum";
-import { Button, Checkbox, Form, Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@heroui/react";
+import { Button, Checkbox, Form, Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 interface CustomModalGroupsProps <T> {
     onSubmitForm: UseMutationResult<T, unknown, any, unknown>;
-    onCreated: (data: any) => void;
+    onCreated: () => void;
     pensums: Pensum[];
     academicPrograms: AcademicProgram[];
     academicSchedule: AcademicScheduleResponse;
@@ -48,7 +48,7 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
       if (!academicSchedule) return;
 
       try {
-        const mutationPromises = subjects.map((subject) => {
+        subjects.map((subject) => {
           const groupData = {
             group: {
               groupSize: 20,
@@ -56,7 +56,10 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
               code: 1,
               mirrorGroupId: 1,
               subjectId: subject.id,
-              academicSchedulePensumId: 0
+              academicSchedulePensumId: 0,
+              maxSize: 20,
+              registeredPlaces: 0,
+              schedule: 'L-V 8:00-10:00'
             },
             mirror: {
               name: "Grupo espejo A",
@@ -70,13 +73,8 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
           return onSubmitForm.mutateAsync(groupData);
         });
 
-        const results = await Promise.all(mutationPromises);
-
-        results.forEach((data) => {
-          onCreated(data);
-        });
-
         onCloseRef.current?.();
+        onCreated();
         onOpenChange();
         setShowSuccess(true);
       } catch (error) {
