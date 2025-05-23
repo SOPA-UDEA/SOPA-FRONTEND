@@ -39,7 +39,7 @@ const statusColorMap = {
   true: "success",
   false: "danger",
 };
-export async function checkIfClassroomInUse(classroomId: number) {
+export async function checkIfClassroomInUse(classroomId: number): Promise<{ in_use: boolean }> {
   return isClassroomInUse(classroomId);
 }
 
@@ -52,7 +52,7 @@ export default function ClassroomManager() {
   const [editing, setEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [editCapacity, setEditCapacity] = useState<number>(0);
-  const [editLocation, setEditLocation] = useState<string>("");
+  const [editLocation, setEditLocation] = useState<string>("");d
   const [editOwn, setEditOwn] = useState<boolean>(false);
   const [editVirtual, setEditVirtual] = useState<boolean>(false);
 
@@ -114,45 +114,56 @@ export default function ClassroomManager() {
     );
   };
 
-  const handleDelete = (id: number) => {
-    setDeleteId(id);
-  };
+const handleDelete = async (id: number) => {
+  const classroom = classrooms.find((c) => c.id === id);
+  if (!classroom) return;
 
-  const confirmDelete = async () => {
-    if (deleteId === null) return;
+  const { in_use } = await checkIfClassroomInUse(classroom.id);
 
-    const classroom = classrooms.find((c) => c.id === deleteId);
-    if (!classroom) return;
-
-    const isInUse = await checkIfClassroomInUse(classroom.id);
+  if (in_use) {
     setTargetClassroom(classroom);
+    setCannotDeleteModal(true);
+  } else {
+    setDeleteId(id); // muestra el modal de confirmación
+  }
+};
 
-    if (isInUse) {
-      setEditEnabled(classroom.enabled);
-      setCannotDeleteModal(true);
-      setDeleteId(null);
-    } else {
-      deleteMutation.mutate(deleteId, {
-        onSuccess: () => {
-          addToast({
-            title: "Aula eliminada",
-            description: "Aula eliminada correctamente",
-            variant: "solid",
-          });
-          setDeleteId(null);
-        },
-        onError: () => {
-          // just in case
-          addToast({
-            title: "Error al eliminar aula",
-            description: "No se pudo eliminar el aula. Inténtalo de nuevo.",
-            variant: "solid",
-          });
-          setDeleteId(null);
-        },
-      });
-    }
-  };
+
+
+const confirmDelete = async () => {
+  if (deleteId === null) return;
+
+  const classroom = classrooms.find((c) => c.id === deleteId);
+  if (!classroom) return;
+
+  const { in_use } = await checkIfClassroomInUse(classroom.id);
+
+  if (in_use) {
+    setTargetClassroom(classroom);
+    setCannotDeleteModal(true);
+    setDeleteId(null);
+  } else {
+    deleteMutation.mutate(deleteId, {
+      onSuccess: () => {
+        addToast({
+          title: "Aula eliminada",
+          description: "Aula eliminada correctamente",
+          variant: "solid",
+        });
+        setDeleteId(null);
+      },
+      onError: () => {
+        addToast({
+          title: "Error al eliminar aula",
+          description: "No se pudo eliminar el aula. Inténtalo de nuevo.",
+          variant: "solid",
+        });
+        setDeleteId(null);
+      },
+    });
+  }
+};
+
 
   if (isLoading) return <div>Cargando...</div>;
   if (error) return <div>Error al cargar los datos</div>;

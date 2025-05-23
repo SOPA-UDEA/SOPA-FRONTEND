@@ -65,8 +65,8 @@ export async function changeClassroomStatus(
 //Check if a classroom is in use
 export async function isClassroomInUse(
   classroomId: number
-): Promise<{ check_in_use: boolean }> {
-  const response = await api.get<{ check_in_use: boolean }>(
+): Promise<{ in_use: boolean }> {
+  const response = await api.get<{ in_use: boolean }>(
     `/classroom/check_in_use/${classroomId}`
   );
   return response.data;

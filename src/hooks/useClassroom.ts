@@ -66,7 +66,7 @@ export function useChangeClassroomStatus() {
 //check if classroom is in use
 export function useIsClassroomInUse(classroomId: number) {
     return useQuery({
-        queryKey: ["classroom", classroomId, "check_in_use"],
+        queryKey: ["classroom", classroomId, "in_use"],
         queryFn: () => isClassroomInUse(classroomId),
     });
 }
