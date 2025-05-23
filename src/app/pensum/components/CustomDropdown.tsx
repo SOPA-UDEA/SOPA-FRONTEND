@@ -1,8 +1,8 @@
 'use client';
 
 import { Menu } from '@headlessui/react';
-import { Pensum } from '../../interface/Pensum';
-import { AcademicProgram } from '../../interface/AcademicProgram';
+import { Pensum } from '../../../interface/Pensum';
+import { AcademicProgram } from '../../../interface/AcademicProgram';
 import CustomDropdownButton from './CustomDropdownButton';
 import CustomDropdownItems from './CustomDropdownItems';
 

@@ -1,3 +1,9 @@
+export interface preRequirement{
+    id: number;
+    code:string
+    subjectId: number;
+  }
+  
 export interface Subject {
     id: number;
     level: number;
@@ -12,6 +18,6 @@ export interface Subject {
     coRequirements: JSON;
     creditRequirements: JSON;
     name: string;
-    type: boolean;
     pensumId: number;
+    prerequirement: preRequirement[];
   }

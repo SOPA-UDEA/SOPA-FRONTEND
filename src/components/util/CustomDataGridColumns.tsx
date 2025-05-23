@@ -1,14 +1,25 @@
+import { ColumnConfig } from "./CustomDataGrid";
 
+interface CustomDataGridColumnsProps {
+  headers: ColumnConfig[];
+  actions?: boolean;
+  checkbox?: boolean;
+}
 
-export const CustomDataGridColumns = ({ headers }: { headers: string[] }) => {
+export const CustomDataGridColumns = ({ headers, actions, checkbox }: CustomDataGridColumnsProps) => {
   return (
     <tr>
-      {headers.map((header) => (
-        <th key={header} className="border border-gray-300 px-4 py-2">
-          {header}
+      {checkbox && (
+        <th className="px-4 py-2">
+          <input type="checkbox" />
+        </th>
+      )}
+      {headers.map(({ headerName, field }) => (
+        <th key={field} className="border border-gray-300 px-4 py-2">
+          {headerName}
         </th>
       ))}
+      {actions && <th className="px-4 py-2">Acciones</th>}
     </tr>
   );
 };
-

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAcademicProgram } from "../services/academicProgramService";
+import { getAcademicProgram } from "@/services/academicProgramService";
 
 export const useAcademicProgram = () => {
   const {

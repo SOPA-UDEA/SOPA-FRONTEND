@@ -26,7 +26,7 @@ export default function Sidebar() {
           {/* classrooms */}
 
           <Link
-            href="/"
+            href="/academic-schedule"
             className="flex items-center justify-between px-3 py-2 rounded-md text-sky-900 hover:bg-gray-100"
           >
             <div className="flex items-center space-x-3">
