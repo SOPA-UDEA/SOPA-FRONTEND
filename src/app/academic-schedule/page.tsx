@@ -13,7 +13,6 @@ import { CustomModalGroups } from './components/CustomModalGroups';
 import { useDisclosure } from '@heroui/react';
 import { useGroupsByScheduleId } from '../groups/hooks/useGroups';
 
-
 const Page = () => {
     const createAcademicSchedule = useCreateAcademicSchedule();
     const { pensums } = usePensums();
@@ -22,8 +21,8 @@ const Page = () => {
     const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [selectedPensums, setSelectedPensums] = useState<number[]>([]);
-    const groupResponse = useGroupsByScheduleId(academicSchedule?.id || 0);
-    // const groupResponse = useGroupsByScheduleId(1);
+    //const groupResponse = useGroupsByScheduleId(academicSchedule?.id || 0);
+    const groupResponse = useGroupsByScheduleId(1);
     const [created, setCreated] = useState(Boolean);
 
     const onCreated = () => {
@@ -55,7 +54,11 @@ const Page = () => {
   return (
     <>
         <Toaster position="top-right" />
-        <div>Academic Program</div>
+        <div >
+          <h1 className="text-h-2 text-primary-7740 mb-6"> {}
+          Programación Académica
+          </h1>
+        </div>
             <CustomModalForm onCreated={setAcademicSchedule} 
               onSubmitForm={createAcademicSchedule} 
               defaultValues={{semester: ''}} 
@@ -83,9 +86,10 @@ const Page = () => {
           actions={true}
           columns={[
             { field: 'mirrorGroup', headerName: 'Código espejo'},
-            { field: 'subjectModality', headerName: 'Modalidad'},
             { field: 'subjectCode', headerName: 'Código materia' },
-            { field: 'subjectName', headerName: 'Materia Materia' },
+            { field: 'subjectName', headerName: 'Materia' },
+            { field: 'subjectLevel', headerName: 'Nivel'},
+            { field: 'subjectModality', headerName: 'Modalidad'},
             { field: 'maxSize', headerName: 'Max. cupos' },
             { field: 'groupSize', headerName: 'Cupos'},
             { field: 'registeredPlaces', headerName: 'Matriculados' },
@@ -99,7 +103,7 @@ const Page = () => {
             { field: 'sabado', headerName: 'Sabado'},
             { field: 'profesores', headerName: 'Profesores'},
             { field: 'modality', headerName: 'Modalidad grupo'},
-            { field: 'subjectLevel', headerName: 'Nivel'},
+            
           ]}
         />}  
         </div>

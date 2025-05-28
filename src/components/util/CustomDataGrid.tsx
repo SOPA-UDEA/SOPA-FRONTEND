@@ -1,47 +1,127 @@
-import { CustomDataGridColumns } from "./CustomDataGridColumns"
-import { CustomDataGridItems } from "./CustomDataGridItems"
+"use client";
+
+import React from 'react';
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  getKeyValue, 
+  Selection    
+} from "@heroui/react";
 import PropTypes from 'prop-types';
 
 export interface ColumnConfig {
-  field: string;
-  headerName: string;
+  field: string; 
+  headerName: string; 
 }
 
 interface CustomDataGridProps {
-  data: any[];
-  actions?: boolean;
+  data: any[]; 
+  columns: ColumnConfig[]; 
+  ariaLabel?: string;
+  tableClassName?: string; 
+
   checkbox?: boolean;
-  columns?: ColumnConfig[];
+  selectedKeys?: Selection; 
+  onSelectionChange?: (keys: Selection) => void; 
+
+  actions?: boolean;
+  renderActions?: (item: any) => React.ReactNode; 
 }
 
-export const CustomDataGrid = ({ data, actions = false, checkbox = false, columns }: CustomDataGridProps) => {
-  
-  if (!Array.isArray(data) || data.length === 0 || !data[0]) {
-    return (
-      <div className="p-4">
-        <p className="text-center">No hay datos para mostrar</p>
-      </div>
-    );
+export const CustomDataGrid = ({
+  data,
+  columns,
+  ariaLabel = "Tabla de datos",
+  tableClassName = "",
+  checkbox = false,
+  selectedKeys,
+  onSelectionChange,
+  actions = false,
+  renderActions,
+}: CustomDataGridProps) => {
+
+  if (!Array.isArray(data)) {
+    console.error("CustomDataGrid: la prop 'data' debe ser un array.");
+    return <div className="p-4 text-center text-red-500">Error: Datos inválidos.</div>;
   }
 
-  // Usa las columnas personalizadas si se pasan, si no, usa todas
-  const headers = columns ?? Object.keys(data[0]).map((key) => ({ field: key, headerName: key }));
+  const selectionMode = checkbox ? "multiple" : "none";
+
+
+  const finalTableColumns: { key: string; label: string; [key: string]: any }[] = columns.map(col => ({
+    key: col.field, 
+    label: col.headerName,
+
+  }));
+
+  if (actions && renderActions) {
+    finalTableColumns.push({ key: "__actions__", label: "Acciones" }); 
+  }
 
   return (
-    <table className="table-auto border-separate border-spacing-0 rounded-lg overflow-hidden border border-gray-400">
-        <thead>
-          <CustomDataGridColumns headers={headers} checkbox={checkbox} actions={actions}/>
+    <Table
+      aria-label={ariaLabel}
+      isStriped
+      className={tableClassName}
+      selectionMode={selectionMode}
+      selectedKeys={selectionMode !== "none" ? selectedKeys : undefined} 
+      onSelectionChange={selectionMode !== "none" ? onSelectionChange : undefined} 
+      classNames={{
+        tr: "hover:bg-neutral-50/70 dark:hover:bg-neutral-500/30 transition-colors duration-150", /* */
+      }}
+    >
+      <TableHeader columns={finalTableColumns}>
+        {(column) => (
+          <TableColumn
+            key={column.key}
+            allowsSorting={column.key !== "__actions__"} 
+          >
+            {column.label}
+          </TableColumn>
+        )}
+      </TableHeader>
+      <TableBody
+        items={data} 
+        emptyContent={"No hay datos para mostrar."}
+      >
+        {(item) => (
 
-        </thead>
-        <tbody>
-          <CustomDataGridItems data={data} columns={headers} checkbox={checkbox} actions={actions} />
-        </tbody>
-    </table>
-  )
+          <TableRow key={item.id || item.code || `row-${React.useId()}`}>
+            {(columnKey) => {
+              if (columnKey === "__actions__" && renderActions) {
+                return <TableCell>{renderActions(item)}</TableCell>;
+              }
+              return (
+                <TableCell className="text-primary-foreground"> {/* */}
+                  {getKeyValue(item, columnKey)}
+                </TableCell>
+              );
+            }}
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
+};
 
- }
+CustomDataGrid.propTypes = {
+  data: PropTypes.array.isRequired,
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    field: PropTypes.string.isRequired,
+    headerName: PropTypes.string.isRequired,
+  })).isRequired,
+  ariaLabel: PropTypes.string,
+  tableClassName: PropTypes.string,
+  checkbox: PropTypes.bool,
+  selectedKeys: PropTypes.object, 
+  onSelectionChange: PropTypes.func,
+  actions: PropTypes.bool,
+  renderActions: PropTypes.func,
+};
 
- CustomDataGrid.propTypes = {
-  data: PropTypes.array.isRequired
-}
- 
+
+
