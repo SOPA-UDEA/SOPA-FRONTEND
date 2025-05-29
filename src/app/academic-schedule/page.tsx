@@ -12,6 +12,7 @@ import { CustomDataGrid } from '@/components/util/CustomDataGrid';
 import { CustomModalGroups } from './components/CustomModalGroups';
 import { useDisclosure } from '@heroui/react';
 import { useGroupsByScheduleId } from '../groups/hooks/useGroups';
+import CustomDropdownActions from './components/CustomDropdownActions';
 
 const Page = () => {
     const createAcademicSchedule = useCreateAcademicSchedule();
@@ -83,7 +84,6 @@ const Page = () => {
         {groupResponse.groups.length > 0 && <CustomDataGrid
           data={enrichedGroups}
           checkbox={true}
-          actions={true}
           columns={[
             { field: 'mirrorGroup', headerName: 'Código espejo'},
             { field: 'subjectCode', headerName: 'Código materia' },
@@ -102,8 +102,10 @@ const Page = () => {
             { field: 'viernes', headerName: 'Viernes'},
             { field: 'sabado', headerName: 'Sabado'},
             { field: 'profesores', headerName: 'Profesores'},
-            { field: 'modality', headerName: 'Modalidad grupo'},
-            
+            { field: 'modality', headerName: 'Modalidad grupo'}, 
+            { field: 'actions', headerName: 'Acciones', renderActions: (item) => (
+              <CustomDropdownActions/>
+            )},           
           ]}
         />}  
         </div>

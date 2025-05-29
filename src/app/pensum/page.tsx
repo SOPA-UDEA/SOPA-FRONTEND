@@ -8,7 +8,7 @@ import { useSubject } from "../subjects/hooks/useSubject";
 import { useAcademicProgram } from "../academic-program/hooks/useAcademicProgram"; 
 import { Pagination } from "@heroui/react"; 
 
-const ITEMS_PER_PAGE = 15;
+
 
 const PensumPage = () => {
   const { pensums, isLoading: loadingPensums } = usePensums();
@@ -16,13 +16,11 @@ const PensumPage = () => {
   const { subjects, isLoading: loadingSubjects } = useSubject(selectedPensum?.id || 0);
   const { academicPrograms, isLoading: loadingPrograms } = useAcademicProgram(); 
 
-  const [currentPage, setCurrentPage] = useState(1);
+  
 
   const isLoading = loadingPensums || loadingSubjects || loadingPrograms;
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedPensum]);
+
 
   const enrichedSubjects = useMemo(() => {
     return subjects.map(subject => {
@@ -45,11 +43,6 @@ const PensumPage = () => {
     });
   }, [subjects, pensums, academicPrograms]);
   
-  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-  const currentItems = enrichedSubjects.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(enrichedSubjects.length / ITEMS_PER_PAGE);
-
   const columnsDefinition: ColumnConfig[] = [
     { field: 'code', headerName: 'Código' },
     { field: 'name', headerName: 'Materia' },
@@ -84,9 +77,9 @@ const PensumPage = () => {
         <div
           className="overflow-x-auto shadow-lg rounded-lg border border-neutral-10 dark:border-neutral-500/30"
         >
-          {(selectedPensum && currentItems.length > 0) || !selectedPensum || (selectedPensum && loadingSubjects) ? (
+          {(selectedPensum && enrichedSubjects.length > 0) || !selectedPensum || (selectedPensum && loadingSubjects) ? (
             <CustomDataGrid 
-              data={currentItems}
+              data={enrichedSubjects}
               columns={columnsDefinition}
               ariaLabel="Detalle del Pensum Académico"
               tableClassName="min-w-[1600px] lg:min-w-[1200px]"
@@ -100,18 +93,6 @@ const PensumPage = () => {
             )
           )}
         </div>
-
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-6 mb-4">
-            <Pagination
-              total={totalPages}
-              initialPage={1}
-              page={currentPage}
-              onChange={(page) => setCurrentPage(page)}
-              color="primary"
-            />
-          </div>
-        )}
       </div>
     </>
   );

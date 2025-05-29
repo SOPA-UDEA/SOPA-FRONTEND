@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableHeader,
@@ -9,13 +9,17 @@ import {
   TableRow,
   TableCell,
   getKeyValue, 
-  Selection    
+  Selection,    
+  Pagination,
+  Button
 } from "@heroui/react";
 import PropTypes from 'prop-types';
+import CustomButton from './CustomButton';
 
 export interface ColumnConfig {
   field: string; 
   headerName: string; 
+  renderActions?: (item: any) => React.ReactNode;
 }
 
 interface CustomDataGridProps {
@@ -27,8 +31,6 @@ interface CustomDataGridProps {
   checkbox?: boolean;
   selectedKeys?: Selection; 
   onSelectionChange?: (keys: Selection) => void; 
-
-  actions?: boolean;
   renderActions?: (item: any) => React.ReactNode; 
 }
 
@@ -40,7 +42,6 @@ export const CustomDataGrid = ({
   checkbox = false,
   selectedKeys,
   onSelectionChange,
-  actions = false,
   renderActions,
 }: CustomDataGridProps) => {
 
@@ -49,20 +50,57 @@ export const CustomDataGrid = ({
     return <div className="p-4 text-center text-red-500">Error: Datos inválidos.</div>;
   }
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hiddenColumns, sethiddenColumns] = useState(false)
+
   const selectionMode = checkbox ? "multiple" : "none";
 
+  const ITEMS_PER_PAGE = 15;
+  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(columns.map(col => col.renderActions ? "actions" : col.field));
 
-  const finalTableColumns: { key: string; label: string; [key: string]: any }[] = columns.map(col => ({
-    key: col.field, 
+
+  const finalTableColumns = columns
+  .filter(col => visibleColumns.includes(col.renderActions ? "actions" : col.field))
+  .map(col => ({
+    key: col.renderActions ? "actions" : col.field,
     label: col.headerName,
-
+    renderActions: col.renderActions,
   }));
 
-  if (actions && renderActions) {
-    finalTableColumns.push({ key: "__actions__", label: "Acciones" }); 
-  }
-
   return (
+    <>
+      <div className="mb-4">
+        <CustomButton onPress={() => sethiddenColumns(!hiddenColumns)} >Columnas visibles</CustomButton>
+            { 
+              hiddenColumns && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {columns.map((col) => {
+                  const key = col.renderActions ? "actions" : col.field;
+                return (
+                  <label key={key} className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={visibleColumns.includes(key)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setVisibleColumns([...visibleColumns, key]);
+                        } else {
+                          setVisibleColumns(visibleColumns.filter(c => c !== key));
+                        }
+                      }}
+                      />
+                      {col.headerName}
+                  </label>
+                );
+              })}
+              </div>
+            )}
+    </div>
+    
     <Table
       aria-label={ariaLabel}
       isStriped
@@ -78,33 +116,49 @@ export const CustomDataGrid = ({
         {(column) => (
           <TableColumn
             key={column.key}
-            allowsSorting={column.key !== "__actions__"} 
           >
             {column.label}
           </TableColumn>
         )}
       </TableHeader>
       <TableBody
-        items={data} 
+        items={currentItems} 
         emptyContent={"No hay datos para mostrar."}
       >
         {(item) => (
 
           <TableRow key={item.id || item.code || `row-${React.useId()}`}>
             {(columnKey) => {
-              if (columnKey === "__actions__" && renderActions) {
-                return <TableCell>{renderActions(item)}</TableCell>;
-              }
-              return (
-                <TableCell className="text-primary-foreground"> {/* */}
-                  {getKeyValue(item, columnKey)}
-                </TableCell>
-              );
+              const columnConfig = finalTableColumns.find(col => col.key === columnKey);
+              if (columnConfig?.renderActions) {
+                  return (
+                    <TableCell>
+                      {columnConfig.renderActions(item)}
+                    </TableCell>
+                  );
+                }
+             return (
+                  <TableCell className="text-primary-foreground">
+                    {getKeyValue(item, columnKey)}
+                  </TableCell>
+                );
             }}
           </TableRow>
         )}
       </TableBody>
     </Table>
+    {totalPages > 1 && (
+      <div className="flex justify-center mt-6 mb-4">
+        <Pagination
+          total={totalPages}
+          initialPage={1}
+          page={currentPage}
+          onChange={(page) => setCurrentPage(page)}
+          color="primary"
+        />
+      </div>
+    )}
+    </>
   );
 };
 
