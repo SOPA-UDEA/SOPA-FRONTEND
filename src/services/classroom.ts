@@ -49,3 +49,25 @@ export async function updateClassroom(
 export async function deleteClassroom(classroomId: number): Promise<void> {
   await api.delete(`/classroom/delete/${classroomId}`);
 }
+
+//Change status of a classroom
+export async function changeClassroomStatus(
+  classroomId: number,
+  enabled: boolean
+): Promise<Classroom> { 
+  const response = await api.put<Classroom>(
+    `/classroom/change_status/${classroomId}`,
+    { enabled }
+  );
+  return response.data;
+}
+
+//Check if a classroom is in use
+export async function isClassroomInUse(
+  classroomId: number
+): Promise<{ in_use: boolean }> {
+  const response = await api.get<{ in_use: boolean }>(
+    `/classroom/check_in_use/${classroomId}`
+  );
+  return response.data;
+}

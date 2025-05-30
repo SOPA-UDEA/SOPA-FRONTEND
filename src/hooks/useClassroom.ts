@@ -5,6 +5,8 @@ import {
     createClassroom,
     updateClassroom,
     deleteClassroom,
+    changeClassroomStatus,
+    isClassroomInUse,
 } from "@/services/classroom";
 
 // Fetch all classrooms
@@ -46,5 +48,25 @@ export function useDeleteClassroom() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["classrooms"] });
         },
+    });
+}
+
+// Change status of a classroom
+export function useChangeClassroomStatus() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ classroomId, enabled }: { classroomId: number; enabled: boolean }) =>
+            changeClassroomStatus(classroomId, enabled),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["classrooms"] });
+        },
+    });
+}
+
+//check if classroom is in use
+export function useIsClassroomInUse(classroomId: number) {
+    return useQuery({
+        queryKey: ["classroom", classroomId, "in_use"],
+        queryFn: () => isClassroomInUse(classroomId),
     });
 }
