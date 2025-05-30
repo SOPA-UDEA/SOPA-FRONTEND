@@ -77,9 +77,15 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
         onCreated();
         onOpenChange();
         setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 3000);
       } catch (error) {
         setShowError(true);
         onOpenChange();
+        setTimeout(() => {
+          setShowError(false);
+        }, 3000);
       }
     };
     

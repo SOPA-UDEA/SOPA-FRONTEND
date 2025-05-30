@@ -13,6 +13,10 @@ import { CustomModalGroups } from './components/CustomModalGroups';
 import { useDisclosure } from '@heroui/react';
 import { useGroupsByScheduleId } from '../groups/hooks/useGroups';
 import CustomDropdownActions from './components/CustomDropdownActions';
+import { CustomNotification } from '@/components/util/CustomNotification';
+import CustomModalUpdate from './components/CustomModalUpdate';
+import { Group, GroupRequest, GroupRequestUpdate } from '@/interface/Group';
+
 
 const Page = () => {
     const createAcademicSchedule = useCreateAcademicSchedule();
@@ -22,9 +26,13 @@ const Page = () => {
     const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [selectedPensums, setSelectedPensums] = useState<number[]>([]);
+    const [selectedGroup, setSelectedGroup] = useState<GroupRequestUpdate | null>(null);
+    const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
     //const groupResponse = useGroupsByScheduleId(academicSchedule?.id || 0);
     const groupResponse = useGroupsByScheduleId(1);
-    const [created, setCreated] = useState(Boolean);
+    const [created, setCreated] = useState(Boolean);  
+    const { isOpen: isOpenUpdate, onOpen: onOpenUpdate, onOpenChange: onOpenChangeUpdate } = useDisclosure();
+  
 
     const onCreated = () => {
        setCreated(true);
@@ -85,6 +93,7 @@ const Page = () => {
           data={enrichedGroups}
           checkbox={true}
           columns={[
+            { field: 'id', headerName: 'ID'},
             { field: 'mirrorGroup', headerName: 'Código espejo'},
             { field: 'subjectCode', headerName: 'Código materia' },
             { field: 'subjectName', headerName: 'Materia' },
@@ -104,10 +113,15 @@ const Page = () => {
             { field: 'profesores', headerName: 'Profesores'},
             { field: 'modality', headerName: 'Modalidad grupo'}, 
             { field: 'actions', headerName: 'Acciones', renderActions: (item) => (
-              <CustomDropdownActions/>
+              <CustomDropdownActions groupId={item.id} onOpenChange={onOpenChangeUpdate} setSelectedGroup={setSelectedGroup} selectedGroup={item} setSelectedGroupId={setSelectedGroupId} />
             )},           
           ]}
         />}  
+            {
+              selectedGroup  && selectedGroupId &&(
+                <CustomModalUpdate isOpen={isOpenUpdate} onOpenChange={onOpenChangeUpdate} selectedGroup={selectedGroup} groupId={selectedGroupId}/>
+              )
+            }
         </div>
     </>
   )

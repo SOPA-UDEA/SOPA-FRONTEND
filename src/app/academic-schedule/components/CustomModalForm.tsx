@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
 import CustomDropdownButton from "@/app/pensum/components/CustomDropdownButton";
 import CustomButton from "@/components/util/CustomButton";
+import InputError from "@/components/util/InputError";
 
 interface FormProps<T> {
   onSubmitForm: UseMutationResult<T, unknown, any, unknown>;
@@ -17,7 +18,7 @@ export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: 
     const initialFormState = defaultValues || {};
     const {formState, onInputChange, onResetForm, } = useForm(initialFormState);
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const {isOpen, onOpen, onOpenChange } = useDisclosure();
     const onCloseRef = useRef<() => void>(() => {});
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
@@ -35,10 +36,16 @@ export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: 
                 onCloseRef.current?.(); 
                 onCreated(data);
                 onOpenChange();
+                setTimeout(() => {
+                  setShowSuccess(false);
+                }, 3000);
               },
               onError: () => {
                 setShowError(true);
                 onOpenChange();
+                setTimeout(() => {
+                  setShowError(false);
+                }, 3000);
               },
             }
 

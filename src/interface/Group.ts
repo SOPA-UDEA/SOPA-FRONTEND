@@ -56,3 +56,10 @@ export interface GroupResponse {
     registeredPlaces: number
     classroom_x_group: [ClassroomXGroupResponse]
     };
+
+export interface GroupRequestUpdate {
+    groupSize: number;
+    modality: string;
+    maxSize: number;
+    registeredPlaces: number;
+}

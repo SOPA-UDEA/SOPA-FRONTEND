@@ -2,7 +2,7 @@
 import { useState, ChangeEvent } from "react";
 
 type FormState = {
-  [key: string]: any;
+  [key: string | number]: any;
 };
 
 export const useForm = <T extends FormState>(initialForm: T) => {

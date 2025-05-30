@@ -74,9 +74,7 @@ const PensumPage = () => {
       />
 
       <div className="mt-6">
-        <div
-          className="overflow-x-auto shadow-lg rounded-lg border border-neutral-10 dark:border-neutral-500/30"
-        >
+        
           {(selectedPensum && enrichedSubjects.length > 0) || !selectedPensum || (selectedPensum && loadingSubjects) ? (
             <CustomDataGrid 
               data={enrichedSubjects}
@@ -92,7 +90,6 @@ const PensumPage = () => {
               </div>
             )
           )}
-        </div>
       </div>
     </>
   );
