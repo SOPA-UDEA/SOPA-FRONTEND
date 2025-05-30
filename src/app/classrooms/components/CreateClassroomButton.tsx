@@ -68,10 +68,10 @@ export default function ClassroomCreator() {
       if (
         !roomNumber ||
         isNaN(+roomNumber) ||
-        +roomNumber < 1 ||
-        +roomNumber > 30
+        +roomNumber < 0 ||
+        +roomNumber > 60
       ) {
-        errors.push("Número del aula válido (01–30)");
+        errors.push("Número del aula válido (00–60)");
       }
     }
 
@@ -284,10 +284,10 @@ export default function ClassroomCreator() {
                         }
                         isInvalid={
                           roomNumber.length > 0 &&
-                          (parseInt(roomNumber) < 1 ||
-                            parseInt(roomNumber) > 30)
+                          (parseInt(roomNumber) < 0 ||
+                            parseInt(roomNumber) > 60)
                         }
-                        errorMessage="El aula debe estar entre 01 y 30"
+                        errorMessage="El aula debe estar entre 0 y 60"
                       />
                     </div>
 
