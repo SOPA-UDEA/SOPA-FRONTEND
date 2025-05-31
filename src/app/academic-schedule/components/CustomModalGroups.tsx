@@ -45,21 +45,23 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+       
       if (!academicSchedule) return;
 
       try {
         subjects.map((subject) => {
+          const pensum = pensums.filter(p => p.id === subject.pensumId)
+          const program = getAcademicProgramById(pensum[0].academicProgramId, academicPrograms);
           const groupData = {
             group: {
               groupSize: 20,
-              modality: "Presencial",
+              modality: program.modalityAcademic,
               code: 1,
               mirrorGroupId: 1,
               subjectId: subject.id,
               academicSchedulePensumId: 0,
               maxSize: 20,
-              registeredPlaces: 0,
-              schedule: 'L-V 8:00-10:00'
+              registeredPlaces: 0
             },
             mirror: {
               name: "Grupo espejo A",
@@ -77,9 +79,16 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
         onCreated();
         onOpenChange();
         setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 3000);
       } catch (error) {
+        console.log(error);
         setShowError(true);
         onOpenChange();
+        setTimeout(() => {
+          setShowError(false);
+        }, 3000);
       }
     };
     
@@ -101,7 +110,7 @@ export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academ
                         </ModalHeader>
                         <ModalBody>
                           
-                          <Form onSubmit={handleSubmit}>
+                          <Form onSubmit={ handleSubmit }>
                               {pensums.map((pensum) => {
                                 const program = getAcademicProgramById(pensum.academicProgramId,academicPrograms);
                                 return (

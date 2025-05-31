@@ -4,6 +4,7 @@ import { Form, Input } from "@heroui/react"
 import { Button, Modal, ModalBody, ModalHeader,  ModalContent, useDisclosure } from '@heroui/react'
 import { useEffect, useRef, useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
+import CustomButton from "@/components/util/CustomButton";
 
 interface FormProps<T> {
   onSubmitForm: UseMutationResult<T, unknown, any, unknown>;
@@ -11,12 +12,11 @@ interface FormProps<T> {
   onCreated: (data: any) => void;
 }
 
-
 export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: FormProps<T>) => {
     const initialFormState = defaultValues || {};
     const {formState, onInputChange, onResetForm, } = useForm(initialFormState);
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const {isOpen, onOpen, onOpenChange } = useDisclosure();
     const onCloseRef = useRef<() => void>(() => {});
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
@@ -34,14 +34,18 @@ export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: 
                 onCloseRef.current?.(); 
                 onCreated(data);
                 onOpenChange();
+                setTimeout(() => {
+                  setShowSuccess(false);
+                }, 3000);
               },
               onError: () => {
                 setShowError(true);
                 onOpenChange();
+                setTimeout(() => {
+                  setShowError(false);
+                }, 3000);
               },
             }
-
-            
         )
     };
     
@@ -51,16 +55,13 @@ export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: 
         }
       }, [onSubmitForm.isSuccess]);
 
-
   return (
     <>
         <CustomNotification message="Programación creada con éxito" type="success" show={showSuccess} />
         <CustomNotification message="Error al crear la programación" type="error" show={showError} />
-        <Button 
-                onPress={onOpen}
-            >
-                Crear Programación
-        </Button>
+        <CustomButton onPress={() => {onOpen()}}>
+          Crear Programación
+        </CustomButton>
 
         <Modal
             isOpen={isOpen}
@@ -110,4 +111,3 @@ export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: 
     </>
   )
 }
-

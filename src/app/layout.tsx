@@ -24,7 +24,7 @@ export default function Layout({
             {/* Principal content */}
             <div className="flex-1 overflow-auto">
               {/* Site content */}
-              <main className="px-6 sm:px-12 md:px-24 lg:px-32 xl:px-56 py-6">
+              <main className="px-1 sm:px-3 md:px-6 lg:px-8 xl:px-14 py-6">
                 {children}
               </main>
             </div>
