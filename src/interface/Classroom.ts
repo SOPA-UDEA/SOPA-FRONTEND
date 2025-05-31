@@ -5,4 +5,5 @@ export interface Classroom {
     ownDepartment: boolean; // Indicates if the classroom is owned by the department
     virtualMode: boolean; // Indicates if the classroom is virtual
     enabled: boolean; // Indicates if the classroom is enabled
-}   
+    hasClass: boolean; // Indicates if the classroom has a "SALA" 
+}

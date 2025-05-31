@@ -97,7 +97,7 @@ export default function ClassroomCreator() {
 
     const finalLocation = newVirtual
       ? enterPlatform
-      : `${classroomNumber}${classroomValue ? ` ${classroomValue}` : ""}`;
+      : `${classroomNumber}${classroomValue ? ` SALA ${classroomValue}` : ""}`;
 
     const finalCapacity = parseInt(newCapacity, 10);
 
@@ -108,6 +108,8 @@ export default function ClassroomCreator() {
         ownDepartment: newOwn,
         virtualMode: newVirtual,
         enabled: true,
+        hasClass: !!classroomValue,
+
       },
       {
         onSuccess: () => {
@@ -116,6 +118,15 @@ export default function ClassroomCreator() {
             title: "Aula creada",
             description: "Aula creada correctamente",
             variant: "solid",
+          });
+          //log to console
+          console.log("Aula creada:", {
+            capacity: finalCapacity,
+            location: finalLocation,
+            ownDepartment: newOwn,
+            virtualMode: newVirtual,
+            enabled: true,
+            hasClass: !!classroomValue,
           });
         },
         onError: () => {
@@ -299,16 +310,16 @@ export default function ClassroomCreator() {
                   </div>
                   <div>
                     <label className="block font-semibold mb-2">
-                      Ingresa una sala para el aula{" "}
-                      <span className="text-black font-extralight">
+                      Ingresa número de sala{" "}
+                      <span className="text-black font-extralight text-xs">
                         (optional)
                       </span>
                     </label>
                     <Input
-                      type="text"
+                      type="number"
                       value={classroomValue}
                       onChange={(e) => setClassroomValue(e.target.value)}
-                      placeholder="Ejemplo: Sala 1."
+                      placeholder="Ejemplo: 1, 2, 3..."
                     />
                   </div>
                 </>
