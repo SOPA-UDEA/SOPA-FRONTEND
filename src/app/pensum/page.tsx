@@ -1,12 +1,11 @@
 'use client';
 import CustomDropdown from "@/app/pensum/components/CustomDropdown";
 import { CustomDataGrid, ColumnConfig } from "@/components/util/CustomDataGrid";
-import { useEffect, useState, useMemo } from "react"; 
+import { useState, useMemo } from "react"; 
 import { Pensum } from "../../interface/Pensum"; 
 import { usePensums } from "./hooks/usePensums";
 import { useSubject } from "../subjects/hooks/useSubject";
 import { useAcademicProgram } from "../academic-program/hooks/useAcademicProgram"; 
-import { Pagination } from "@heroui/react"; 
 
 
 
@@ -27,7 +26,6 @@ const PensumPage = () => {
       const pensum = pensums.find(program => program.id === subject.pensumId);
       const academicProgram = academicPrograms.find(program => program.id === pensum?.academicProgramId);
       let prerequisites: string[] = [];
-      
       if (subject && subject.prerequirement) {
         prerequisites = subject.prerequirement.map(prereq => prereq.code);
       }
@@ -77,7 +75,7 @@ const PensumPage = () => {
         
           {(selectedPensum && enrichedSubjects.length > 0) || !selectedPensum || (selectedPensum && loadingSubjects) ? (
             <CustomDataGrid 
-              data={enrichedSubjects}
+              data={enrichedSubjects.sort((a, b) => a.level - b.level)}
               columns={columnsDefinition}
               ariaLabel="Detalle del Pensum Académico"
               tableClassName="min-w-[1600px] lg:min-w-[1200px]"

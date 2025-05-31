@@ -1,5 +1,4 @@
-import { AcademicSchedule } from "@/interface/AcademicSchedule";
-import { Group, GroupRequest } from "@/interface/Group";
+import { GroupRequest } from "@/interface/Group";
 import { createGroup } from "@/services/groupService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 

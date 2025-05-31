@@ -4,9 +4,7 @@ import { Form, Input } from "@heroui/react"
 import { Button, Modal, ModalBody, ModalHeader,  ModalContent, useDisclosure } from '@heroui/react'
 import { useEffect, useRef, useState } from "react";
 import { UseMutationResult } from "@tanstack/react-query";
-import CustomDropdownButton from "@/app/pensum/components/CustomDropdownButton";
 import CustomButton from "@/components/util/CustomButton";
-import InputError from "@/components/util/InputError";
 
 interface FormProps<T> {
   onSubmitForm: UseMutationResult<T, unknown, any, unknown>;
@@ -48,8 +46,6 @@ export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: 
                 }, 3000);
               },
             }
-
-            
         )
     };
     

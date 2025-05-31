@@ -42,6 +42,17 @@ export interface ClassroomXGroupResponse {
     id: number;
     mainSchedule: string;
 }
+
+export interface ProfessorResponse {
+    id: number,
+    name: string,
+    identification: string
+}
+
+export interface GroupXProfessor {
+    professor: ProfessorResponse
+}
+
 export interface GroupResponse {
     id: number;
     groupSize: number;
@@ -54,12 +65,14 @@ export interface GroupResponse {
     subject: subjectResponse;
     maxSize: number;
     registeredPlaces: number
-    classroom_x_group: [ClassroomXGroupResponse]
+    classroom_x_group: ClassroomXGroupResponse[]
+    group_x_professor: GroupXProfessor[]
     };
 
 export interface GroupRequestUpdate {
     groupSize: number;
-    modality: string;
     maxSize: number;
     registeredPlaces: number;
+    professors: number[];
+    modality: string;
 }

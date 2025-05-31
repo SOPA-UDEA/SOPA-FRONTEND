@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import {
   Table,
   TableHeader,
@@ -11,7 +11,7 @@ import {
   getKeyValue, 
   Selection,    
   Pagination,
-  Button
+  Input,
 } from "@heroui/react";
 import PropTypes from 'prop-types';
 import CustomButton from './CustomButton';
@@ -42,7 +42,6 @@ export const CustomDataGrid = ({
   checkbox = false,
   selectedKeys,
   onSelectionChange,
-  renderActions,
 }: CustomDataGridProps) => {
 
   if (!Array.isArray(data)) {
@@ -50,31 +49,61 @@ export const CustomDataGrid = ({
     return <div className="p-4 text-center text-red-500">Error: Datos inválidos.</div>;
   }
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [hiddenColumns, sethiddenColumns] = useState(false)
 
   const selectionMode = checkbox ? "multiple" : "none";
 
+  
+
   const ITEMS_PER_PAGE = 15;
-  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(columns.map(col => col.renderActions ? "actions" : col.field));
+
+  const filteredData = data.filter(item => {
+    // Buscar en las columnas visibles que no sean acciones
+    return visibleColumns.some(colKey => {
+      if (colKey === "actions") return false;
+      const value = item[colKey];
+      if (!value) return false;
+      return String(value).toLowerCase().includes(searchTerm.toLowerCase());
+    });
+  });
+
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
 
   const finalTableColumns = columns
-  .filter(col => visibleColumns.includes(col.renderActions ? "actions" : col.field))
-  .map(col => ({
-    key: col.renderActions ? "actions" : col.field,
-    label: col.headerName,
-    renderActions: col.renderActions,
+    .filter(col => visibleColumns.includes(col.renderActions ? "actions" : col.field))
+    .map(col => ({
+      key: col.renderActions ? "actions" : col.field,
+      label: col.headerName,
+      renderActions: col.renderActions,
   }));
 
   return (
     <>
       <div className="mb-4">
-        <CustomButton onPress={() => sethiddenColumns(!hiddenColumns)} >Columnas visibles</CustomButton>
+        <div className="flex justify-between">
+          <CustomButton onPress={() => sethiddenColumns(!hiddenColumns)}>
+            Columnas visibles
+          </CustomButton>
+
+          <Input
+            type="text"
+            placeholder="Buscar..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-64 "
+          />
+        </div>
+
             { 
               hiddenColumns && (
               <div className="flex flex-wrap gap-2 mt-2">
@@ -127,7 +156,7 @@ export const CustomDataGrid = ({
       >
         {(item) => (
 
-          <TableRow key={item.id || item.code || `row-${React.useId()}`}>
+          <TableRow key={item.id || item.code}>
             {(columnKey) => {
               const columnConfig = finalTableColumns.find(col => col.key === columnKey);
               if (columnConfig?.renderActions) {

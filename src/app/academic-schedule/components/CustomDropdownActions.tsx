@@ -1,18 +1,18 @@
 
 import { CustomNotification } from "@/components/util/CustomNotification";
 import { usedeleteGroupById } from "@/hooks/useGroups";
-import { Group, GroupRequestUpdate } from "@/interface/Group";
+import { GroupRequestUpdate } from "@/interface/Group";
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react";
 import { useState } from "react";
-interface Props{
+
+interface Props {
     groupId: number | null;
-    onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
     setSelectedGroup: React.Dispatch<React.SetStateAction<GroupRequestUpdate | null>>;
-    selectedGroup: any|null;
     setSelectedGroupId: React.Dispatch<React.SetStateAction<number | null>>;
+    group: any; 
 }
 
-export default function CustomDropdownActions({groupId, onOpenChange, setSelectedGroup, selectedGroup, setSelectedGroupId}: Props){
+export default function CustomDropdownActions({groupId, setSelectedGroup, group, setSelectedGroupId}: Props){
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
     const [message, setmessage] = useState("");
@@ -40,16 +40,18 @@ export default function CustomDropdownActions({groupId, onOpenChange, setSelecte
         });
     };
     
-    const handleUpdate = (group: GroupRequestUpdate  | null| undefined) => {
-        onOpenChange(true);
-        if (!group || group===null || group===undefined) return;
+    const handleUpdate = () => {
+        if (!group || group === null || group === undefined) return;
+
         setSelectedGroup({
             groupSize: group.groupSize,
             modality: group.modality,
             maxSize: group.maxSize,
             registeredPlaces: group.registeredPlaces,
+            professors: group.professors,
         });
         setSelectedGroupId(groupId);
+        // onOpenChange(true);
     };
 
     return (
@@ -63,14 +65,15 @@ export default function CustomDropdownActions({groupId, onOpenChange, setSelecte
             </DropdownTrigger>
             <DropdownMenu aria-label="Action event example">
                 <DropdownItem key="newGroup">Nuevo Grupo</DropdownItem>
-                <DropdownItem key="editGroup" onPress={ () => handleUpdate(selectedGroup) }>Modificar Grupo</DropdownItem>
+                <DropdownItem key="editGroup" onPress={ () => handleUpdate() }>Modificar Grupo</DropdownItem>
                 <DropdownItem key="editSchedule">Modificar Horario</DropdownItem>
                 <DropdownItem key="editClassRoom">Modificar Aula</DropdownItem>
                 <DropdownItem key="deleteGroup" onPress={() => handleDelete(groupId)} className="text-danger" color="danger">
-                Eliminar Grupo
+                    Eliminar Grupo
                 </DropdownItem>
             </DropdownMenu>
             </Dropdown>
+
         </>
     ) 
 }
