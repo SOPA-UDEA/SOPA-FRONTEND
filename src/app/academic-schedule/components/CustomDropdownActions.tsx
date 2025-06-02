@@ -1,41 +1,44 @@
 
-import { CustomNotification } from "@/components/util/CustomNotification";
-import { usedeleteGroupById } from "@/hooks/useGroups";
+// import { CustomNotification } from "@/components/util/CustomNotification";
+import { useDeleteGroupById } from "@/hooks/useGroups";
 import { GroupRequestUpdate } from "@/interface/Group";
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react";
-import { useState } from "react";
+// import { useState } from "react";
 
 interface Props {
     groupId: number | null;
     setSelectedGroup: React.Dispatch<React.SetStateAction<GroupRequestUpdate | null>>;
     setSelectedGroupId: React.Dispatch<React.SetStateAction<number | null>>;
     group: any; 
+    onOpenChange: () => void;
 }
 
-export default function CustomDropdownActions({groupId, setSelectedGroup, group, setSelectedGroupId}: Props){
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [showError, setShowError] = useState(false);
-    const [message, setmessage] = useState("");
+export default function CustomDropdownActions({groupId, setSelectedGroup, group, setSelectedGroupId, onOpenChange}: Props){
+    // const [showSuccess, setShowSuccess] = useState(false);
+    // const [showError, setShowError] = useState(false);
+    // const [message, setmessage] = useState("");
     
-    const { mutateAsync} = usedeleteGroupById();
+    const { mutateAsync} = useDeleteGroupById();
+
     
     const handleDelete = (groupId: number | null | undefined) => {
         const confirm = window.confirm(`¿Estás seguro que quieres eliminar el grupo ${groupId}?`);
         if (!confirm || groupId===null || groupId===undefined) return;
+        console.log(groupId);
         mutateAsync(groupId, {
             onSuccess: () => {
-                setmessage(`Grupo ${groupId} eliminado correctamente`);
-                setShowSuccess(true);
-                setTimeout(() => {
-                    setShowSuccess(false);
-                }, 3000); 
+                // setmessage(`Grupo ${groupId} eliminado correctamente`);
+                // setShowSuccess(true);
+                // setTimeout(() => {
+                //     setShowSuccess(false);
+                // }, 3000); 
             },
             onError: () => {
-                setmessage("Error al eliminar el grupo");
-                setShowError(true);
-                setTimeout(() => {
-                    setShowError(false);
-                }, 3000);
+                // setmessage("Error al eliminar el grupo");
+                // setShowError(true);
+                // setTimeout(() => {
+                //     setShowError(false);
+                // }, 3000);
             },
         });
     };
@@ -51,14 +54,14 @@ export default function CustomDropdownActions({groupId, setSelectedGroup, group,
             professors: group.professors,
         });
         setSelectedGroupId(groupId);
-        // onOpenChange(true);
+        onOpenChange();
     };
 
     return (
         <>
-            <CustomNotification message={message} type="success" show={showSuccess} />
+            {/* <CustomNotification message={message} type="success" show={showSuccess} />
             <CustomNotification message={message} type="error" show={showError} />
-            
+             */}
             <Dropdown>
             <DropdownTrigger>
                 <Button variant="bordered">Acciones</Button>

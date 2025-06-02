@@ -1,137 +1,48 @@
-import { useSubjectsByPensumIds } from "@/app/subjects/hooks/useSubjectsByPensumIds";
-import { CustomNotification } from "@/components/util/CustomNotification";
-import { getAcademicProgramById } from "@/helpers/getAcademicProgramById";
-import { AcademicProgram } from "@/interface/AcademicProgram";
-import { AcademicScheduleResponse } from "@/interface/AcademicSchedule";
-import { Pensum } from "@/interface/Pensum";
-import { Button, Checkbox, Form, Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
-import { UseMutationResult } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-
-interface CustomModalGroupsProps <T> {
-    onSubmitForm: UseMutationResult<T, unknown, any, unknown>;
-    onCreated: () => void;
-    pensums: Pensum[];
-    academicPrograms: AcademicProgram[];
-    academicSchedule: AcademicScheduleResponse;
-    isOpen: boolean;
-    onOpen: () => void;
-    onOpenChange: () => void;
-    selectedPensums: number[];
-    setSelectedPensums: React.Dispatch<React.SetStateAction<number[]>>;
+// import { CustomNotification } from "@/components/util/CustomNotification";
+import { Button, Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@heroui/react";
+import PesnumSelector from "./pensumsSelector";
+interface Props {
+    setPensums: (pensumsId: number[]) => void;
+    action: string;
+    onOpenSchedule: () => void;
 } 
 
-
-export const CustomModalGroups = <T,> ({onCreated, onSubmitForm, pensums, academicPrograms, academicSchedule, isOpen, onOpen, onOpenChange, selectedPensums, setSelectedPensums }: CustomModalGroupsProps<T>) => {
+export const CustomModalGroups = ({ setPensums, action, onOpenSchedule }: Props) => {
     
-  const {subjects} = useSubjectsByPensumIds(selectedPensums)
-    const onCloseRef = useRef<() => void>(() => {});
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [showError, setShowError] = useState(false);
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
-    useEffect(() => {
-        if (academicSchedule) {
-        onOpen()
-        }  
-    }, [academicSchedule]);
-
-    const handleCheckboxChange = (pensumId: number, checked: boolean) => {
-          if (checked) {
-            setSelectedPensums((prevSelected) => [...prevSelected, pensumId]);
-          } else {
-            setSelectedPensums((prevSelected) => prevSelected.filter(id => id !== pensumId));
-          }
-        };
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-       
-      if (!academicSchedule) return;
-
-      try {
-        subjects.map((subject) => {
-          const pensum = pensums.filter(p => p.id === subject.pensumId)
-          const program = getAcademicProgramById(pensum[0].academicProgramId, academicPrograms);
-          const groupData = {
-            group: {
-              groupSize: 20,
-              modality: program.modalityAcademic,
-              code: 1,
-              mirrorGroupId: 1,
-              subjectId: subject.id,
-              academicSchedulePensumId: 0,
-              maxSize: 20,
-              registeredPlaces: 0
-            },
-            mirror: {
-              name: "Grupo espejo A",
-            },
-            academic: {
-              pensumId: subject.pensumId,
-              academicScheduleId: academicSchedule.id
-            }
-          };
-
-          return onSubmitForm.mutateAsync(groupData);
-        });
-
-        onCloseRef.current?.();
-        onCreated();
-        onOpenChange();
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 3000);
-      } catch (error) {
-        console.log(error);
-        setShowError(true);
-        onOpenChange();
-        setTimeout(() => {
-          setShowError(false);
-        }, 3000);
-      }
-    };
-    
   return (
     <>
-        <CustomNotification message="Grupos creados con éxito" type="success" show={showSuccess} />
-        <CustomNotification message="Error al crear los grupos" type="error" show={showError} />
+        <Button
+            color="secondary"
+           onPress={() => {onOpen()}}
+        > 
+            { action }
+        </Button>
+
         <Modal
             isOpen={isOpen}
             onOpenChange={onOpenChange}
             >
             <ModalContent>
-                {(onClose) => {
-                    onCloseRef.current = onClose;
+                {() => {
                     return (
                     <>
                         <ModalHeader className="flex flex-col gap-1">
-                          Seleccionar pensums
+                          Selecciona los Pensums de la programación
                         </ModalHeader>
                         <ModalBody>
-                          
-                          <Form onSubmit={ handleSubmit }>
-                              {pensums.map((pensum) => {
-                                const program = getAcademicProgramById(pensum.academicProgramId,academicPrograms);
-                                return (
-                                  <Checkbox 
-                                    key={pensum.id} 
-                                    defaultChecked={false}
-                                    onChange={(e) => handleCheckboxChange(pensum.id, e.target.checked)}
-                                  >
-                                    {program.code} - {program.name} - {program.modalityAcademic} - {pensum.version}
-                                  </Checkbox>
-                                );
-                              })}
-                              <Button type='submit'>Guardar</Button>
-                          </Form>    
-
+                            <PesnumSelector 
+                                setSelectedPensumsIds={setPensums} 
+                                onOpenChange={ onOpenChange }
+                                onOpenSchedule={ onOpenSchedule }
+                            />
                         </ModalBody>
                     </>
                     );
                 }}
             </ModalContent>
         </Modal>
-        </>
+    </>
   )
 }

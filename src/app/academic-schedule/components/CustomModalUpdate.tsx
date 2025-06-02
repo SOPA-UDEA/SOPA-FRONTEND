@@ -9,19 +9,20 @@ import { useRef, useState } from "react";
 
 interface Props {
     isOpen: boolean;
-    onOpenChange: (open: boolean) => void;
+    onOpenChange: () => void;
     selectedGroup: GroupRequestUpdate;
     groupId: number;
+    setUpdated: (a: boolean) => void;
 }
 
-export default function CustomModalUpdate({ isOpen, onOpenChange, selectedGroup, groupId}: Props) {
+export default function CustomModalUpdate({ isOpen, onOpenChange, selectedGroup, groupId, setUpdated }: Props) {
     const initialFormState = {
         'Tamaño del pgrupo': selectedGroup.groupSize,
         'Tamaño máximo del grupo': selectedGroup.maxSize,
         'Cupos matriculados': selectedGroup.registeredPlaces,
         'Modalidad del grupo': selectedGroup.modality,
     };
-    const {formState, onInputChange } = useForm(initialFormState);
+    const {formState, onInputChange, onResetForm } = useForm(initialFormState);
     const { mutateAsync } = useUpdateGroupById();
 
     const { 
@@ -46,21 +47,33 @@ export default function CustomModalUpdate({ isOpen, onOpenChange, selectedGroup,
     
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        const allProfessorIds = (data || []).map(p => p.id);
+        const professors =
+            selectedKeys === "all"
+                ? allProfessorIds
+                : Array.from(selectedKeys as Set<string>)
+                    .map(id => Number(id))
+                    .filter(id => !isNaN(id));
+        
         mutateAsync({ groupId: groupId, group: {
             groupSize: Number(formState["Tamaño del pgrupo"]),
             modality: formState["Modalidad del grupo"],
             maxSize: Number(formState["Tamaño máximo del grupo"]),
             registeredPlaces: Number(formState["Cupos matriculados"]),
-            professors: Array.from(selectedKeys as Set<string>).map(Number)
+            professors: professors
         } },{
             onSuccess: () => {
                 setmessage(`Grupo ${groupId} actualizado correctamente`);
                 setShowSuccess(true);
-                onOpenChange(false);
+                onOpenChange();
+                setUpdated(true);
+                onResetForm();
                 setTimeout(() => {
                     setShowSuccess(false);
+                    setUpdated(false);
                 }, 3000); 
                 setSelectedKeys(new Set())
+                
             },
             onError: () => {
                 setmessage("Error al actualizar el grupo");

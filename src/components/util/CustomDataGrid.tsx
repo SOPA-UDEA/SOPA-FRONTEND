@@ -12,6 +12,7 @@ import {
   Selection,    
   Pagination,
   Input,
+  Button,
 } from "@heroui/react";
 import PropTypes from 'prop-types';
 import CustomButton from './CustomButton';
@@ -88,9 +89,11 @@ export const CustomDataGrid = ({
     <>
       <div className="mb-4">
         <div className="flex justify-between">
-          <CustomButton onPress={() => sethiddenColumns(!hiddenColumns)}>
+          <Button 
+            color='secondary'
+            onPress={() => sethiddenColumns(!hiddenColumns)}>
             Columnas visibles
-          </CustomButton>
+          </Button>
 
           <Input
             type="text"

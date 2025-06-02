@@ -1,113 +1,68 @@
-import { useForm } from "@/hooks/useForm";
-import { CustomNotification } from "@/components/util/CustomNotification";
-import { Form, Input } from "@heroui/react"
-import { Button, Modal, ModalBody, ModalHeader,  ModalContent, useDisclosure } from '@heroui/react'
-import { useEffect, useRef, useState } from "react";
-import { UseMutationResult } from "@tanstack/react-query";
-import CustomButton from "@/components/util/CustomButton";
+// import { CustomNotification } from "@/components/util/CustomNotification";
+import { Modal, ModalBody, ModalHeader,  ModalContent } from '@heroui/react'
+import { AcademicSchedule, AcademicScheduleResponse } from "@/interface/AcademicSchedule";
+import FormAcademicSchedule from "./formAcademicSchedule";
+import useCreateAcademicSchedule from '@/hooks/useSchedule';
+import { useCreateBaseGroup } from '@/hooks/useGroups';
 
-interface FormProps<T> {
-  onSubmitForm: UseMutationResult<T, unknown, any, unknown>;
-  defaultValues?: Record<string, any>;
-  onCreated: (data: any) => void;
+
+interface FormProps{
+    setAcademicSchedule: (a: AcademicScheduleResponse) => void;
+    selectedPensumsIds: number[];
+    onOpenChange: () => void;
+    isOpen: boolean;
 }
 
-export const CustomModalForm = <T,>({ onCreated, defaultValues, onSubmitForm }: FormProps<T>) => {
-    const initialFormState = defaultValues || {};
-    const {formState, onInputChange, onResetForm, } = useForm(initialFormState);
+export const CustomModalForm = ({ setAcademicSchedule, selectedPensumsIds, onOpenChange, isOpen  }: FormProps) => {
 
-    const {isOpen, onOpen, onOpenChange } = useDisclosure();
-    const onCloseRef = useRef<() => void>(() => {});
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [showError, setShowError] = useState(false);
+    const { mutate } = useCreateAcademicSchedule();
+	const { mutateAsync } = useCreateBaseGroup();
     
-    
-    
-
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>, formState: AcademicSchedule) => {
         event.preventDefault();
-        onSubmitForm.mutate( formState ,
+        const scheduleRequest = {
+			'semester': formState.semester,
+			'pensumsIds': selectedPensumsIds
+        }
+        mutate( scheduleRequest ,
             {
-              onSuccess: (data) => {
-                setShowSuccess(true);
-                onResetForm();
-                onCloseRef.current?.(); 
-                onCreated(data);
-                onOpenChange();
-                setTimeout(() => {
-                  setShowSuccess(false);
-                }, 3000);
-              },
-              onError: () => {
-                setShowError(true);
-                onOpenChange();
-                setTimeout(() => {
-                  setShowError(false);
-                }, 3000);
-              },
+				onSuccess: (data) => {
+					onOpenChange();
+					const requestBase = {
+						'scheduleId': data.id,
+						'pensumIds': selectedPensumsIds
+					}
+					mutateAsync( requestBase )
+					setAcademicSchedule(data);
+				},
+				onError: () => {
+					// onOpenChange();
+				},
             }
         )
     };
-    
-    useEffect(() => {
-        if (onSubmitForm.isSuccess) {
-          onResetForm();    
-        }
-      }, [onSubmitForm.isSuccess]);
 
-  return (
-    <>
-        <CustomNotification message="Programación creada con éxito" type="success" show={showSuccess} />
-        <CustomNotification message="Error al crear la programación" type="error" show={showError} />
-        <CustomButton onPress={() => {onOpen()}}>
-          Crear Programación
-        </CustomButton>
-
-        <Modal
-            isOpen={isOpen}
-            onOpenChange={onOpenChange}
-            >
-            <ModalContent>
-                {(onClose) => {
-                    onCloseRef.current = onClose;
-                    return (
-                    <>
-                        <ModalHeader className="flex flex-col gap-1">
-                        Nueva Programación académica
-                        </ModalHeader>
-                        <ModalBody>
-                        <Form onSubmit={handleSubmit}>
-                            {Object.entries(formState).map(([key, value]) => (
-                              <Input
-                                key={key}
-                                name={key}
-                                label={key}
-                                value={value}
-                                labelPlacement="outside"
-                                onChange={onInputChange}
-                                isRequired
-                              />
-                            ))}
-                            <div className="flex flex-wrap gap-4 items-center">
-                            <Button color="default" type="submit">
-                                Crear
-                            </Button>
-                            <Button
-                                color="warning"
-                                type="button"
-                                onPress={onResetForm}
-                                className="bg-red-500 text-white"
-                            >
-                                Borrar
-                            </Button>
-                            </div>
-                        </Form>
-                        </ModalBody>
-                    </>
-                    );
-                }}
-            </ModalContent>
-        </Modal>
-    </>
-  )
+  	return (
+		<>
+			<Modal
+				isOpen={isOpen}
+				onOpenChange={onOpenChange}
+			>
+				<ModalContent>
+					{() => {
+						return (
+						<>
+							<ModalHeader className="flex flex-col gap-1">
+								Nueva Programación académica
+							</ModalHeader>
+							<ModalBody>
+								<FormAcademicSchedule onSubmitForm={ handleSubmit } />
+							</ModalBody>
+						</>
+						);
+					}}
+				</ModalContent>
+			</Modal>
+		</>
+  	)
 }
