@@ -3,11 +3,13 @@ import { Button, Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } fr
 import PesnumSelector from "./pensumsSelector";
 interface Props {
     setPensums: (pensumsId: number[]) => void;
-    action: string;
+    text: string;
     onOpenSchedule: () => void;
+    setAction: (a: string) => void;
+    action: string
 } 
 
-export const CustomModalGroups = ({ setPensums, action, onOpenSchedule }: Props) => {
+export const ModalPensums = ({ setPensums, action, onOpenSchedule, text, setAction }: Props) => {
     
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
@@ -17,7 +19,7 @@ export const CustomModalGroups = ({ setPensums, action, onOpenSchedule }: Props)
             color="secondary"
            onPress={() => {onOpen()}}
         > 
-            { action }
+            { text }
         </Button>
 
         <Modal
@@ -29,13 +31,15 @@ export const CustomModalGroups = ({ setPensums, action, onOpenSchedule }: Props)
                     return (
                     <>
                         <ModalHeader className="flex flex-col gap-1">
-                          Selecciona los Pensums de la programación
+                          Selecciona los Pensums
                         </ModalHeader>
                         <ModalBody>
                             <PesnumSelector 
-                                setSelectedPensumsIds={setPensums} 
-                                onOpenChange={ onOpenChange }
-                                onOpenSchedule={ onOpenSchedule }
+                                    setSelectedPensumsIds={setPensums}
+                                    onOpenChange={onOpenChange}
+                                    onOpenSchedule={onOpenSchedule} 
+                                    setAction={ setAction } 
+                                    action={ action }                                
                             />
                         </ModalBody>
                     </>

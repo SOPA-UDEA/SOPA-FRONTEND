@@ -11,9 +11,10 @@ interface FormProps{
     selectedPensumsIds: number[];
     onOpenChange: () => void;
     isOpen: boolean;
+	action: string;
 }
 
-export const CustomModalForm = ({ setAcademicSchedule, selectedPensumsIds, onOpenChange, isOpen  }: FormProps) => {
+export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds, onOpenChange, isOpen, action  }: FormProps) => {
 
     const { mutate } = useCreateAcademicSchedule();
 	const { mutateAsync } = useCreateBaseGroup();
@@ -24,7 +25,9 @@ export const CustomModalForm = ({ setAcademicSchedule, selectedPensumsIds, onOpe
 			'semester': formState.semester,
 			'pensumsIds': selectedPensumsIds
         }
-        mutate( scheduleRequest ,
+
+		if (action === "create") {
+			mutate( scheduleRequest ,
             {
 				onSuccess: (data) => {
 					onOpenChange();
@@ -40,6 +43,10 @@ export const CustomModalForm = ({ setAcademicSchedule, selectedPensumsIds, onOpe
 				},
             }
         )
+		} else if( action === "classroom"){
+			//your classroom logic
+		}
+        
     };
 
   	return (
@@ -53,7 +60,7 @@ export const CustomModalForm = ({ setAcademicSchedule, selectedPensumsIds, onOpe
 						return (
 						<>
 							<ModalHeader className="flex flex-col gap-1">
-								Nueva Programación académica
+								Semestre académico
 							</ModalHeader>
 							<ModalBody>
 								<FormAcademicSchedule onSubmitForm={ handleSubmit } />

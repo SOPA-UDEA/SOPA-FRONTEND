@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { CustomModalForm } from "./components/CustomModalForm";
+import { ModalSchedule } from "./components/ModalSchedule";
 import { AcademicScheduleResponse } from "@/interface/AcademicSchedule";
 import { CustomDataGrid } from "@/components/util/CustomDataGrid";
-import { CustomModalGroups } from "./components/CustomModalGroups";
+import { ModalPensums } from "./components/ModalPensums";
 import { useDisclosure } from "@heroui/react";
 import CustomDropdownActions from "./components/CustomDropdownActions";
-import CustomModalUpdate from "./components/CustomModalUpdate";
+import ModalUpdateGroup from "./components/ModalUpdateGroup";
 import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
-import ModalLoadSchedule from "./components/ModalLoadSchedule";
 import { useGroupsBySchedulePensum } from "@/hooks/useGroups";
 
 const Page = () => {
@@ -19,11 +18,13 @@ const Page = () => {
 
 	const [selectedGroup, setSelectedGroup] = useState<GroupRequestUpdate | null>(null);
 	const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
-	const { mutateAsync } = useGroupsBySchedulePensum()
 	const [ groups, setGroups ] = useState<GroupResponse[]>([]);
 	const [selectedPensumsIds, setSelectedPensumsIds] = useState<number[]>([]);
-
 	const [ updated, setUpdated ] = useState(false)
+
+	const [action, setAction] = useState("");
+	
+	const { mutateAsync } = useGroupsBySchedulePensum()
 
 	useEffect(() => {
 		if ( academicSchedule ) {
@@ -85,19 +86,20 @@ const Page = () => {
 				</h1>
 			</div>
 			{
-				<CustomModalGroups
+				<ModalPensums
 					setPensums={setSelectedPensumsIds}
-					action={"Crear Programación nueva"}
-					onOpenSchedule={onOpen}
-				/>
+					action={"create"}
+					onOpenSchedule={onOpen} 
+					text={"Crear Programación nueva"} 
+					setAction={ setAction }				/>
 			}
 			{selectedPensumsIds?.length > 0 && (
-				<CustomModalForm
+				<ModalSchedule
 					setAcademicSchedule={setAcademicSchedule}
 					selectedPensumsIds={selectedPensumsIds}
 					isOpen={isOpen}
-					onOpenChange={onOpenChange}
-				/>
+					onOpenChange={onOpenChange} 
+					action={ action }				/>
 			)}
 			<div className="mt-4">
 				{
@@ -129,14 +131,19 @@ const Page = () => {
 
 			</div>
 			{selectedGroup && selectedGroupId && (
-				<CustomModalUpdate
+				<ModalUpdateGroup
 					isOpen={isOpenUpdate}
 					onOpenChange={onOpenChangeUpdate}
 					selectedGroup={selectedGroup}
 					groupId={selectedGroupId} 
 					setUpdated={ setUpdated }				/>
 			)}
-			<ModalLoadSchedule />
+			<ModalPensums
+				setPensums={setSelectedPensumsIds}
+				action={"classroom"}
+				onOpenSchedule={onOpen} text={"Cargar aulas DRAI"} 
+				setAction={ setAction }
+				/>
 		</>
 	);
 };

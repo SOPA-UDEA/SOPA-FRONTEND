@@ -15,7 +15,7 @@ interface Props {
     setUpdated: (a: boolean) => void;
 }
 
-export default function CustomModalUpdate({ isOpen, onOpenChange, selectedGroup, groupId, setUpdated }: Props) {
+export default function ModalUpdateGroup({ isOpen, onOpenChange, selectedGroup, groupId, setUpdated }: Props) {
     const initialFormState = {
         'Tamaño del pgrupo': selectedGroup.groupSize,
         'Tamaño máximo del grupo': selectedGroup.maxSize,

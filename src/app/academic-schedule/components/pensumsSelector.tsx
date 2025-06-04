@@ -8,9 +8,11 @@ interface Props{
     setSelectedPensumsIds: (pensumsId: number[]) => void;
     onOpenChange: (isOpen: boolean) => void;
     onOpenSchedule: () => void;
+    setAction: (a: string) => void;
+    action: string;
 }
 
-export default function PesnumSelector ({ setSelectedPensumsIds, onOpenChange, onOpenSchedule }: Props) {
+export default function PesnumSelector ({ setSelectedPensumsIds, onOpenChange, onOpenSchedule, setAction, action }: Props) {
 
     const { pensums } = usePensums();
     const { academicPrograms, isLoading } = useAcademicProgram();
@@ -29,6 +31,7 @@ export default function PesnumSelector ({ setSelectedPensumsIds, onOpenChange, o
         setSelectedPensumsIds(selectedPensums);
         onOpenChange(false);
         onOpenSchedule();
+        setAction(action);
     }
 
     if (isLoading) return(<>Loading...</>)
