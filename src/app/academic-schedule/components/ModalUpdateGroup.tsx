@@ -17,7 +17,7 @@ interface Props {
 
 export default function ModalUpdateGroup({ isOpen, onOpenChange, selectedGroup, groupId, setUpdated }: Props) {
     const initialFormState = {
-        'Tamaño del pgrupo': selectedGroup.groupSize,
+        'Tamaño del grupo': selectedGroup.groupSize,
         'Tamaño máximo del grupo': selectedGroup.maxSize,
         'Cupos matriculados': selectedGroup.registeredPlaces,
         'Modalidad del grupo': selectedGroup.modality,
@@ -56,7 +56,7 @@ export default function ModalUpdateGroup({ isOpen, onOpenChange, selectedGroup, 
                     .filter(id => !isNaN(id));
         
         mutateAsync({ groupId: groupId, group: {
-            groupSize: Number(formState["Tamaño del pgrupo"]),
+            groupSize: Number(formState["Tamaño del grupo"]),
             modality: formState["Modalidad del grupo"],
             maxSize: Number(formState["Tamaño máximo del grupo"]),
             registeredPlaces: Number(formState["Cupos matriculados"]),

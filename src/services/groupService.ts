@@ -30,3 +30,8 @@ export const getBySchedulePensum = async (pensums: number[], scheduleId: number)
 	const response = await api.post(`/group/schedule/${scheduleId}/list`, pensums);
 	return response.data
 } 
+
+export const createGroupOf = async (group_id: number) => {
+	const response = await api.post(`/group/create-of/${group_id}`);
+	return response.data;
+}

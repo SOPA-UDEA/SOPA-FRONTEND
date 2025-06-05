@@ -1,5 +1,5 @@
 import { GroupRequestUpdate } from "@/interface/Group";
-import { createBaseGroups, deleteGroupById, getBySchedulePensum, updateGroupById } from "@/services/groupService";
+import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, updateGroupById } from "@/services/groupService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
  type UpdateGroupPayload = {
@@ -56,6 +56,20 @@ export function useGroupsBySchedulePensum() {
 		mutationFn: async ({ scheduleId, pensumIds }:BaseGroupsPayload ) => {
 		return await getBySchedulePensum(pensumIds, scheduleId);
 		},
+		onSuccess: () => {
+		queryClient.invalidateQueries({ queryKey: ["groups"] });
+		},
+	});
+}
+
+export function useCreateGroupOf(){
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (groupId: number) => {
+		return await createGroupOf(groupId);
+		},
+
 		onSuccess: () => {
 		queryClient.invalidateQueries({ queryKey: ["groups"] });
 		},

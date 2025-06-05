@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { ModalSchedule } from "./components/ModalSchedule";
-import { AcademicScheduleResponse } from "@/interface/AcademicSchedule";
+import { AcademicSchedule, AcademicScheduleResponse } from "@/interface/AcademicSchedule";
 import { CustomDataGrid } from "@/components/util/CustomDataGrid";
 import { ModalPensums } from "./components/ModalPensums";
 import { useDisclosure } from "@heroui/react";
@@ -11,6 +11,7 @@ import CustomDropdownActions from "./components/CustomDropdownActions";
 import ModalUpdateGroup from "./components/ModalUpdateGroup";
 import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
 import { useGroupsBySchedulePensum } from "@/hooks/useGroups";
+import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
 
 const Page = () => {
 	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
@@ -21,10 +22,11 @@ const Page = () => {
 	const [ groups, setGroups ] = useState<GroupResponse[]>([]);
 	const [selectedPensumsIds, setSelectedPensumsIds] = useState<number[]>([]);
 	const [ updated, setUpdated ] = useState(false)
-
 	const [action, setAction] = useState("");
 	
 	const { mutateAsync } = useGroupsBySchedulePensum()
+	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
+	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule} = useDisclosure();
 
 	useEffect(() => {
 		if ( academicSchedule ) {
@@ -40,7 +42,6 @@ const Page = () => {
 		}
 	}, [ academicSchedule, selectedPensumsIds, updated ]);
 
-	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
 
 	const enrichedGroups = groups.map((group) => {
 			const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(", ");
@@ -90,7 +91,7 @@ const Page = () => {
 					setPensums={setSelectedPensumsIds}
 					action={"create"}
 					onOpenSchedule={onOpen} 
-					text={"Crear Programación nueva"} 
+					text={"Crear o cargar Programación"} 
 					setAction={ setAction }				/>
 			}
 			{selectedPensumsIds?.length > 0 && (
@@ -121,6 +122,8 @@ const Page = () => {
 										setSelectedGroupId={setSelectedGroupId}
 										group={item} 
 										onOpenChange={ onOpenUpdate }
+										setUpdated={ setUpdated }
+										onOpenChangeUpdateSchedule={ onOpenUpdateSchedule }
 									/>
 								),
 							},
@@ -138,6 +141,12 @@ const Page = () => {
 					groupId={selectedGroupId} 
 					setUpdated={ setUpdated }				/>
 			)}
+			{
+				<ModalUpdateGroupsSchedule 
+					onOpenChange={onOpenChangeUpdateSchedule}
+					isOpen={isOpenUpdateSchedule}
+				 />
+			}
 			<ModalPensums
 				setPensums={setSelectedPensumsIds}
 				action={"classroom"}
