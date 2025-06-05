@@ -25,7 +25,9 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds, onOpenC
 			'semester': formState.semester,
 			'pensumsIds': selectedPensumsIds
         }
-
+		console.log(selectedPensumsIds);
+		console.log(formState.semester);
+		
 		if (action === "create") {
 			mutate( scheduleRequest ,
             {
