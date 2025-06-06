@@ -108,7 +108,7 @@ export default function ClassroomCreator() {
         ownDepartment: newOwn,
         virtualMode: newVirtual,
         enabled: true,
-        hasClass: !!classroomValue,
+        hasRoom: !!classroomValue,
 
       },
       {
