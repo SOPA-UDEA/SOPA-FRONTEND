@@ -274,7 +274,7 @@ export default function ClassroomManager() {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={classrooms?.filter(c => ![1, 2, 3].includes(c.id))}>
+       <TableBody items={classrooms?.filter((item) => !item.isPointer)}>
           {(item) => (
             <TableRow key={item.id}>
               <TableCell>{item.id}</TableCell>
