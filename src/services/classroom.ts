@@ -33,17 +33,17 @@ export async function uploadClassrooms(
   return response.data;
 }
 
-// Update an existing classroom
-export async function updateClassroom(
-  classroomId: number,
-  classroom: Partial<Classroom>
-): Promise<Classroom> {
-  const response = await api.put<Classroom>(
-    `/classroom/update/${classroomId}`,
-    classroom
-  );
-  return response.data;
-}
+  // Update an existing classroom
+  export async function updateClassroom(
+    classroomId: number,
+    classroom: Partial<Classroom>
+  ): Promise<Classroom> {
+    const response = await api.put<Classroom>(
+      `/classroom/update/${classroomId}`,
+      classroom
+    );
+    return response.data;
+  }
 
 // Delete a classroom
 export async function deleteClassroom(classroomId: number): Promise<void> {
