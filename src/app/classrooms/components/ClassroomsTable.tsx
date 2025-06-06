@@ -26,6 +26,7 @@ import {
   Input,
   InputOtp,
   ModalFooter,
+  Pagination,
 } from "@heroui/react";
 import { MdDeleteForever } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
@@ -258,12 +259,42 @@ export default function ClassroomManager() {
     }
   };
 
+  const [page, setPage] = React.useState(1);
+  const rowsPerPage = 15; // Número de filas por página
+
+  const pages = Math.ceil((classrooms?.length ?? 0) / rowsPerPage);
+
+  const items = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return classrooms?.slice(start, end);
+  }, [classrooms, page]);
+
   if (isLoading) return <div>Cargando...</div>;
   if (error) return <div>Error al cargar los datos</div>;
 
   return (
     <div className="p-6 space-y-6">
-      <Table aria-label="Gestión de Aulas">
+      <Table
+        aria-label="Gestión de Aulas"
+        bottomContent={
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="secondary"
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        }
+        classNames={{
+          wrapper: "min-h-[222px]",
+        }}
+      >
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn
@@ -274,7 +305,7 @@ export default function ClassroomManager() {
             </TableColumn>
           )}
         </TableHeader>
-       <TableBody items={classrooms?.filter((item) => !item.isPointer)}>
+       <TableBody items={items?.filter((item) => !item.isPointer)}>
           {(item) => (
             <TableRow key={item.id}>
               <TableCell>{item.id}</TableCell>
