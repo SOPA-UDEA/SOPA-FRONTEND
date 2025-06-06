@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   useClassrooms,
   useUpdateClassroom,
@@ -19,10 +19,18 @@ import {
   Tooltip,
   Chip,
   Switch,
+  RadioGroup,
+  ModalBody,
+  ModalHeader,
+  Radio,
+  Input,
+  InputOtp,
+  ModalFooter,
+  Pagination,
 } from "@heroui/react";
 import { MdDeleteForever } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
-import { Classroom } from "@/interface/Classroom";
+import { Classroom, UpdateClassroomDTO } from "@/interface/Classroom";
 import { isClassroomInUse } from "@/services/classroom";
 
 const columns = [
@@ -39,7 +47,9 @@ const statusColorMap = {
   true: "success",
   false: "danger",
 };
-export async function checkIfClassroomInUse(classroomId: number): Promise<{ in_use: boolean }> {
+export async function checkIfClassroomInUse(
+  classroomId: number
+): Promise<{ in_use: boolean }> {
   return isClassroomInUse(classroomId);
 }
 
@@ -50,11 +60,17 @@ export default function ClassroomManager() {
   const changeStatusMutation = useChangeClassroomStatus();
 
   const [editing, setEditing] = useState(false);
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editCapacity, setEditCapacity] = useState<number>(0);
-  const [editLocation, setEditLocation] = useState<string>("");
-  const [editOwn, setEditOwn] = useState<boolean>(false);
-  const [editVirtual, setEditVirtual] = useState<boolean>(false);
+  const [editCapacity, setEditCapacity] = useState("");
+  const [editVirtual, setEditVirtual] = useState(false);
+  const [editPlatform, setEditPlatform] = useState("");
+  const [editOwn, setEditOwn] = useState(false);
+  const [editBlock, setEditBlock] = useState("");
+  const [editFloor, setEditFloor] = useState("");
+  const [editRoom, setEditRoom] = useState("");
+  const [editClassroomValue, setEditClassroomValue] = useState("");
+  const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(
+    null
+  );
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [cannotDeleteModal, setCannotDeleteModal] = useState(false);
@@ -63,114 +79,222 @@ export default function ClassroomManager() {
   );
   const [editEnabled, setEditEnabled] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (editing && editId !== null && classrooms) {
-      const room = classrooms.find((c) => c.id === editId);
-      if (room) {
-        setEditCapacity(room.capacity);
-        setEditLocation(room.location);
-        setEditOwn(room.ownDepartment);
-        setEditVirtual(room.virtualMode);
-        setEditEnabled(room.enabled);
+  const openEditModal = (classroom: Classroom) => {
+    setSelectedClassroom(classroom);
+    setEditCapacity(String(classroom.capacity));
+    setEditVirtual(classroom.virtualMode);
+    setEditOwn(classroom.ownDepartment);
+
+    if (classroom.virtualMode) {
+      setEditPlatform(classroom.location);
+    } else {
+      const match = classroom.location.match(/^(\d{2})(\d)(\d{2})/); // extrae bloque, piso y aula
+      if (match) {
+        setEditBlock(match[1]);
+        setEditFloor(match[2]);
+        setEditRoom(match[3]);
       }
+      const sala = classroom.location.match(/SALA (\d+)/);
+      setEditClassroomValue(sala ? sala[1] : "");
     }
-  }, [editing, editId, classrooms]);
 
-  useEffect(() => {
-    if (targetClassroom) {
-      setEditEnabled(targetClassroom.enabled);
-    }
-  }, [targetClassroom]);
-
-  const handleEditClick = (id: number) => {
-    setEditId(id);
     setEditing(true);
   };
 
+  const handleCloseEdit = () => {
+    setEditing(false);
+    setSelectedClassroom(null);
+  };
+
   const handleUpdate = () => {
-    if (editId === null) return;
+    if (!validateInputs()) return;
+    if (!editCapacity || isNaN(+editCapacity) || +editCapacity <= 0) {
+      addToast({
+        title: "Error",
+        description: "Capacidad inválida",
+      });
+      return;
+    }
+
+    const finalLocation = editVirtual
+      ? editPlatform
+      : `${editBlock}${editFloor}${editRoom}${
+          editClassroomValue ? ` SALA ${editClassroomValue}` : ""
+        }`;
+
+    if (!selectedClassroom) {
+      addToast({
+        title: "Error",
+        description: "No se ha seleccionado un aula para editar.",
+      });
+      return;
+    }
+
+    const classroom = {
+      capacity: parseInt(editCapacity),
+      location: finalLocation,
+      ownDepartment: editVirtual ? false : editOwn,
+      virtualMode: editVirtual,
+      enabled: editEnabled,
+      hasRoom: !!editClassroomValue,
+      isPointer: false,
+    } satisfies UpdateClassroomDTO;
     updateMutation.mutate(
       {
-        classroomId: editId,
-        classroom: {
-          capacity: editCapacity,
-          location: editLocation,
-          ownDepartment: editOwn,
-          virtualMode: editVirtual,
-          enabled: editEnabled,
-        },
+        classroomId: selectedClassroom.id,
+        classroom,
       },
       {
         onSuccess: () => {
+          setEditing(false);
           addToast({
             title: "Aula actualizada",
             description: "Aula actualizada correctamente",
             variant: "solid",
           });
-          setEditing(false);
-          setEditId(null);
+          console.log("Aula actualizada:", {
+            capacity: editCapacity,
+            location: finalLocation,
+            ownDepartment: editVirtual ? false : editOwn,
+            virtualMode: editVirtual,
+            enabled: true,
+            hasRoom: !!editClassroomValue,
+          });
+        },
+        onError: () => {
+          addToast({
+            title: "Error",
+            description: "Esta aula ya existe. Por favor, verifica los datos.",
+            variant: "solid",
+          });
         },
       }
     );
   };
 
-const handleDelete = async (id: number) => {
-  const classroom = classrooms.find((c) => c.id === id);
-  if (!classroom) return;
+  const validateInputs = () => {
+    const errors = [];
 
-  const { in_use } = await checkIfClassroomInUse(classroom.id);
+    if (editVirtual) {
+      if (!editPlatform) errors.push("Plataforma virtual");
+    } else {
+      if (
+        !editBlock ||
+        isNaN(+editBlock) ||
+        +editBlock < 1 ||
+        +editBlock > 29
+      ) {
+        errors.push("Número del bloque válido (01–29)");
+      }
 
-  if (in_use) {
-    setTargetClassroom(classroom);
-    setCannotDeleteModal(true);
-  } else {
-    setDeleteId(id); // muestra el modal de confirmación
-  }
-};
+      if (!editFloor || isNaN(+editFloor) || +editFloor < 1 || +editFloor > 4) {
+        errors.push("Número del piso válido (1–4)");
+      }
 
+      if (!editRoom || isNaN(+editRoom) || +editRoom < 0 || +editRoom > 60) {
+        errors.push("Número del aula válido (00–60)");
+      }
+    }
 
+    if (!editCapacity || isNaN(+editCapacity) || +editCapacity <= 0) {
+      errors.push("Capacidad válida");
+    }
 
-const confirmDelete = async () => {
-  if (deleteId === null) return;
+    if (errors.length > 0) {
+      addToast({
+        title: "Error",
+        description: "Completa todos los campos requeridos correctamente.",
+      });
+      return false;
+    }
 
-  const classroom = classrooms.find((c) => c.id === deleteId);
-  if (!classroom) return;
+    return true;
+  };
 
-  const { in_use } = await checkIfClassroomInUse(classroom.id);
+  const handleDelete = async (id: number) => {
+    const classroom = classrooms?.find((c) => c.id === id);
+    if (!classroom) return;
 
-  if (in_use) {
-    setTargetClassroom(classroom);
-    setCannotDeleteModal(true);
-    setDeleteId(null);
-  } else {
-    deleteMutation.mutate(deleteId, {
-      onSuccess: () => {
-        addToast({
-          title: "Aula eliminada",
-          description: "Aula eliminada correctamente",
-          variant: "solid",
-        });
-        setDeleteId(null);
-      },
-      onError: () => {
-        addToast({
-          title: "Error al eliminar aula",
-          description: "No se pudo eliminar el aula. Inténtalo de nuevo.",
-          variant: "solid",
-        });
-        setDeleteId(null);
-      },
-    });
-  }
-};
+    const { in_use } = await checkIfClassroomInUse(classroom.id);
 
+    if (in_use) {
+      setTargetClassroom(classroom);
+      setCannotDeleteModal(true);
+    } else {
+      setDeleteId(id);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId === null) return;
+
+    const classroom = classrooms?.find((c) => c.id === deleteId);
+    if (!classroom) return;
+
+    const { in_use } = await checkIfClassroomInUse(classroom.id);
+
+    if (in_use) {
+      setTargetClassroom(classroom);
+      setCannotDeleteModal(true);
+      setDeleteId(null);
+    } else {
+      deleteMutation.mutate(deleteId, {
+        onSuccess: () => {
+          addToast({
+            title: "Aula eliminada",
+            description: "Aula eliminada correctamente",
+            variant: "solid",
+          });
+          setDeleteId(null);
+        },
+        onError: () => {
+          addToast({
+            title: "Error al eliminar aula",
+            description: "No se pudo eliminar el aula. Inténtalo de nuevo.",
+            variant: "solid",
+          });
+          setDeleteId(null);
+        },
+      });
+    }
+  };
+
+  const [page, setPage] = React.useState(1);
+  const rowsPerPage = 15; // Número de filas por página
+
+  const pages = Math.ceil((classrooms?.length ?? 0) / rowsPerPage);
+
+  const items = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return classrooms?.slice(start, end);
+  }, [classrooms, page]);
 
   if (isLoading) return <div>Cargando...</div>;
   if (error) return <div>Error al cargar los datos</div>;
 
   return (
     <div className="p-6 space-y-6">
-      <Table aria-label="Gestión de Aulas">
+      <Table
+        aria-label="Gestión de Aulas"
+        bottomContent={
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="secondary"
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        }
+        classNames={{
+          wrapper: "min-h-[222px]",
+        }}
+      >
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn
@@ -181,7 +305,7 @@ const confirmDelete = async () => {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={classrooms}>
+       <TableBody items={items?.filter((item) => !item.isPointer)}>
           {(item) => (
             <TableRow key={item.id}>
               <TableCell>{item.id}</TableCell>
@@ -219,7 +343,7 @@ const confirmDelete = async () => {
                   <Button
                     isIconOnly
                     variant="light"
-                    onPress={() => handleEditClick(item.id)}
+                    onPress={() => openEditModal(item)}
                   >
                     <FaEdit size={20} />
                   </Button>
@@ -240,45 +364,145 @@ const confirmDelete = async () => {
       </Table>
 
       {editing && (
-        <Modal isOpen={editing} hideCloseButton>
+        <Modal
+          isOpen={editing}
+          onOpenChange={handleCloseEdit}
+          backdrop="opaque"
+          size="lg"
+        >
           <ModalContent>
-            <div className="p-6 bg-white rounded-lg shadow-lg space-y-4">
-              <h3 className="text-lg font-bold">Editar Aula {editId}</h3>
-              <input
-                type="number"
-                value={editCapacity}
-                onChange={(e) => setEditCapacity(Number(e.target.value))}
-                className="border p-2 rounded w-full"
-              />
-              <input
-                type="text"
-                value={editLocation}
-                onChange={(e) => setEditLocation(e.target.value)}
-                className="border p-2 rounded w-full"
-              />
-              <label className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={editOwn}
-                  onChange={(e) => setEditOwn(e.target.checked)}
-                />{" "}
-                Departamento
-              </label>
-              <label className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={editVirtual}
-                  onChange={(e) => setEditVirtual(e.target.checked)}
-                />{" "}
-                Virtual
-              </label>
-              <div className="flex gap-2 justify-end">
-                <Button variant="flat" onPress={() => setEditing(false)}>
-                  Cancelar
-                </Button>
-                <Button onPress={handleUpdate}>Guardar</Button>
+            <ModalHeader>Editar aula</ModalHeader>
+            <ModalBody>
+              <div className="space-y-6">
+                {/* Virtual Mode */}
+                <div>
+                  <label className="block font-semibold mb-2">
+                    ¿El aula es virtual? *
+                  </label>
+                  <RadioGroup
+                    orientation="horizontal"
+                    value={editVirtual ? "si" : "no"}
+                    onChange={(e) =>
+                      setEditVirtual(
+                        (e.target as HTMLInputElement).value === "si"
+                      )
+                    }
+                  >
+                    <Radio value="si">Sí</Radio>
+                    <Radio value="no">No</Radio>
+                  </RadioGroup>
+                </div>
+
+                {editVirtual ? (
+                  <div>
+                    <label className="block font-semibold mb-2">
+                      Plataforma virtual *
+                    </label>
+                    <Input
+                      type="text"
+                      isRequired
+                      value={editPlatform}
+                      onChange={(e) => setEditPlatform(e.target.value)}
+                      placeholder="Ejemplo: Ude@, INGENIA ..."
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block font-semibold mb-2">
+                        ¿Pertenece al Departamento de Ingeniería en Sistemas? *
+                      </label>
+                      <RadioGroup
+                        orientation="horizontal"
+                        value={editOwn ? "si" : "no"}
+                        onChange={(e) =>
+                          setEditOwn(
+                            (e.target as HTMLInputElement).value === "si"
+                          )
+                        }
+                      >
+                        <Radio value="si">Sí</Radio>
+                        <Radio value="no">No</Radio>
+                      </RadioGroup>
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">
+                        Número del Bloque *
+                      </label>
+                      <InputOtp
+                        isRequired
+                        length={2}
+                        value={editBlock}
+                        onChange={(e) =>
+                          setEditBlock((e.target as HTMLInputElement).value)
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">
+                        Número del Piso *
+                      </label>
+                      <InputOtp
+                        isRequired
+                        length={1}
+                        value={editFloor}
+                        onChange={(e) =>
+                          setEditFloor((e.target as HTMLInputElement).value)
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">
+                        Número del Aula en el piso *
+                      </label>
+                      <InputOtp
+                        isRequired
+                        length={2}
+                        value={editRoom}
+                        onChange={(e) =>
+                          setEditRoom((e.target as HTMLInputElement).value)
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">
+                        Sala (opcional)
+                      </label>
+                      <Input
+                        type="number"
+                        value={editClassroomValue}
+                        onChange={(e) => setEditClassroomValue(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Capacidad */}
+                <div>
+                  <label className="block font-semibold mb-2">
+                    Capacidad *
+                  </label>
+                  <Input
+                    isRequired
+                    type="number"
+                    value={editCapacity}
+                    onChange={(e) => setEditCapacity(e.target.value)}
+                  />
+                </div>
               </div>
-            </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="default" onPress={handleCloseEdit}>
+                Cancelar
+              </Button>
+              <Button color="primary" onPress={handleUpdate}>
+                Guardar cambios
+              </Button>
+            </ModalFooter>
           </ModalContent>
         </Modal>
       )}
