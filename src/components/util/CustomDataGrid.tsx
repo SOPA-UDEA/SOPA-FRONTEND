@@ -15,7 +15,6 @@ import {
   Button,
 } from "@heroui/react";
 import PropTypes from 'prop-types';
-import CustomButton from './CustomButton';
 
 export interface ColumnConfig {
   field: string; 

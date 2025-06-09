@@ -1,3 +1,5 @@
+import { Classroom } from "./Classroom";
+
 export interface Group {
     groupSize: number;
     modality: string;
@@ -41,6 +43,9 @@ export interface subjectResponse {
 export interface ClassroomXGroupResponse {
     id: number;
     mainSchedule: string;
+    auxSchedule: string;
+    mainClassroom: Classroom;
+    auxClassroom: Classroom;
 }
 
 export interface ProfessorResponse {

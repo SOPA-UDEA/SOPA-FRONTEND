@@ -24,7 +24,7 @@ export default function FormAcademicSchedule( { onSubmitForm }:Props) {
             <Input
                 key={key}
                 name={key}
-                label={key}
+                label={'Semestre'}
                 value={value}
                 labelPlacement="outside"
                 onChange={onInputChange}
