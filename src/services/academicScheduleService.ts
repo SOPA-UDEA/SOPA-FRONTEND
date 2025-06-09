@@ -10,3 +10,8 @@ export const createAcademicSchedule = async (academicSchedule: AcademicScheduleR
   const response = await api.post("/academic_schedule/create", academicSchedule);
   return response.data;
 };
+
+export const getAcademicScheduleBySemester = async (semester: string): Promise<AcademicScheduleResponse> => {
+  const response = await api.get(`/academic_schedule/semester/${semester}`);
+  return response.data;
+}
