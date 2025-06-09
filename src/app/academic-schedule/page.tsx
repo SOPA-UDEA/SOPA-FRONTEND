@@ -1,151 +1,204 @@
 "use client";
 
-import React, { useEffect, useState } from 'react'
-import { CustomModalForm } from './components/CustomModalForm'
-import { Toaster } from 'react-hot-toast';
-import { AcademicScheduleResponse} from '@/interface/AcademicSchedule';
-import { useCreateAcademicSchedule } from '@/app/academic-schedule/hooks/useAcademicScheduleCreate';
-import { usePensums } from '../pensum/hooks/usePensums';
-import { useAcademicProgram } from '../academic-program/hooks/useAcademicProgram';
-import { useCreateGroup } from '@/app/groups/hooks/useGroupCreate';
-import { CustomDataGrid } from '@/components/util/CustomDataGrid';
-import { CustomModalGroups } from './components/CustomModalGroups';
-import { useDisclosure } from '@heroui/react';
-import { useGroupsByScheduleId } from '../groups/hooks/useGroups';
-import CustomDropdownActions from './components/CustomDropdownActions';
-import CustomModalUpdate from './components/CustomModalUpdate';
-import { GroupRequestUpdate } from '@/interface/Group';
-
+import { useEffect, useState } from "react";
+import { ClipLoader } from 'react-spinners';
+import { Toaster } from "react-hot-toast";
+import { ModalSchedule } from "./components/ModalSchedule";
+import { AcademicScheduleResponse } from "@/interface/AcademicSchedule";
+import { CustomDataGrid } from "@/components/util/CustomDataGrid";
+import { ModalPensums } from "./components/ModalPensums";
+import { useDisclosure } from "@heroui/react";
+import CustomDropdownActions from "./components/CustomDropdownActions";
+import ModalUpdateGroup from "./components/ModalUpdateGroup";
+import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
+import { useGroupsBySchedulePensum } from "@/hooks/useGroups";
+import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
 
 const Page = () => {
-    const createAcademicSchedule = useCreateAcademicSchedule();
-    const { pensums } = usePensums();
-    const { academicPrograms } = useAcademicProgram();
-    const createGroup = useCreateGroup()
-    const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const [selectedPensums, setSelectedPensums] = useState<number[]>([]);
-    const [selectedGroup, setSelectedGroup] = useState<GroupRequestUpdate | null>(null);
-    const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
-    // const groupResponse = useGroupsByScheduleId(academicSchedule?.id || 0);
-    const groupResponse = useGroupsByScheduleId(207);
-    const [created, setCreated] = useState(Boolean);  
-    const { isOpen: isOpenUpdate,  onOpenChange: onOpenChangeUpdate } = useDisclosure();
-  
-    const handleOpenChangeUpdate = (open: boolean) => {
-        if (!open) {
-          setSelectedGroup(null);
-          setSelectedGroupId(null);
-        }
-        onOpenChangeUpdate()
-    }
+	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
+	const { isOpen, onOpenChange, onOpen } = useDisclosure();
+	const [selectedGroup, setSelectedGroup] = useState<GroupRequestUpdate | null>(null);
+	const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+	const [groups, setGroups] = useState<GroupResponse[]>([]);
+	const [selectedPensumsIds, setSelectedPensumsIds] = useState<number[]>([]);
+	const [updated, setUpdated] = useState(false)
+	const [action, setAction] = useState("");
+	const [importType, setImportType] = useState<"CREATE" | "UPDATE">("CREATE");
+	const [file, setFile] = useState<File | null>(null);
 
-    const onCreated = () => {
-       setCreated(true);
-    }
+	const { mutateAsync, isPending } = useGroupsBySchedulePensum()
+	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
+	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule } = useDisclosure();
 
-    useEffect(() => {
-      if (academicSchedule) {
-        onOpen();
-      }
-    }, [academicSchedule]);
+	useEffect(() => {
+		if (academicSchedule) {
+			const requestBase = {
+				'scheduleId': academicSchedule.id,
+				'pensumIds': selectedPensumsIds
+			};
+			mutateAsync(requestBase, {
+				onSuccess: (data) => {
+					setGroups(data);
+				}
+			});
+		}
+	}, [academicSchedule, selectedPensumsIds, updated]);
 
-    useEffect(() => {
-    }, [created]);
 
-    const enrichedGroups = groupResponse.groups.map(group => {
-      const professorNames = group.group_x_professor.map(gxp => gxp.professor.name).join(', ');
-      const professorsIds = group.group_x_professor.map(gxp => gxp.professor.id);
-      const schedules = group.classroom_x_group.map(cxg => cxg.mainSchedule).join(' | ')
-        return {
-        professorsN: professorNames,
-        professors: professorsIds,
-        mirrorGroup: group.mirror_group.name,
-        subjectName: group.subject.name,
-        subjectCode: group.subject.code, 
-        subjectLevel: group.subject.level,
-        subjectModality: group.subject.pensum.academic_program.modalityAcademic,
-        schedules: schedules,
-        baseGroup: group.code === 0 ? 'Grupo base' :group.code,
-        ...group,
-      };
-    });
+	const enrichedGroups = groups.map((group) => {
+		const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(", ");
+		const professorsIds = group.group_x_professor.map((gxp) => gxp.professor.id);
+		const groupedClassroom = group.classroom_x_group.reduce((acc, { mainClassroom, mainSchedule }) => {
+			if (!acc[mainClassroom.location]) {
+				acc[mainClassroom.location] = [];
+			}
+			acc[mainClassroom.location].push(mainSchedule);
+			return acc;
+		}, {} as Record<string, string[]>);
 
-    useEffect(() => {
-      if (selectedGroup && selectedGroupId) {
-        onOpenChangeUpdate();
-      }
-    }, [selectedGroup, selectedGroupId]);
+		// create arrays for classrooms and schedules
+		const classrooms: string[] = [];
+		const schedules: string[] = [];
 
-  return (
-    <>
-        <Toaster position="top-right" />
-        <div >
-          <h1 className="text-h-2 text-primary-7740 mb-6"> {}
-          Programación Académica
-          </h1>
-        </div>
-            {
-              !academicSchedule && (
-                <CustomModalForm onCreated={setAcademicSchedule} 
-                onSubmitForm={createAcademicSchedule} 
-                defaultValues={{semester: ''}} 
-              />
-              )
-            }
-        
-        {academicSchedule && 
-          <CustomModalGroups 
-          onSubmitForm={createGroup}
-          pensums={pensums}
-          academicPrograms={academicPrograms}
-          isOpen={isOpen}
-          onOpen={onOpen}
-          onOpenChange={onOpenChange}
-          academicSchedule={academicSchedule}
-          selectedPensums={selectedPensums}
-          setSelectedPensums={setSelectedPensums} 
-          onCreated={onCreated}
-          />
-        }
-        <div className='p-2'>
-        {groupResponse.isLoading && <div>Cargando...</div>}
-        {groupResponse.groups.length > 0 && <CustomDataGrid
-          data={[...enrichedGroups].sort((a, b) => a.subjectLevel - b.subjectLevel)}
-          checkbox={true}
-          columns={[
-            { field: 'id', headerName: 'ID'},
-            { field: 'mirrorGroup', headerName: 'Código espejo'},
-            { field: 'subjectCode', headerName: 'Código materia' },
-            { field: 'subjectName', headerName: 'Materia' },
-            { field: 'subjectLevel', headerName: 'Nivel'},
-            { field: 'subjectModality', headerName: 'Modalidad'},
-            { field: 'maxSize', headerName: 'Max. cupos' },
-            { field: 'groupSize', headerName: 'Cupos'},
-            { field: 'registeredPlaces', headerName: 'Matriculados' },
-            { field: 'baseGroup', headerName: 'Numero del grupo'},
-            { field: 'aula', headerName: 'Aula'},
-            { field: 'schedules', headerName: 'Horario'},
-            { field: 'professorsN', headerName: 'Profesores'},
-            { field: 'modality', headerName: 'Modalidad grupo'}, 
-            { field: 'actions', headerName: 'Acciones', renderActions: (item) => (
-              <CustomDropdownActions 
-                groupId={item.id} 
-                setSelectedGroup={setSelectedGroup} 
-                setSelectedGroupId={setSelectedGroupId} 
-                group={item} 
-              />
-            )},           
-          ]}
-        />}  
-            {
-              selectedGroup  && selectedGroupId &&(
-                <CustomModalUpdate isOpen={isOpenUpdate} onOpenChange={handleOpenChangeUpdate} selectedGroup={selectedGroup} groupId={selectedGroupId}/>
-              )
-            }
-        </div>
-    </>
-  )
-}
+		// separate schedules by classroom with space key
+		for (const [classroom, scheduleList] of Object.entries(groupedClassroom)) {
+			classrooms.push(classroom);
+			schedules.push(scheduleList.join(" "));
+		}
 
-export default Page
+		// join classrooms and schedules into strings separated by " | "
+		const classroomString = classrooms.join(" | ");
+		const scheduleString = schedules.join(" | ");
+		return {
+			professorsN: professorNames,
+			professors: professorsIds,
+			mirrorGroup: group.mirror_group.name,
+			subjectName: group.subject.name,
+			subjectCode: group.subject.code,
+			subjectLevel: group.subject.level,
+			subjectModality: group.subject.pensum.academic_program.modalityAcademic,
+			classrooms: classroomString,
+			schedules: scheduleString,
+			baseGroup: group.code === 0 ? "Grupo base" : group.code,
+			...group,
+		};
+	});
+
+	const columns = [
+		{ field: "id", headerName: "ID" },
+		{ field: "mirrorGroup", headerName: "Código espejo" },
+		{ field: "subjectCode", headerName: "Código materia" },
+		{ field: "subjectName", headerName: "Materia" },
+		{ field: "subjectLevel", headerName: "Nivel" },
+		{ field: "subjectModality", headerName: "Modalidad" },
+		{ field: "maxSize", headerName: "Max. cupos" },
+		{ field: "groupSize", headerName: "Cupos" },
+		{ field: "registeredPlaces", headerName: "Matriculados" },
+		{ field: "baseGroup", headerName: "Numero del grupo" },
+		{ field: "classrooms", headerName: "Aulas" },
+		{ field: "schedules", headerName: "Horarios" },
+		{ field: "professorsN", headerName: "Profesores" },
+		{ field: "modality", headerName: "Modalidad grupo" },
+	];
+
+	return (
+		<>
+			<Toaster position="top-right" />
+			<div>
+				<h1 className="text-h-2 text-primary-7740 mb-6">
+					Programación Académica
+				</h1>
+			</div>
+			{
+				<ModalPensums
+					setPensums={setSelectedPensumsIds}
+					action={"create"}
+					onOpenSchedule={onOpen}
+					text={"Crear o cargar Programación"}
+					setAction={setAction}
+					isFromDrai={false}
+					setImportType={setImportType}
+					file={file}
+					setFile={setFile}
+				/>
+			}
+			{selectedPensumsIds?.length > 0 && (
+				<ModalSchedule
+					setAcademicSchedule={setAcademicSchedule}
+					selectedPensumsIds={selectedPensumsIds}
+					isOpen={isOpen}
+					onOpenChange={onOpenChange}
+					action={action}
+					importType={importType}
+					file={file}
+				/>
+			)}
+			<div className="mt-4">
+				{!isPending && (
+					academicSchedule && (
+						<CustomDataGrid
+							data={[...enrichedGroups].sort(
+								(a, b) => a.subjectLevel - b.subjectLevel
+							)}
+							checkbox={true}
+							columns={[
+								...columns,
+								{
+									field: "actions",
+									headerName: "Acciones",
+									renderActions: (item) => (
+										<CustomDropdownActions
+											groupId={item.id}
+											setSelectedGroup={setSelectedGroup}
+											setSelectedGroupId={setSelectedGroupId}
+											group={item}
+											onOpenChange={onOpenUpdate}
+											setUpdated={setUpdated}
+											onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
+										/>
+									),
+								},
+							]}
+						/>
+					)
+				)}
+				{isPending && (
+					<div className="flex flex-col items-center justify-center mt-2 mb-2 space-y-2">
+						<ClipLoader color="#4A5568" size={60} />
+						<p className="text-gray-600 text-sm text-center">
+							Cargando programación académica...
+						</p>
+					</div>
+				)}
+
+			</div>
+			{selectedGroup && selectedGroupId && (
+				<ModalUpdateGroup
+					isOpen={isOpenUpdate}
+					onOpenChange={onOpenChangeUpdate}
+					selectedGroup={selectedGroup}
+					groupId={selectedGroupId}
+					setUpdated={setUpdated} />
+			)}
+			{
+				<ModalUpdateGroupsSchedule
+					onOpenChange={onOpenChangeUpdateSchedule}
+					isOpen={isOpenUpdateSchedule}
+				/>
+			}
+			<ModalPensums
+				setPensums={setSelectedPensumsIds}
+				action={"drai"}
+				onOpenSchedule={onOpen} text={"Cargar aulas DRAI"}
+				setAction={setAction}
+				isFromDrai={true}
+				setImportType={setImportType}
+				file={file}
+				setFile={setFile}
+			/>
+
+		</>
+	);
+};
+
+export default Page;
