@@ -56,7 +56,6 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 		} else if (action === "drai") {
 			//Uploading or Updating groups from DRAI
 			if (importType === "CREATE") {
-				console.log("Creating groups from DRAI");
 				const request: GroupClassroomDrai = {
 					semester: formState.semester,
 					pensumId: selectedPensumsIds[0],
@@ -71,7 +70,6 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 				});
 			}
 			if (importType === "UPDATE") {
-				console.log("Updating groups from DRAI");
 				const request: GroupClassroomDrai = {
 					semester: formState.semester,
 					pensumId: selectedPensumsIds[0],
