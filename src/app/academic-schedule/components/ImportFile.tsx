@@ -2,7 +2,6 @@ import { Button, Modal, ModalBody, ModalContent, Input } from '@heroui/react'
 import React from 'react'
 
 interface ImportFileProps {
-    file: File | null;
     setFile: (file: File | null) => void;
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
@@ -12,7 +11,6 @@ interface ImportFileProps {
 
 export const ImportFile = ({
     setFile,
-    file,
     isOpen,
     onOpenChange,
     openModalPensums

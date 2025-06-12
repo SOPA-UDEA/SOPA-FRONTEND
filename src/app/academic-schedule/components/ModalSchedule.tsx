@@ -4,14 +4,14 @@ import { ClipLoader } from 'react-spinners';
 import { AcademicSchedule, AcademicScheduleResponse } from "@/interface/AcademicSchedule";
 import FormAcademicSchedule from "./formAcademicSchedule";
 import useCreateAcademicSchedule, { useGetAcademicScheduleBySemester } from '@/hooks/useSchedule';
-import { useCreateBaseGroup, useGroupsBySchedulePensum } from '@/hooks/useGroups';
-import { useUploadExcel } from '@/hooks/useGroupClassroom';
-import { GroupClassroomDraiUpload } from '@/interface/GroupClassroom';
+import { useCreateBaseGroup } from '@/hooks/useGroups';
+import { useUpdateExcel, useUploadExcel } from '@/hooks/useGroupClassroom';
+import { GroupClassroomDrai } from '@/interface/GroupClassroom';
 
 interface FormProps {
 	setAcademicSchedule: (a: AcademicScheduleResponse) => void;
 	selectedPensumsIds: number[];
-	onOpenChange: () => void;
+	onOpenChange: (isOpen: boolean) => void;
 	isOpen: boolean;
 	action: string;
 	importType: "CREATE" | "UPDATE";
@@ -25,6 +25,7 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 	const { mutateAsync: getAcademicScheduleBySemester } = useGetAcademicScheduleBySemester()
 	const { mutateAsync } = useCreateBaseGroup();
 	const { mutateAsync: uploadExcel, isPending } = useUploadExcel();
+	const { mutateAsync: updateExcel, isPending: isPendingUpdate } = useUpdateExcel();
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>, formState: AcademicSchedule) => {
 		event.preventDefault();
@@ -39,7 +40,7 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 			mutate(scheduleRequest,
 				{
 					onSuccess: (data) => {
-						onOpenChange();
+						onOpenChange(false);
 						const requestBase = {
 							'scheduleId': data.id,
 							'pensumIds': selectedPensumsIds
@@ -56,7 +57,7 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 			//Uploading or Updating groups from DRAI
 			if (importType === "CREATE") {
 				console.log("Creating groups from DRAI");
-				const request: GroupClassroomDraiUpload = {
+				const request: GroupClassroomDrai = {
 					semester: formState.semester,
 					pensumId: selectedPensumsIds[0],
 					file: file as File
@@ -64,11 +65,23 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 				uploadExcel(request, {
 					onSuccess: async () => {
 						const academicSchedule = await getAcademicScheduleBySemester(formState.semester);
-						onOpenChange();
+						onOpenChange(false);
 						setAcademicSchedule(academicSchedule);
-					},
-					onError: (error: unknown) => {
-						console.error("Error uploading groups from DRAI:", error);
+					}
+				});
+			}
+			if (importType === "UPDATE") {
+				console.log("Updating groups from DRAI");
+				const request: GroupClassroomDrai = {
+					semester: formState.semester,
+					pensumId: selectedPensumsIds[0],
+					file: file as File
+				};
+				updateExcel(request, {
+					onSuccess: async () => {
+						const academicSchedule = await getAcademicScheduleBySemester(formState.semester);
+						onOpenChange(false);
+						setAcademicSchedule(academicSchedule);
 					}
 				});
 			}
@@ -77,13 +90,17 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 
 	};
 
+	const handleIsLoading = () => {
+		return isPending || isPendingUpdate;
+	}
+
 	return (
 		<>
 			<Modal
 				isOpen={isOpen}
 				onOpenChange={() => {
 					if (!isPending) {
-						onOpenChange();
+						onOpenChange(!isOpen);
 					}
 				}}
 			>
@@ -92,13 +109,13 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 						return (
 							<>
 								<ModalHeader className="flex flex-col gap-1">
-									{isPending ? "Cargando..." : "Semestre Académico"}
+									{handleIsLoading() ? "Cargando..." : "Semestre Académico"}
 								</ModalHeader>
 								<ModalBody>
-									{!isPending && (
+									{!handleIsLoading() && (
 										<FormAcademicSchedule onSubmitForm={handleSubmit} />
 									)}
-									{isPending && (
+									{handleIsLoading() && (
 										<div className="flex flex-col items-center justify-center mt-2 mb-2 space-y-2">
 											<ClipLoader color="#4A5568" size={30} />
 											<p className="text-gray-600 text-sm text-center">
