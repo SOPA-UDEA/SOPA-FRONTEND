@@ -305,7 +305,7 @@ export default function ClassroomManager() {
             </TableColumn>
           )}
         </TableHeader>
-       <TableBody items={items?.filter((item) => !item.isPointer)}>
+       <TableBody items={items}>
           {(item) => (
             <TableRow key={item.id}>
               <TableCell>{item.id}</TableCell>
@@ -313,7 +313,7 @@ export default function ClassroomManager() {
               <TableCell>{item.location}</TableCell>
               <TableCell>
                 <Chip
-                  color={statusColorMap[item.ownDepartment]}
+                  color={statusColorMap[String(item.ownDepartment) as "true" | "false"] as "success" | "danger"}
                   size="sm"
                   variant="flat"
                 >
@@ -322,7 +322,7 @@ export default function ClassroomManager() {
               </TableCell>
               <TableCell>
                 <Chip
-                  color={statusColorMap[item.virtualMode]}
+                  color={statusColorMap[String(item.virtualMode) as "true" | "false"] as "success" | "danger"}
                   size="sm"
                   variant="flat"
                 >
@@ -331,7 +331,7 @@ export default function ClassroomManager() {
               </TableCell>
               <TableCell>
                 <Chip
-                  color={statusColorMap[item.enabled]}
+                  color={statusColorMap[String(item.enabled) as "true" | "false"] as "success" | "danger"}
                   size="sm"
                   variant="flat"
                 >
@@ -559,7 +559,7 @@ export default function ClassroomManager() {
                 <Switch
                   isSelected={!editEnabled}
                   onChange={() => setEditEnabled((prev) => !prev)}
-                  isDisabled={changeStatusMutation.isLoading}
+                  isDisabled={changeStatusMutation.status === "pending"}
                 />
               </div>
 
@@ -572,7 +572,7 @@ export default function ClassroomManager() {
                         ? "bg-blue-600 hover:bg-blue-700"
                         : "bg-red-600 hover:bg-red-700"
                     }
-                    isDisabled={changeStatusMutation.isLoading}
+                    isDisabled={changeStatusMutation.status === "pending"}
                     onPress={() => {
                       if (targetClassroom) {
                         console.log(
