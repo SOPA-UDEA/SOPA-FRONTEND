@@ -10,11 +10,10 @@ interface Props {
     action: string;
     isFromDrai: boolean;
     setImportType: (type: "CREATE" | "UPDATE") => void;
-    file: File | null;
     setFile: (file: File | null) => void;
 }
 
-export const ModalPensums = ({ setPensums, action, onOpenSchedule, text, setAction, isFromDrai, setImportType, file, setFile }: Props) => {
+export const ModalPensums = ({ setPensums, action, onOpenSchedule, text, setAction, isFromDrai, setImportType, setFile }: Props) => {
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const { isOpen: isOpenImportSelector, onOpenChange: onOpenChangeImportSelector, onOpen: onOpenImportSelector } = useDisclosure();
@@ -49,7 +48,7 @@ export const ModalPensums = ({ setPensums, action, onOpenSchedule, text, setActi
 
             />
 
-            <ImportFile setFile={setFile} file={file}
+            <ImportFile setFile={setFile}
                 isOpen={isOpenImportFile}
                 onOpenChange={onOpenChangeImportFile}
                 openModalPensums={onOpen}

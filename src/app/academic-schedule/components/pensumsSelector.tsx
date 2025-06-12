@@ -1,7 +1,7 @@
 import { useAcademicProgram } from "@/app/academic-program/hooks/useAcademicProgram";
 import { usePensums } from "@/hooks/usePensums";
 import { getAcademicProgramById } from "@/helpers/getAcademicProgramById";
-import { Button, Checkbox, Form, RadioGroup, Radio } from "@heroui/react";
+import { Button, Checkbox, Form, RadioGroup, Radio, CheckboxGroup } from "@heroui/react";
 import { useState } from "react";
 
 interface Props {
@@ -63,20 +63,23 @@ export default function PesnumSelector({ setSelectedPensumsIds, onOpenChange, on
             )}
 
             {!isFromDrai && (
-                pensums.map((pensum) => {
-                    const program = getAcademicProgramById(pensum.academicProgramId, academicPrograms);
-                    return (
-                        <Checkbox
-                            isRequired
-                            key={pensum.id}
-                            defaultChecked={false}
-                            onChange={(e) => handleCheckboxChange(pensum.id, e.target.checked)}
-                        >
-                            {program.code} - {program.name} - {program.modalityAcademic} - {pensum.version}
-                        </Checkbox>
-                    );
-                }))
-            }
+                <CheckboxGroup className="flex flex-col gap-2"
+                    name="pensums"
+                    isRequired>
+                    {pensums.map((pensum) => {
+                        const program = getAcademicProgramById(pensum.academicProgramId, academicPrograms);
+                        return (
+                            <Checkbox
+                                value={pensum.id.toString()}
+                                defaultChecked={false}
+                                onChange={(e) => handleCheckboxChange(pensum.id, e.target.checked)}
+                            >
+                                {program.code} - {program.name} - {program.modalityAcademic} - {pensum.version}
+                            </Checkbox>
+                        );
+                    })}
+                </CheckboxGroup>
+            )}
 
             <Button type='submit'
                 color="secondary">Continuar</Button>

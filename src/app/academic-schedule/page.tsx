@@ -7,12 +7,13 @@ import { ModalSchedule } from "./components/ModalSchedule";
 import { AcademicScheduleResponse } from "@/interface/AcademicSchedule";
 import { CustomDataGrid } from "@/components/util/CustomDataGrid";
 import { ModalPensums } from "./components/ModalPensums";
-import { useDisclosure } from "@heroui/react";
+import { Button, useDisclosure } from "@heroui/react";
 import CustomDropdownActions from "./components/CustomDropdownActions";
 import ModalUpdateGroup from "./components/ModalUpdateGroup";
 import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
 import { useGroupsBySchedulePensum } from "@/hooks/useGroups";
 import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
+import { DataAnalysis } from "./components/DataAnalysis";
 
 const Page = () => {
 	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
@@ -25,6 +26,7 @@ const Page = () => {
 	const [action, setAction] = useState("");
 	const [importType, setImportType] = useState<"CREATE" | "UPDATE">("CREATE");
 	const [file, setFile] = useState<File | null>(null);
+
 
 	const { mutateAsync, isPending } = useGroupsBySchedulePensum()
 	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
@@ -109,7 +111,8 @@ const Page = () => {
 					Programación Académica
 				</h1>
 			</div>
-			{
+			<div className="flex flex-col md:flex-row gap-4 mb-4">
+
 				<ModalPensums
 					setPensums={setSelectedPensumsIds}
 					action={"create"}
@@ -118,21 +121,19 @@ const Page = () => {
 					setAction={setAction}
 					isFromDrai={false}
 					setImportType={setImportType}
-					file={file}
 					setFile={setFile}
 				/>
-			}
-			{selectedPensumsIds?.length > 0 && (
-				<ModalSchedule
-					setAcademicSchedule={setAcademicSchedule}
-					selectedPensumsIds={selectedPensumsIds}
-					isOpen={isOpen}
-					onOpenChange={onOpenChange}
-					action={action}
-					importType={importType}
-					file={file}
-				/>
-			)}
+				<DataAnalysis/>
+			</div>
+			<ModalSchedule
+				setAcademicSchedule={setAcademicSchedule}
+				selectedPensumsIds={selectedPensumsIds}
+				isOpen={isOpen}
+				onOpenChange={onOpenChange}
+				action={action}
+				importType={importType}
+				file={file}
+			/>
 			<div className="mt-4">
 				{!isPending && (
 					academicSchedule && (
@@ -189,14 +190,12 @@ const Page = () => {
 			<ModalPensums
 				setPensums={setSelectedPensumsIds}
 				action={"drai"}
-				onOpenSchedule={onOpen} text={"Cargar aulas DRAI"}
+				onOpenSchedule={onOpen} text={"Cargar o Actualizar aulas DRAI"}
 				setAction={setAction}
 				isFromDrai={true}
 				setImportType={setImportType}
-				file={file}
 				setFile={setFile}
 			/>
-
 		</>
 	);
 };
