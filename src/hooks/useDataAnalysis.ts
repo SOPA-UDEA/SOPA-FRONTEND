@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { checkMirrorGroup, checkCapacity, checkCollisions, checkScheduleClassroomModified } from "@/services/dataAnalysis";
 import { addToast } from "@heroui/react";
+import { handleErrorMessage } from "./helpers/errorMessage"; 
 
 export const useCheckCollisions = () => {
 
@@ -14,14 +15,8 @@ export const useCheckCollisions = () => {
             });
         },
         onError: (error: any) => {
-            let description = error.message;
 
-            if (error.isAxiosError) {
-                const axiosError = error as any;
-                if (axiosError.response?.data?.detail) {
-                    description = axiosError.response.data.detail;
-                }
-            }
+            const description = handleErrorMessage(error);
 
             addToast({
                 title: "Error al realizar el análisis de colisiones",
@@ -46,14 +41,9 @@ export const useCheckScheduleClassroomModified = () => {
             });
         },
         onError: (error: any) => {
-            let description = error.message;
 
-            if (error.isAxiosError) {
-                const axiosError = error as any;
-                if (axiosError.response?.data?.detail) {
-                    description = axiosError.response.data.detail;
-                }
-            }
+            const description = handleErrorMessage(error);
+
 
             addToast({
                 title: "Error al realizar el análisis de horarios y aulas",
@@ -78,14 +68,8 @@ export const useCheckCapacity = () => {
             });
         },
         onError: (error: any) => {
-            let description = error.message;
+            const description = handleErrorMessage(error);
 
-            if (error.isAxiosError) {
-                const axiosError = error as any;
-                if (axiosError.response?.data?.detail) {
-                    description = axiosError.response.data.detail;
-                }
-            }
 
             addToast({
                 title: "Error al realizar el análisis de capacidad",
@@ -110,14 +94,8 @@ export const useCheckMirrorGroup = () => {
             });
         },
         onError: (error: any) => {
-            let description = error.message;
+            const description = handleErrorMessage(error);
 
-            if (error.isAxiosError) {
-                const axiosError = error as any;
-                if (axiosError.response?.data?.detail) {
-                    description = axiosError.response.data.detail;
-                }
-            }
 
             addToast({
                 title: "Error al realizar el análisis de grupos espejo",

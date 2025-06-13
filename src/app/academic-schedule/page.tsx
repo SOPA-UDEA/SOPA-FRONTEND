@@ -123,7 +123,20 @@ const Page = () => {
 					setImportType={setImportType}
 					setFile={setFile}
 				/>
-				<DataAnalysis/>
+				{groups.length === 0 && (
+					<ModalPensums
+						setPensums={setSelectedPensumsIds}
+						action={"drai"}
+						onOpenSchedule={onOpen} text={"Cargar o Actualizar aulas DRAI"}
+						setAction={setAction}
+						isFromDrai={true}
+						setImportType={setImportType}
+						setFile={setFile}
+					/>
+				)}
+				{groups.length > 0 && (
+				<DataAnalysis action="ANALYSIS" />
+				)}
 			</div>
 			<ModalSchedule
 				setAcademicSchedule={setAcademicSchedule}
@@ -187,15 +200,10 @@ const Page = () => {
 					isOpen={isOpenUpdateSchedule}
 				/>
 			}
-			<ModalPensums
-				setPensums={setSelectedPensumsIds}
-				action={"drai"}
-				onOpenSchedule={onOpen} text={"Cargar o Actualizar aulas DRAI"}
-				setAction={setAction}
-				isFromDrai={true}
-				setImportType={setImportType}
-				setFile={setFile}
-			/>
+			{/* {groups.length > 0 && ( */}
+				<DataAnalysis action="EXPORT" />
+
+			{/* )} */}
 		</>
 	);
 };

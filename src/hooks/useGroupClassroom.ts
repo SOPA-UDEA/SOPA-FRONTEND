@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { uploadGroupClassroomDrai, updateGroupClassroomDrai } from "../services/groupClassroomService";
+import { uploadGroupClassroomDrai, updateGroupClassroomDrai, exportGroupClassroom } from '../services/groupClassroomService';
 import { addToast } from "@heroui/react";
-
+import { handleErrorMessage } from "./helpers/errorMessage";
 export const useUploadExcel = () => {
     const queryClient = useQueryClient();
 
@@ -16,14 +16,8 @@ export const useUploadExcel = () => {
             });
         },
         onError: (error: any) => {
-            let description = error.message;
 
-            if (error.isAxiosError) {
-                const axiosError = error as any;
-                if (axiosError.response?.data?.detail) {
-                    description = axiosError.response.data.detail;
-                }
-            }
+            const description = handleErrorMessage(error);
 
             addToast({
                 title: "Error al importar el archivo",
@@ -50,14 +44,8 @@ export const useUpdateExcel = () => {
             });
         },
         onError: (error: any) => {
-            let description = error.message;
+            const description = handleErrorMessage(error);
 
-            if (error.isAxiosError) {
-                const axiosError = error as any;
-                if (axiosError.response?.data?.detail) {
-                    description = axiosError.response.data.detail;
-                }
-            }
 
             addToast({
                 title: "Error al actualizar el archivo",
@@ -68,3 +56,38 @@ export const useUpdateExcel = () => {
     });
     return mutation;
 }
+
+export const useExportExcel = () => {
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: exportGroupClassroom,
+        onSuccess: ({ blob, filename }) => {
+            queryClient.invalidateQueries({ queryKey: ["groupClassroom"] });
+
+            // Crea un enlace de descarga
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            addToast({
+                title: "Archivo exportado correctamente",
+                description: "El archivo se ha exportado exitosamente.",
+                color: "success",
+            });
+        },
+        onError: (error: any) => {
+            const description = handleErrorMessage(error);
+
+            addToast({
+                title: "Error al exportar",
+                description,
+                color: "danger",
+            });
+        },
+    });
+
+    return mutation;
+};
