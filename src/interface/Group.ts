@@ -81,3 +81,17 @@ export interface GroupRequestUpdate {
     professors: number[];
     modality: string;
 }
+
+export interface GetGroupsParams {
+  academicScheduleId: number;
+  pensumIds: number[];
+  skip?: number;
+  take?: number;
+}
+
+export interface PaginatedGroupResponse {
+  total: number;
+  limit: number;
+  offset: number;
+  data: GroupResponse[];
+}

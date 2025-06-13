@@ -7,13 +7,13 @@ import { ModalSchedule } from "./components/ModalSchedule";
 import { AcademicScheduleResponse } from "@/interface/AcademicSchedule";
 import { CustomDataGrid } from "@/components/util/CustomDataGrid";
 import { ModalPensums } from "./components/ModalPensums";
-import { Button, useDisclosure } from "@heroui/react";
+import { useDisclosure } from "@heroui/react";
 import CustomDropdownActions from "./components/CustomDropdownActions";
 import ModalUpdateGroup from "./components/ModalUpdateGroup";
 import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
-import { useGroupsBySchedulePensum } from "@/hooks/useGroups";
 import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
 import { DataAnalysis } from "./components/DataAnalysis";
+import { useGroupsBySchedulePaginated } from "@/hooks/useGroups";
 
 const Page = () => {
 	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
@@ -27,25 +27,23 @@ const Page = () => {
 	const [importType, setImportType] = useState<"CREATE" | "UPDATE">("CREATE");
 	const [file, setFile] = useState<File | null>(null);
 
-
-	const { mutateAsync, isPending } = useGroupsBySchedulePensum()
 	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
 	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule } = useDisclosure();
 
+	const requestBase = {
+		'academicScheduleId': academicSchedule?.id,
+		'pensumIds': selectedPensumsIds,
+		'skip': 0,
+		'take': 15
+	};
+	
+	const { data, isPending } = useGroupsBySchedulePaginated(requestBase);
+	
 	useEffect(() => {
-		if (academicSchedule) {
-			const requestBase = {
-				'scheduleId': academicSchedule.id,
-				'pensumIds': selectedPensumsIds
-			};
-			mutateAsync(requestBase, {
-				onSuccess: (data) => {
-					setGroups(data);
-				}
-			});
+		if (data) {
+			setGroups(data.data)	
 		}
-	}, [academicSchedule, selectedPensumsIds, updated]);
-
+	}, [data, updated, academicSchedule]);
 
 	const enrichedGroups = groups.map((group) => {
 		const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(", ");
@@ -155,7 +153,7 @@ const Page = () => {
 											group={item}
 											onOpenChange={onOpenUpdate}
 											setUpdated={setUpdated}
-											onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
+											onOpenChangeUpdateSchedule={onOpenUpdateSchedule} 
 										/>
 									),
 								},
@@ -173,7 +171,7 @@ const Page = () => {
 				)}
 
 			</div>
-			{selectedGroup && selectedGroupId && (
+			{selectedGroup &&  selectedGroupId && (
 				<ModalUpdateGroup
 					isOpen={isOpenUpdate}
 					onOpenChange={onOpenChangeUpdate}
@@ -181,11 +179,12 @@ const Page = () => {
 					groupId={selectedGroupId}
 					setUpdated={setUpdated} />
 			)}
-			{
-				<ModalUpdateGroupsSchedule
-					onOpenChange={onOpenChangeUpdateSchedule}
-					isOpen={isOpenUpdateSchedule}
-				/>
+			{	selectedGroupId && (
+					<ModalUpdateGroupsSchedule
+						onOpenChange={onOpenChangeUpdateSchedule}
+						isOpen={isOpenUpdateSchedule}
+						selectedGroupId={selectedGroupId}
+					/>)
 			}
 			<ModalPensums
 				setPensums={setSelectedPensumsIds}
