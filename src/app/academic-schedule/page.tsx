@@ -48,7 +48,7 @@ const Page = () => {
 
 
 	const enrichedGroups = groups.map((group) => {
-		const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(", ");
+		const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(" | ");
 		const professorsIds = group.group_x_professor.map((gxp) => gxp.professor.id);
 		const groupedClassroom = group.classroom_x_group.reduce((acc, { mainClassroom, mainSchedule }) => {
 			if (!acc[mainClassroom.location]) {
