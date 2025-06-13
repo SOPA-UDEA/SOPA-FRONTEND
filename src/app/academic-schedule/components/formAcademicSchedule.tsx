@@ -4,9 +4,10 @@ import { Form, Button, Input } from "@heroui/react";
 
 interface Props{
     onSubmitForm: (e: React.FormEvent<HTMLFormElement>, formState: AcademicSchedule) => void;
+    importType: "CREATE" | "UPDATE";
 }
 
-export default function FormAcademicSchedule( { onSubmitForm }:Props) {
+export default function FormAcademicSchedule( { onSubmitForm, importType }:Props) {
     const initialFormState = {
       semester: ''
     };
@@ -33,7 +34,9 @@ export default function FormAcademicSchedule( { onSubmitForm }:Props) {
             ))}
             <div className="flex flex-wrap gap-4 items-center">
                 <Button color="secondary" type="submit">
-                    Crear
+                    {
+                        importType === "CREATE" ? "Crear" : "Actualizar"
+                    }
                 </Button>
                 <Button
                     color="default"

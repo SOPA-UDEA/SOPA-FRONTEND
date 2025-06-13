@@ -200,10 +200,10 @@ const Page = () => {
 					isOpen={isOpenUpdateSchedule}
 				/>
 			}
-			{/* {groups.length > 0 && ( */}
+			{groups.length > 0 && (
 				<DataAnalysis action="EXPORT" />
 
-			{/* )} */}
+			)}
 		</>
 	);
 };

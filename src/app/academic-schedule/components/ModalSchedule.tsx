@@ -111,7 +111,8 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 								</ModalHeader>
 								<ModalBody>
 									{!handleIsLoading() && (
-										<FormAcademicSchedule onSubmitForm={handleSubmit} />
+										<FormAcademicSchedule onSubmitForm={handleSubmit}
+											importType={importType} />
 									)}
 									{handleIsLoading() && (
 										<div className="flex flex-col items-center justify-center mt-2 mb-2 space-y-2">
