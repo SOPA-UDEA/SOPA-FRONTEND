@@ -10,10 +10,8 @@ import {
     TableCell,
     getKeyValue, 
     Selection,    
-    // Input,
     Button,
 } from "@heroui/react";
-// import PaginationCustom from './pagination';
 
 export interface ColumnConfig {
     field: string; 
@@ -54,16 +52,6 @@ export const CustomDataGrid = ({
 
     const [visibleColumns, setVisibleColumns] = useState<string[]>(columns.map(col => col.renderActions ? "actions" : col.field));
 
-    // const filteredData = data.filter(item => {
-    // // Buscar en las columnas visibles que no sean acciones
-    // return visibleColumns.some(colKey => {
-    //     if (colKey === "actions") return false;
-    //     const value = item[colKey];
-    //     if (!value) return false;
-    //     return String(value).toLowerCase().includes(searchTerm.toLowerCase());
-    //     });
-    // });
-
     const finalTableColumns = columns
         .filter(col => visibleColumns.includes(col.renderActions ? "actions" : col.field))
         .map(col => ({
@@ -82,13 +70,6 @@ export const CustomDataGrid = ({
                         Columnas visibles
                     </Button>
 
-                    {/* <Input
-                        type="text"
-                        placeholder="Buscar..."
-                        value={searchTerm}
-                        onChange={(e) => { setSearchTerm(e.target.value) }}
-                        className="w-64 "
-                    /> */}
                 </div>
 
                     { 
@@ -163,7 +144,6 @@ export const CustomDataGrid = ({
                         )}
                     </TableBody>
             </Table>
-            {/* <PaginationCustom/> */}
         </div>
     );
 };

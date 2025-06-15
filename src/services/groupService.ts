@@ -51,3 +51,8 @@ export const updateGroupSchedule = async(group_id: number, schedules: string[]) 
 	const response = await api.put(`/group/update/schedule/${group_id}`, schedules);
 	return response.data;
 }
+
+export const markMirrorGroups = async(group_ids: number[]) => {
+	const response = await api.put("/group/mark-as-mirror", group_ids);
+	return response.data;
+}

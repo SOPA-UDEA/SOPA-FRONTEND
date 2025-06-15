@@ -1,5 +1,5 @@
 import { GroupRequestUpdate } from "@/interface/Group";
-import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, updateGroupById, updateGroupSchedule } from "@/services/groupService";
+import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, markMirrorGroups, updateGroupById, updateGroupSchedule } from "@/services/groupService";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
  type UpdateGroupPayload = {
@@ -100,6 +100,20 @@ export function useUpdateGroupSchedules(){
 	return useMutation({
 		mutationFn: async ({group_id, schedules}: UpdateSchedule) => {
 		return await updateGroupSchedule(group_id, schedules);
+		},
+
+		onSuccess: () => {
+		queryClient.invalidateQueries({ queryKey: ["groups"] });
+		},
+	});
+}
+
+export function useMarkMirrorGroups(){
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (group_ids: number[]) => {
+		return await markMirrorGroups(group_ids);
 		},
 
 		onSuccess: () => {
