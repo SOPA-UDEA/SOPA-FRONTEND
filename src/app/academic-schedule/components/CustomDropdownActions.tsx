@@ -46,6 +46,7 @@ export default function CustomDropdownActions({groupId, setSelectedGroup, group,
     };
 
     const handleUpdateSchedule = () => {
+        setSelectedGroupId(groupId);
         onOpenChangeUpdateSchedule();
     }
 
@@ -68,7 +69,7 @@ export default function CustomDropdownActions({groupId, setSelectedGroup, group,
                 <DropdownItem key="newGroup" onPress={ () => handleCreateGroup(groupId)}>Nuevo Grupo</DropdownItem>
                 <DropdownItem key="editGroup" onPress={ () => handleUpdate() }>Modificar Grupo</DropdownItem>
                 <DropdownItem key="editSchedule" onPress={ handleUpdateSchedule }>Modificar Horario</DropdownItem>
-                <DropdownItem key="editClassRoom">Modificar Aula</DropdownItem>
+                <DropdownItem key="editClassRoom" >Modificar Aula</DropdownItem>
                 <DropdownItem key="deleteGroup" onPress={() => handleDelete(groupId)} className="text-danger" color="danger">
                     Eliminar Grupo
                 </DropdownItem>
