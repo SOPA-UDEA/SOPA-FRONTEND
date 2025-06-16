@@ -153,8 +153,6 @@ const Page = () => {
 				{groups.length > 0 && (
 				<DataAnalysis action="ANALYSIS" />
 				)}
-					/>
-					<DataAnalysis />
 				</div>
 				{academicSchedule && 
 					<Button color="secondary" onPress={ () => handleMarkMirrorGroups()}>
