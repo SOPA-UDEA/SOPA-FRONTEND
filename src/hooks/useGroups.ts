@@ -1,6 +1,6 @@
 import { GroupRequestUpdate } from "@/interface/Group";
-import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, updateGroupById } from "@/services/groupService";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, markMirrorGroups, updateGroupById, updateGroupSchedule } from "@/services/groupService";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
  type UpdateGroupPayload = {
 	groupId: number;
@@ -10,6 +10,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 type BaseGroupsPayload = {
 	scheduleId: number;
 	pensumIds: number[];
+}
+
+interface UseGroupsPaginatedPayload {
+  academicScheduleId: number | undefined;
+  pensumIds: number[];
+  skip?: number;
+  take?: number;
+}
+
+interface UpdateSchedule {
+	group_id: number;
+	schedules: string[];
 }
 
 export function useDeleteGroupById() {
@@ -49,19 +61,6 @@ export function useCreateBaseGroup() {
 	});
 }
 
-export function useGroupsBySchedulePensum() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: async ({ scheduleId, pensumIds }:BaseGroupsPayload ) => {
-		return await getBySchedulePensum(pensumIds, scheduleId);
-		},
-		onSuccess: () => {
-		queryClient.invalidateQueries({ queryKey: ["groups"] });
-		},
-	});
-}
-
 export function useCreateGroupOf(){
 	const queryClient = useQueryClient();
 
@@ -76,4 +75,49 @@ export function useCreateGroupOf(){
 	});
 }
 
+export function useGroupsBySchedulePaginated({
+	academicScheduleId,
+	pensumIds,
+	skip = 0,
+	take = 15,
+}: UseGroupsPaginatedPayload) {
+	return useQuery({
+		queryKey: ["groups", academicScheduleId, pensumIds, skip, take],
+		queryFn: () =>
+		getBySchedulePensum({
+			academicScheduleId: academicScheduleId as number,
+			pensumIds,
+			skip,
+			take,
+		}),
+		enabled: typeof academicScheduleId === "number" && pensumIds.length > 0,
+	});
+}
 
+export function useUpdateGroupSchedules(){
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({group_id, schedules}: UpdateSchedule) => {
+		return await updateGroupSchedule(group_id, schedules);
+		},
+
+		onSuccess: () => {
+		queryClient.invalidateQueries({ queryKey: ["groups"] });
+		},
+	});
+}
+
+export function useMarkMirrorGroups(){
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (group_ids: number[]) => {
+		return await markMirrorGroups(group_ids);
+		},
+
+		onSuccess: () => {
+		queryClient.invalidateQueries({ queryKey: ["groups"] });
+		},
+	});
+}
