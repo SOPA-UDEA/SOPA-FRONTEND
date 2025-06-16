@@ -3,9 +3,11 @@ import { ClockLoader } from "react-spinners";
 import { getAcademicProgramById } from "@/helpers/getAcademicProgramById";
 import { useCheckCollisions, useCheckMirrorGroup, useCheckCapacity, useCheckScheduleClassroomModified } from "@/hooks/useDataAnalysis";
 import { usePensums } from "@/hooks/usePensums";
-import { Button, Modal, Radio, RadioGroup, ModalContent, ModalBody, ModalFooter, ModalHeader, Input,
- } from "@heroui/react";
+import {
+  Button, Modal, Radio, RadioGroup, ModalContent, ModalBody, ModalFooter, ModalHeader, Input,
+} from "@heroui/react";
 import { useState } from "react";
+import { useExportExcel } from "@/hooks/useGroupClassroom";
 
 interface Props {
   onOpenChange: (isOpen: boolean) => void;
@@ -13,6 +15,7 @@ interface Props {
   isCollisionOnly: boolean;
   selectedAnalyses: string[];
   setSelectedAnalyses: (analyses: string[]) => void;
+  action: "ANALYSIS" | "EXPORT";
 }
 
 export const ModalAnalysis = ({
@@ -20,7 +23,8 @@ export const ModalAnalysis = ({
   isOpen,
   isCollisionOnly,
   selectedAnalyses,
-  setSelectedAnalyses
+  setSelectedAnalyses,
+  action,
 }: Props) => {
   const { pensums } = usePensums();
   const { academicPrograms } = useAcademicProgram();
@@ -31,25 +35,30 @@ export const ModalAnalysis = ({
   const { mutateAsync: checkMirrorGroup, isPending: isPendingMirrorGroups } = useCheckMirrorGroup();
   const { mutateAsync: checkCapacity, isPending: isPendingCapacity } = useCheckCapacity();
   const { mutateAsync: checkScheduleClassroomModified, isPending: isPendingScheduleClassroomModified } = useCheckScheduleClassroomModified();
+  const { mutateAsync: exportExcel, isPending: isPendingExport } = useExportExcel();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const semester = e.currentTarget.semester.value;
     const pensumId = selectedPensums[0];
 
-    for (const analysis of selectedAnalyses) {
-      setCurrentAnalysis(analysis);
-      if (analysis === "collision") {
-        await checkCollisions({ semester });
-      } else if (analysis === "mirrorGroup") {
-        await checkMirrorGroup({ semester, pensumId });
-      } else if (analysis === "capacity") {
-        await checkCapacity({ semester, pensumId });
-      } else if (analysis === "classroomSchedule") {
-        await checkScheduleClassroomModified({ semester, pensumId });
+    if (action === "ANALYSIS") {
+      for (const analysis of selectedAnalyses) {
+        setCurrentAnalysis(analysis);
+        if (analysis === "collision") {
+          await checkCollisions({ semester });
+        } else if (analysis === "mirrorGroup") {
+          await checkMirrorGroup({ semester, pensumId });
+        } else if (analysis === "capacity") {
+          await checkCapacity({ semester, pensumId });
+        } else if (analysis === "classroomSchedule") {
+          await checkScheduleClassroomModified({ semester, pensumId });
+        }
       }
+    } else if (action === "EXPORT") {
+      // Handle export logic here if needed
+      await exportExcel({ semester, pensumId });
     }
-
     setCurrentAnalysis(null);
     setSelectedAnalyses([]);
     onOpenChange(false);
@@ -73,7 +82,7 @@ export const ModalAnalysis = ({
 
 
   const handleIsLoading = () => {
-    return isPendingCollisions || isPendingMirrorGroups || isPendingCapacity || isPendingScheduleClassroomModified;
+    return isPendingCollisions || isPendingMirrorGroups || isPendingCapacity || isPendingScheduleClassroomModified || isPendingExport;
   }
 
   return (
@@ -134,7 +143,9 @@ export const ModalAnalysis = ({
               <ModalFooter>
                 {!handleIsLoading() && (
                   <>
-                    <Button type="submit" color="secondary">Ejecutar análisis</Button>
+                    <Button type="submit" color="secondary">{
+                      action === "ANALYSIS" ? "Ejecutar análisis" : "Exportar a Excel"
+                    }</Button>
                     <Button color="danger" onPress={() => onOpenChange(false)}>
                       Cancelar
                     </Button>

@@ -48,7 +48,7 @@ const Page = () => {
 	}, [data, updated, academicSchedule]);
 
 	const enrichedGroups = groups.map((group) => {
-		const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(", ");
+		const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(" | ");
 		const professorsIds = group.group_x_professor.map((gxp) => gxp.professor.id);
 		const groupedClassroom = group.classroom_x_group.reduce((acc, { mainClassroom, mainSchedule }) => {
 			if (!acc[mainClassroom.location]) {
@@ -138,6 +138,21 @@ const Page = () => {
 					isFromDrai={false}
 					setImportType={setImportType}
 					setFile={setFile}
+				/>
+				{groups.length === 0 && (
+					<ModalPensums
+						setPensums={setSelectedPensumsIds}
+						action={"drai"}
+						onOpenSchedule={onOpen} text={"Cargar o Actualizar aulas DRAI"}
+						setAction={setAction}
+						isFromDrai={true}
+						setImportType={setImportType}
+						setFile={setFile}
+					/>
+				)}
+				{groups.length > 0 && (
+				<DataAnalysis action="ANALYSIS" />
+				)}
 					/>
 					<DataAnalysis />
 				</div>
@@ -216,15 +231,10 @@ const Page = () => {
 						selectedGroupId={selectedGroupId}
 					/>)
 			}
-			<ModalPensums
-				setPensums={setSelectedPensumsIds}
-				action={"drai"}
-				onOpenSchedule={onOpen} text={"Cargar o Actualizar aulas DRAI"}
-				setAction={setAction}
-				isFromDrai={true}
-				setImportType={setImportType}
-				setFile={setFile}
-			/>
+			{groups.length > 0 && (
+				<DataAnalysis action="EXPORT" />
+
+			)}
 		</>
 	);
 };
