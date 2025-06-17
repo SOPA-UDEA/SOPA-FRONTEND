@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ClipLoader } from 'react-spinners';
 import { Toaster } from "react-hot-toast";
 import { ModalSchedule } from "./components/ModalSchedule";
@@ -14,6 +14,7 @@ import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
 import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
 import { DataAnalysis } from "./components/DataAnalysis";
 import { useGroupsBySchedulePaginated, useMarkMirrorGroups } from "@/hooks/useGroups";
+import { tableData } from "./helpers/groupTableData";
 
 const Page = () => {
 	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
@@ -26,65 +27,29 @@ const Page = () => {
 	const [action, setAction] = useState("");
 	const [importType, setImportType] = useState<"CREATE" | "UPDATE">("CREATE");
 	const [file, setFile] = useState<File | null>(null);
-	const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]); 
-	const {mutateAsync} = useMarkMirrorGroups();
+	const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]);
+	const { mutateAsync } = useMarkMirrorGroups();
 
 	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
 	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule } = useDisclosure();
 
-	const requestBase = {
-		'academicScheduleId': academicSchedule?.id,
-		'pensumIds': selectedPensumsIds,
-		'skip': 0,
-		'take': 15
-	};
-	
+	const requestBase = useMemo(() => ({
+		academicScheduleId: academicSchedule?.id,
+		pensumIds: selectedPensumsIds,
+		skip: 0,
+		take: 15
+	}), [academicSchedule?.id, selectedPensumsIds]);
+
+
 	const { data, isPending } = useGroupsBySchedulePaginated(requestBase);
-	
+
 	useEffect(() => {
 		if (data) {
-			setGroups(data.data)	
+			setGroups(data.data)
 		}
 	}, [data, updated, academicSchedule]);
 
-	const enrichedGroups = groups.map((group) => {
-		const professorNames = group.group_x_professor.map((gxp) => gxp.professor.name).join(" | ");
-		const professorsIds = group.group_x_professor.map((gxp) => gxp.professor.id);
-		const groupedClassroom = group.classroom_x_group.reduce((acc, { mainClassroom, mainSchedule }) => {
-			if (!acc[mainClassroom.location]) {
-				acc[mainClassroom.location] = [];
-			}
-			acc[mainClassroom.location].push(mainSchedule);
-			return acc;
-		}, {} as Record<string, string[]>);
-
-		// create arrays for classrooms and schedules
-		const classrooms: string[] = [];
-		const schedules: string[] = [];
-
-		// separate schedules by classroom with space key
-		for (const [classroom, scheduleList] of Object.entries(groupedClassroom)) {
-			classrooms.push(classroom);
-			schedules.push(scheduleList.join(" "));
-		}
-
-		// join classrooms and schedules into strings separated by " | "
-		const classroomString = classrooms.join(" | ");
-		const scheduleString = schedules.join(" | ");
-		return {
-			professorsN: professorNames,
-			professors: professorsIds,
-			mirrorGroup: group.mirror_group.name,
-			subjectName: group.subject.name,
-			subjectCode: group.subject.code,
-			subjectLevel: group.subject.level,
-			subjectModality: group.subject.pensum.academic_program.modalityAcademic,
-			classrooms: classroomString,
-			schedules: scheduleString,
-			baseGroup: group.code === 0 ? "Grupo base" : group.code,
-			...group,
-		};
-	});
+	const enrichedGroups = tableData(groups);
 
 	const handleMarkMirrorGroups = () => {
 		if (selectedGroupIds.length < 2) {
@@ -117,6 +82,7 @@ const Page = () => {
 		{ field: "schedules", headerName: "Horarios" },
 		{ field: "professorsN", headerName: "Profesores" },
 		{ field: "modality", headerName: "Modalidad grupo" },
+		{ field: "notifications", headerName: "Notificaciones" }
 	];
 
 	return (
@@ -130,32 +96,32 @@ const Page = () => {
 			<div className="flex justify-between mb-4">
 				<div className="flex gap-4">
 					<ModalPensums
-					setPensums={setSelectedPensumsIds}
-					action="create"
-					onOpenSchedule={onOpen}
-					text="Crear o cargar Programación"
-					setAction={setAction}
-					isFromDrai={false}
-					setImportType={setImportType}
-					setFile={setFile}
-				/>
-				{groups.length === 0 && (
-					<ModalPensums
 						setPensums={setSelectedPensumsIds}
-						action={"drai"}
-						onOpenSchedule={onOpen} text={"Cargar o Actualizar aulas DRAI"}
+						action="create"
+						onOpenSchedule={onOpen}
+						text="Crear o cargar Programación"
 						setAction={setAction}
-						isFromDrai={true}
+						isFromDrai={false}
 						setImportType={setImportType}
 						setFile={setFile}
 					/>
-				)}
-				{groups.length > 0 && (
-				<DataAnalysis action="ANALYSIS" />
-				)}
+					{groups.length === 0 && (
+						<ModalPensums
+							setPensums={setSelectedPensumsIds}
+							action={"drai"}
+							onOpenSchedule={onOpen} text={"Importar Aulas DRAI"}
+							setAction={setAction}
+							isFromDrai={true}
+							setImportType={setImportType}
+							setFile={setFile}
+						/>
+					)}
+					{groups.length > 0 && (
+						<DataAnalysis action="ANALYSIS" />
+					)}
 				</div>
-				{academicSchedule && 
-					<Button color="secondary" onPress={ () => handleMarkMirrorGroups()}>
+				{academicSchedule &&
+					<Button color="secondary" onPress={() => handleMarkMirrorGroups()}>
 						Marcar espejos
 					</Button>}
 			</div>
@@ -177,27 +143,27 @@ const Page = () => {
 							columns={[
 								...columns,
 								{
-								field: "actions",
-								headerName: "Acciones",
-								renderActions: (item) => (
-									<CustomDropdownActions
-										groupId={item.id}
-										setSelectedGroup={setSelectedGroup}
-										setSelectedGroupId={setSelectedGroupId}
-										group={item}
-										onOpenChange={onOpenUpdate}
-										setUpdated={setUpdated}
-										onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
-									/>
-								),
+									field: "actions",
+									headerName: "Acciones",
+									renderActions: (item) => (
+										<CustomDropdownActions
+											groupId={item.id}
+											setSelectedGroup={setSelectedGroup}
+											setSelectedGroupId={setSelectedGroupId}
+											group={item}
+											onOpenChange={onOpenUpdate}
+											setUpdated={setUpdated}
+											onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
+										/>
+									),
 								},
 							]}
 							onSelectionChange={(keys) => {
 								if (keys === "all") {
-								setSelectedGroupIds(enrichedGroups.map((g) => g.id));
+									setSelectedGroupIds(enrichedGroups.map((g) => g.id));
 								} else {
-								const numericIds = Array.from(keys).map((k) => Number(k));
-								setSelectedGroupIds(numericIds);
+									const numericIds = Array.from(keys).map((k) => Number(k));
+									setSelectedGroupIds(numericIds);
 								}
 							}}
 							selectedKeys={new Set(selectedGroupIds.map(String))}
@@ -214,7 +180,7 @@ const Page = () => {
 				)}
 
 			</div>
-			{selectedGroup &&  selectedGroupId && (
+			{selectedGroup && selectedGroupId && (
 				<ModalUpdateGroup
 					isOpen={isOpenUpdate}
 					onOpenChange={onOpenChangeUpdate}
@@ -222,12 +188,12 @@ const Page = () => {
 					groupId={selectedGroupId}
 					setUpdated={setUpdated} />
 			)}
-			{	selectedGroupId && (
-					<ModalUpdateGroupsSchedule
-						onOpenChange={onOpenChangeUpdateSchedule}
-						isOpen={isOpenUpdateSchedule}
-						selectedGroupId={selectedGroupId}
-					/>)
+			{selectedGroupId && (
+				<ModalUpdateGroupsSchedule
+					onOpenChange={onOpenChangeUpdateSchedule}
+					isOpen={isOpenUpdateSchedule}
+					selectedGroupId={selectedGroupId}
+				/>)
 			}
 			{groups.length > 0 && (
 				<DataAnalysis action="EXPORT" />
