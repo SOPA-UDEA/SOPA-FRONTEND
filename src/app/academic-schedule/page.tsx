@@ -204,7 +204,7 @@ const Page = () => {
 						/>
 					)
 				)}
-				{isPending && (
+				{isPending && academicSchedule !== null && (
 					<div className="flex flex-col items-center justify-center mt-2 mb-2 space-y-2">
 						<ClipLoader color="#4A5568" size={60} />
 						<p className="text-gray-600 text-sm text-center">
