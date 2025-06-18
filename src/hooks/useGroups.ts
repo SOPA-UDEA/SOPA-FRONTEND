@@ -79,7 +79,7 @@ export function useGroupsBySchedulePaginated({
 	academicScheduleId,
 	pensumIds,
 	skip = 0,
-	take = 15,
+	take = 20,
 }: UseGroupsPaginatedPayload) {
 	return useQuery({
 		queryKey: ["groups", academicScheduleId, pensumIds, skip, take],

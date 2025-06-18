@@ -8,6 +8,7 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { useExportExcel } from "@/hooks/useGroupClassroom";
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   onOpenChange: (isOpen: boolean) => void;
@@ -37,6 +38,8 @@ export const ModalAnalysis = ({
   const { mutateAsync: checkScheduleClassroomModified, isPending: isPendingScheduleClassroomModified } = useCheckScheduleClassroomModified();
   const { mutateAsync: exportExcel, isPending: isPendingExport } = useExportExcel();
 
+  const QueryClient = useQueryClient();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const semester = e.currentTarget.semester.value;
@@ -55,6 +58,9 @@ export const ModalAnalysis = ({
           await checkScheduleClassroomModified({ semester, pensumId });
         }
       }
+      // Invalidate queries to refresh data after analysis
+      QueryClient.invalidateQueries({ queryKey: ['groupNotifications'] });
+
     } else if (action === "EXPORT") {
       // Handle export logic here if needed
       await exportExcel({ semester, pensumId });

@@ -33,12 +33,14 @@ const Page = () => {
 	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
 	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule } = useDisclosure();
 
+	const stablePensumIds = useMemo(() => [...selectedPensumsIds], [selectedPensumsIds]);
+
 	const requestBase = useMemo(() => ({
 		academicScheduleId: academicSchedule?.id,
-		pensumIds: selectedPensumsIds,
+		pensumIds: stablePensumIds,
 		skip: 0,
-		take: 15
-	}), [academicSchedule?.id, selectedPensumsIds]);
+		take: 20
+	}), [academicSchedule?.id, stablePensumIds]);
 
 
 	const { data, isPending } = useGroupsBySchedulePaginated(requestBase);
@@ -117,7 +119,8 @@ const Page = () => {
 						/>
 					)}
 					{groups.length > 0 && (
-						<DataAnalysis action="ANALYSIS" />
+						<DataAnalysis action="ANALYSIS"
+						/>
 					)}
 				</div>
 				{academicSchedule &&
@@ -197,7 +200,6 @@ const Page = () => {
 			}
 			{groups.length > 0 && (
 				<DataAnalysis action="EXPORT" />
-
 			)}
 		</>
 	);

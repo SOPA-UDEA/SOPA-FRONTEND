@@ -1,7 +1,7 @@
 import { Button, Modal, ModalContent, useDisclosure } from "@heroui/react"
 import { AnalysisPicker } from "./AnalysisPicker";
 import { ModalAnalysis } from "./ModalAnalysis";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface AnalysisProps {
     action: "ANALYSIS" | "EXPORT";
