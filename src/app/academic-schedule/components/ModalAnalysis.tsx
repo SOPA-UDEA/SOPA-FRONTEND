@@ -8,7 +8,7 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { useExportExcel } from "@/hooks/useGroupClassroom";
-import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   onOpenChange: (isOpen: boolean) => void;
