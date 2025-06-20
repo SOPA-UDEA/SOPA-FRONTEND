@@ -1,17 +1,29 @@
-import { useUpdateGroupSchedules } from "@/hooks/useGroups";
-import { Form, Button, Input, ModalContent, Modal, ModalBody, ModalHeader, Select, SelectItem } from "@heroui/react";
+import { useRelatedGroupsLevel, useRelatedGroupsSchedule, useUpdateGroupSchedules } from "@/hooks/useGroups";
+import { Form, Button, ModalContent, Modal, ModalBody, ModalHeader, Select, SelectItem, } from "@heroui/react";
 import { useState, useEffect } from "react";
+import {SeparateSchedules, countSchedules, scheduleCount} from "../helpers/separeteSchedules";
+import TableSchedules from "./tableSchedules";
 
 interface Props {
     onOpenChange: () => void;
     isOpen: boolean;
     selectedGroupId: number;
+    selectedPensumsIds: number[];
+    academicScheduleId: number;
 }
 
-export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, selectedGroupId }: Props) {
+export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, selectedGroupId, selectedPensumsIds, academicScheduleId }: Props) {
 
     const [scheduleCount, setScheduleCount] = useState(1); 
     const { mutateAsync } = useUpdateGroupSchedules()
+    const { data, isLoading } = useRelatedGroupsSchedule(selectedGroupId, selectedPensumsIds, academicScheduleId);
+    const { data: dataLevel, isLoading: isLoadingLevel } = useRelatedGroupsLevel(selectedGroupId, selectedPensumsIds, academicScheduleId);
+    const [currentSchedules, setCurrentSchedules] = useState<scheduleCount[] | null>(null);
+    const [currentSchedulesLevel, setCurrentSchedulesLevel] = useState<scheduleCount[] | null>(null);
+    const [changeType, setChangeType] = useState(false);
+
+    console.log("data", data);
+    console.log("dataLevel", dataLevel);
 
     const updateScheduleCount = (type: string) => {
         if (type === 'more') {
@@ -20,6 +32,34 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
             setScheduleCount(prev => prev - 1);
         } 
     };
+
+    useEffect(() => {
+        if (data) {
+            const allSchedules: string[] = [];
+            data.forEach(group => {
+                group.classroom_x_group.forEach(classroom => {
+                    const schedules = SeparateSchedules(classroom.mainSchedule);
+                    allSchedules.push(...schedules);
+                });
+            });
+
+            setCurrentSchedules(countSchedules(allSchedules))
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (dataLevel) {
+            const allSchedules: string[] = [];
+            dataLevel.forEach(group => {
+                group.classroom_x_group.forEach(classroom => {
+                    const schedules = SeparateSchedules(classroom.mainSchedule);
+                    allSchedules.push(...schedules);
+                });
+            });
+
+            setCurrentSchedulesLevel(countSchedules(allSchedules))
+        }
+    }, [dataLevel]);
 
     const [selectedSchedules, setSelectedSchedules] = useState<Array<{
         day: string | null;
@@ -94,11 +134,20 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
         setSelectedSchedules(updated);
     };
 
-    const hours = ["6-8", "8-10", "10-12", "12-14", "14-16", "16-18", "18-20", "20-22"];
     const hoursStart = ["6", "8", "10", "12", "14", "16", "18", "20"];
     const hoursEnd = ["8", "10", "12", "14", "16", "18", "20", "22"];
     const days = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sábado"];
-  
+
+    if (isLoading || isLoadingLevel) return <div>Cargando...</div>;
+    
+    const scheduleMap = new Map<string, number>(
+        currentSchedules?.map(s => [s.schedule, s.count])
+    );
+
+    const scheduleMapLevel = new Map<string, number>(
+        currentSchedulesLevel?.map(s => [s.schedule, s.count])
+    );
+
     return (
         <Modal
             isOpen={isOpen}
@@ -172,38 +221,32 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
                             </div>
                         ))}
 
-                        <table className="table-auto border border-gray-300 text-center">
-                            <thead>
-                                <tr>
-                                    <th className="border px-4 py-2">Horas</th>
-                                    {days.map((day) => (
-                                        <th key={day} className="border px-4 py-2">
-                                            {day}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {hours.map((hour) => (
-                                    <tr key={hour}>
-                                        <td className="border px-4 py-2">{hour}</td>
-                                        {days.map((day) => {
-                                            return(
-                                                <td key={`${hour}-${day}`} className="border px-4 py-2">
-                                                    <Input
-                                                        type="text"
-                                                        readOnly
-                                                        name={`${day}-${hour}`}
-                                                        placeholder=""
-                                                        className="w-full px-2 py-1 border rounded text-center"
-                                                    />
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {
+                            !changeType && <TableSchedules scheduleMap={scheduleMap} />
+                        }
+
+                        {
+                            changeType && <TableSchedules scheduleMap={scheduleMapLevel} />
+                        }
+
+                         <div className="flex justify-center items-center gap-6 my-4 w-full">
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={!changeType}
+                                    onChange={() => setChangeType(false)}
+                                />
+                                <label>Materia</label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={changeType}
+                                    onChange={() => setChangeType(true)}
+                                />
+                                <label>Nivel</label>
+                            </div>
+                        </div>
                         
                         <div className="flex flex-wrap gap-4 items-center">
                             <Button color="secondary" type="submit">
