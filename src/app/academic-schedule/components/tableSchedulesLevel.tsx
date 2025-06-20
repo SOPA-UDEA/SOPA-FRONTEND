@@ -1,7 +1,12 @@
 import { Input } from "@heroui/react";
 
+interface subjectGroup {
+    name: string;
+    count: number;
+}
+
 interface Props {
-    scheduleMap: Map<string, number>;
+    scheduleMap: Map<string, subjectGroup>;
 }
 
 export default function TableSchedules({ scheduleMap }: Props) {
@@ -32,9 +37,9 @@ export default function TableSchedules({ scheduleMap }: Props) {
                         }
 
                         const scheduleKey = `${keyLetter}${hour}`;
-                        const count = scheduleMap.get(scheduleKey) ?? "";
+                        const subject = scheduleMap.get(scheduleKey) ?? "";
 
-                        const message = count ? `${count} ${count > 1 ? 'veces asignado' : 'vez asignado'}` : "";
+                        const message = subject ? `${subject.name} ${subject.count}` : '';
 
                         return (
                             <td key={ scheduleKey } className="border px-4 py-2">

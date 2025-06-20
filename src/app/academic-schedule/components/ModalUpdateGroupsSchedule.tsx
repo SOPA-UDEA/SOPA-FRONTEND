@@ -1,9 +1,14 @@
 import { useRelatedGroupsLevel, useRelatedGroupsSchedule, useUpdateGroupSchedules } from "@/hooks/useGroups";
 import { Form, Button, ModalContent, Modal, ModalBody, ModalHeader, Select, SelectItem, } from "@heroui/react";
 import { useState, useEffect } from "react";
-import {SeparateSchedules, countSchedules, scheduleCount} from "../helpers/separeteSchedules";
+import {ScheduleCountLevel, SeparateSchedules, countSchedules, getInitialsLetters, scheduleCount} from "../helpers/separeteSchedules";
 import TableSchedules from "./tableSchedules";
+import TableSchedulesLevel from "./tableSchedulesLevel";
 
+interface subjectGroup {
+    name: string;
+    count: number;
+}
 interface Props {
     onOpenChange: () => void;
     isOpen: boolean;
@@ -19,11 +24,8 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
     const { data, isLoading } = useRelatedGroupsSchedule(selectedGroupId, selectedPensumsIds, academicScheduleId);
     const { data: dataLevel, isLoading: isLoadingLevel } = useRelatedGroupsLevel(selectedGroupId, selectedPensumsIds, academicScheduleId);
     const [currentSchedules, setCurrentSchedules] = useState<scheduleCount[] | null>(null);
-    const [currentSchedulesLevel, setCurrentSchedulesLevel] = useState<scheduleCount[] | null>(null);
+    const [currentSchedulesLevel, setCurrentSchedulesLevel] = useState<ScheduleCountLevel[] | null>(null);
     const [changeType, setChangeType] = useState(false);
-
-    console.log("data", data);
-    console.log("dataLevel", dataLevel);
 
     const updateScheduleCount = (type: string) => {
         if (type === 'more') {
@@ -49,15 +51,28 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
 
     useEffect(() => {
         if (dataLevel) {
-            const allSchedules: string[] = [];
+            const scheduleMap = new Map<string, ScheduleCountLevel>();
+
             dataLevel.forEach(group => {
+                const name = group.subject.name;
+                const code = group.code;
+
                 group.classroom_x_group.forEach(classroom => {
-                    const schedules = SeparateSchedules(classroom.mainSchedule);
-                    allSchedules.push(...schedules);
+                    const schedules = SeparateSchedules(classroom.mainSchedule); 
+
+                    schedules.forEach(schedule => {
+                        const key = `${name}-${schedule}`;
+                        scheduleMap.set(key, {
+                            name,
+                            schedule,
+                            code
+                        })
+                    })
                 });
             });
 
-            setCurrentSchedulesLevel(countSchedules(allSchedules))
+            const result: ScheduleCountLevel[] = Array.from(scheduleMap.values());
+            setCurrentSchedulesLevel(result);
         }
     }, [dataLevel]);
 
@@ -144,8 +159,14 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
         currentSchedules?.map(s => [s.schedule, s.count])
     );
 
-    const scheduleMapLevel = new Map<string, number>(
-        currentSchedulesLevel?.map(s => [s.schedule, s.count])
+    const scheduleMapLevel = new Map<string, subjectGroup>(
+        (currentSchedulesLevel ?? []).map(s => [
+            s.schedule,
+            {
+                name: getInitialsLetters(s.name),
+                count: s.code
+            }
+        ])
     );
 
     return (
@@ -226,7 +247,7 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
                         }
 
                         {
-                            changeType && <TableSchedules scheduleMap={scheduleMapLevel} />
+                            changeType && <TableSchedulesLevel scheduleMap={scheduleMapLevel} />
                         }
 
                          <div className="flex justify-center items-center gap-6 my-4 w-full">

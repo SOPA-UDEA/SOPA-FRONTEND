@@ -3,6 +3,12 @@ export interface scheduleCount{
     count: number;
 }
 
+export interface ScheduleCountLevel {
+    schedule: string;
+    code: number;
+    name: string;
+}
+
 export function SeparateSchedules(horario: string): string[] {
 
   const diasRegex = /^[A-Z]+/; // Coincide con todos los caracteres en mayúscula al principio
@@ -15,8 +21,8 @@ export function SeparateSchedules(horario: string): string[] {
     throw new Error("Formato de horario no válido");
   }
 
-  const dias = diasMatch[0].split(""); // ["L", "M", "J"]
-  const horas = horasMatch[0];         // "12-14"
+  const dias = diasMatch[0].split(""); 
+  const horas = horasMatch[0];     
 
   return dias.map(dia => `${dia}${horas}`);
 }
@@ -33,3 +39,11 @@ export function countSchedules(schedules: string[]): scheduleCount[] {
         count
     }));
 }
+
+export const getInitialsLetters = (name: string): string => {
+  return name
+    .split(" ")
+    .filter(Boolean)              // elimina espacios extra
+    .map(word => word[0].toUpperCase()) // toma primera letra en mayúscula
+    .join("");
+};
