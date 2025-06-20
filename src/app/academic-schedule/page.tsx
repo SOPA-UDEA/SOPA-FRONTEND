@@ -30,6 +30,8 @@ const Page = () => {
 	const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]);
 	const { mutateAsync } = useMarkMirrorGroups();
 
+	const [currentPage, setCurrentPage] = useState(1);
+	
 	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
 	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule } = useDisclosure();
 
@@ -38,16 +40,23 @@ const Page = () => {
 	const requestBase = useMemo(() => ({
 		academicScheduleId: academicSchedule?.id,
 		pensumIds: stablePensumIds,
-		skip: 0,
-		take: 20
-	}), [academicSchedule?.id, stablePensumIds]);
-
+		skip: (currentPage - 1) * 15,
+		take: 15
+	}), [academicSchedule?.id, stablePensumIds, currentPage]);
 
 	const { data, isPending } = useGroupsBySchedulePaginated(requestBase);
+
+	// const totalPages = useMemo(() => {
+	// 	return data ? Math.ceil(data.total / 15) : 1;
+	// }, [data]);
+
+	const [totalPages, setTotalPages] = useState(1);
 
 	useEffect(() => {
 		if (data) {
 			setGroups(data.data)
+			console.log(data);
+			setTotalPages(Math.ceil(data.total / 15))
 		}
 	}, [data, updated, academicSchedule]);
 
@@ -156,8 +165,7 @@ const Page = () => {
 											group={item}
 											onOpenChange={onOpenUpdate}
 											setUpdated={setUpdated}
-											onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
-										/>
+											onOpenChangeUpdateSchedule={onOpenUpdateSchedule} />
 									),
 								},
 							]}
@@ -168,9 +176,12 @@ const Page = () => {
 									const numericIds = Array.from(keys).map((k) => Number(k));
 									setSelectedGroupIds(numericIds);
 								}
-							}}
-							selectedKeys={new Set(selectedGroupIds.map(String))}
-						/>
+							} }
+							selectedKeys={new Set(selectedGroupIds.map(String))} 
+							currentPage={currentPage} 
+							totalPages={totalPages} 
+							onPageChange={(page) => setCurrentPage(page)}
+							/>
 					)
 				)}
 				{isPending && academicSchedule !== null && (
