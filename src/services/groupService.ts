@@ -2,7 +2,6 @@ import api from "../db/config";
 import { Academic, GetGroupsParams, Group,  GroupRequestUpdate, GroupResponse, Mirror, PaginatedGroupResponse } from "../interface/Group";
 
 
-
 export const createGroup = async (group: Group, academic: Academic, mirror: Mirror) => {
   	const response = await api.post("/group/create", {group, academic, mirror});
   	return response.data;
@@ -56,3 +55,23 @@ export const markMirrorGroups = async(group_ids: number[]) => {
 	const response = await api.put("/group/mark-as-mirror", group_ids);
 	return response.data;
 }
+
+export const getRelatedGroupsSchedule = async (groupId: number, pensumIds: number[], scheduleId: number): Promise<GroupResponse[]> => {
+	const params = new URLSearchParams();
+
+	pensumIds.forEach(id => params.append("pensumIds", id.toString()));
+	params.append("groupId", groupId.toString());
+
+	const response = await api.get(`/group/${scheduleId}/subjects-schedules/?${params.toString()}`);
+	return response.data;
+};
+
+export const getRelatedGroupsLevel = async (groupId: number, pensumIds: number[], scheduleId: number): Promise<GroupResponse[]> => {
+	const params = new URLSearchParams();
+
+	pensumIds.forEach(id => params.append("pensumIds", id.toString()));
+	params.append("groupId", groupId.toString());
+
+	const response = await api.get(`/group/${scheduleId}/level-schedules/?${params.toString()}`);
+	return response.data;
+};

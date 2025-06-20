@@ -206,9 +206,11 @@ const Page = () => {
 				<ModalUpdateGroupsSchedule
 					onOpenChange={onOpenChangeUpdateSchedule}
 					isOpen={isOpenUpdateSchedule}
-					selectedGroupId={selectedGroupId}
-				/>)
-			}
+					selectedGroupId={selectedGroupId} 
+					selectedPensumsIds={selectedPensumsIds} 
+					academicScheduleId={academicSchedule?.id || 0} 
+				/>
+			)}
 			{groups.length > 0 && (
 				<DataAnalysis action="EXPORT" />
 			)}
