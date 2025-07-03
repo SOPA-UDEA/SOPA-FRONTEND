@@ -13,7 +13,7 @@ import ModalUpdateGroup from "./components/ModalUpdateGroup";
 import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
 import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
 import { DataAnalysis } from "./components/DataAnalysis";
-import { useGroupsBySchedulePaginated, useMarkMirrorGroups } from "@/hooks/useGroups";
+import { useGroupsBySchedulePaginated, useMarkMirrorGroups, useMarkMirrorGroupsAny } from "@/hooks/useGroups";
 import { tableData } from "./helpers/groupTableData";
 import ModalScheduleConflicts from "./components/ModalScheduleConflicts";
 import ExportSchedule from "./components/exportSchdeule";
@@ -33,6 +33,7 @@ const Page = () => {
 	const [file, setFile] = useState<File | null>(null);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]);
 	const { mutateAsync } = useMarkMirrorGroups();
+	const { mutateAsync: mutateAsyncAny } = useMarkMirrorGroupsAny();
 	const {isOpen: isOpenExport, onOpenChange: onOpenChangeExport} = useDisclosure();
 	const [scheduleId, setScheduleId] = useState(0);
 
@@ -72,7 +73,15 @@ const Page = () => {
 		mutateAsync(selectedGroupIds, {
 			onSuccess(data) {
 				if (data === "groups are not mirrors") {
-					alert('los grupos no cumplen las condiciones para ser espejos');
+					const confirmed = window.confirm("Los grupos no cumplen las condiciones para ser espejos, ¿Deseas marcarlos de todas formas?");
+					if (confirmed) {
+						mutateAsyncAny(selectedGroupIds, {
+							onSuccess: () => {
+								alert('Grupos marcados como espejo');
+								setUpdated(true)
+							}
+						});
+					}
 					return
 				}
 				setUpdated(true)

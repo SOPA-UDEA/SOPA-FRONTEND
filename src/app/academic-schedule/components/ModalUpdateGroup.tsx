@@ -101,7 +101,7 @@ export default function ModalUpdateGroup({ isOpen, onOpenChange, selectedGroup, 
                             <ModalHeader className="flex flex-col gap-1">
                                 Nueva Programación académica
                             </ModalHeader>
-                            <ModalBody>
+                            <ModalBody className="max-h-[80vh] overflow-y-auto">
                                 <Form onSubmit={handleSubmit}>
                                     {Object.entries(formState).map(([key, value]) => (
                                         <Input
@@ -146,7 +146,7 @@ export default function ModalUpdateGroup({ isOpen, onOpenChange, selectedGroup, 
                             <ModalHeader className="flex flex-col gap-1">
                                 Profesores
                             </ModalHeader>
-                            <ModalBody>
+                            <ModalBody className="max-h-[80vh] overflow-y-auto">
                                 <CustomDataGrid 
                                     data={ data || [] } 
                                     checkbox={true}

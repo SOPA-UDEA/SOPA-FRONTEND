@@ -185,7 +185,7 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
                 <ModalHeader className="flex flex-col gap-1 text-center">
                     Actualizar Horario
                 </ModalHeader>
-                <ModalBody>
+                <ModalBody className="max-h-[80vh] overflow-y-auto">
 
                     <Form onSubmit={ handleSubmit }>
                         <div className="flex gap-3 w-full">

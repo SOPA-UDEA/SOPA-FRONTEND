@@ -1,5 +1,5 @@
 import { GroupRequestUpdate } from "@/interface/Group";
-import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, getGroupsToEsxport, getRelatedGroupsLevel, getRelatedGroupsSchedule, getScheduleConflicts, markMirrorGroups, updateGroupById, updateGroupSchedule } from "@/services/groupService";
+import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, getGroupsToEsxport, getRelatedGroupsLevel, getRelatedGroupsSchedule, getScheduleConflicts, markMirrorGroups, markMirrorGroupsAny, updateGroupById, updateGroupSchedule } from "@/services/groupService";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
  type UpdateGroupPayload = {
@@ -154,5 +154,19 @@ export function useGetGroupsToExport(pensumId?: number, scheduleId?: number) {
 		queryKey: ["relatedGroupsLevel", pensumId, scheduleId],
 		queryFn: () => getGroupsToEsxport(scheduleId!, pensumId!),
 		enabled: isEnabled,
+	});
+}
+
+export function useMarkMirrorGroupsAny(){
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (group_ids: number[]) => {
+		return await markMirrorGroupsAny(group_ids);
+		},
+
+		onSuccess: () => {
+		queryClient.invalidateQueries({ queryKey: ["groups"] });
+		},
 	});
 }

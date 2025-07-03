@@ -89,3 +89,8 @@ export const getGroupsToEsxport = async (scheduleId: number, pensumId: number): 
 	const response = await api.get(`/group/schedule/${scheduleId}/pensum/${pensumId}/`);
 	return response.data;
 };
+
+export const markMirrorGroupsAny = async(group_ids: number[]) => {
+	const response = await api.put("/group/mark-as-mirror-any", group_ids);
+	return response.data;
+}

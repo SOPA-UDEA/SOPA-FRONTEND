@@ -70,14 +70,14 @@ export default function ModalScheduleConflicts({ selectedPesnums, scheduleId }: 
                                 <div className="border rounded p-4 bg-gray-50">
                                     <h3 className="font-semibold mb-2">Conflictos por nivel</h3>
                                     <ul className="list-disc list-inside space-y-1">
-                                    {data?.filter((c) => c.type === "level").map((conflict, idx) => (
-                                        <li key={`level-${idx}`}>
-                                        <p><strong>Materia 1:</strong> {conflict.groupA_name}</p>
-                                        <p><strong>Materia 2:</strong> {conflict.groupB_name}</p>
-                                        <p><strong>Horarios:</strong> {conflict.conflicting_schedules.join(", ")}</p>
-                                        <p><strong>Grupos:</strong> {conflict.groupA_code} - {conflict.groupB_code}</p>
-                                        </li>
-                                    ))}
+                                        {data?.filter((c) => c.type === "level").map((conflict, idx) => (
+                                            <li key={`level-${idx}`}>
+                                            <p><strong>Materia 1:</strong> {conflict.groupA_name}</p>
+                                            <p><strong>Materia 2:</strong> {conflict.groupB_name}</p>
+                                            <p><strong>Horarios:</strong> {conflict.conflicting_schedules.join(", ")}</p>
+                                            <p><strong>Grupos:</strong> {conflict.groupA_code} - {conflict.groupB_code}</p>
+                                            </li>
+                                        ))}
                                     </ul>
                                 </div>
                                 )}
