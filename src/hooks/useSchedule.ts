@@ -1,6 +1,6 @@
 import { AcademicScheduleRequest } from "@/interface/AcademicSchedule";
-import { createAcademicSchedule, getAcademicScheduleBySemester } from "@/services/academicScheduleService";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createAcademicSchedule, getAcademicScheduleBySemester, getSchedulesToExport } from "@/services/academicScheduleService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 //create academicSchedule with pensums
 export default function useCreateAcademicSchedule() {
@@ -21,3 +21,13 @@ export const useGetAcademicScheduleBySemester = () => {
         },
     });
 };
+
+export function useGetScheduleToExport(pensumId: number | null | undefined) {
+	const isValid = pensumId !== 0 && pensumId !== null && pensumId !== undefined;
+
+	return useQuery({
+		queryKey: ["relatedGroupsLevel", pensumId],
+		queryFn: () => getSchedulesToExport(pensumId!),
+		enabled: isValid
+	});
+}

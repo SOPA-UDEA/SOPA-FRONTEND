@@ -92,10 +92,6 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
         const startHours = selectedSchedules.map(s => s.startHour!);
         const endHours = selectedSchedules.map(s => s.endHour!);
         
-        // Validar días únicos
-        if (new Set(days).size !== days.length)
-            return alert("Debes seleccionar días distintos.");
-
         // Validar que cada hora de inicio sea menor que la de fin
         const invalidHours = selectedSchedules.some(s => Number(s.startHour) >= Number(s.endHour));
         if (invalidHours) return alert("Las horas de inicio deben ser menor a las horas de fin.");
@@ -115,6 +111,17 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
             formattedSchedules = selectedSchedules.map(s =>
                 `${getDayLetter(s.day!)}${s.startHour}-${s.endHour}`
             );
+        }
+
+        const schedulesFromLevel = (currentSchedulesLevel ?? []).map(s => s.schedule);
+
+        const hasAnyMatch = formattedSchedules.some(schedule =>
+            schedulesFromLevel.includes(schedule)
+        );
+
+        if (hasAnyMatch) {
+            const confirmUpdate = window.confirm("Uno o más horarios ya existen para materias de este nivel. ¿Deseas continuar?");
+            if (!confirmUpdate) return;
         }
 
         await mutateAsync({

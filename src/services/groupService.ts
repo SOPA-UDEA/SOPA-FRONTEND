@@ -1,5 +1,5 @@
 import api from "../db/config";
-import { Academic, GetGroupsParams, Group,  GroupRequestUpdate, GroupResponse, Mirror, PaginatedGroupResponse } from "../interface/Group";
+import { Academic, GetGroupsParams, Group,  GroupRequestUpdate, GroupResponse, Mirror, PaginatedGroupResponse, ScheduleConflict } from "../interface/Group";
 
 
 export const createGroup = async (group: Group, academic: Academic, mirror: Mirror) => {
@@ -73,5 +73,19 @@ export const getRelatedGroupsLevel = async (groupId: number, pensumIds: number[]
 	params.append("groupId", groupId.toString());
 
 	const response = await api.get(`/group/${scheduleId}/level-schedules/?${params.toString()}`);
+	return response.data;
+};
+
+export const getScheduleConflicts = async (pensumIds: number[], scheduleId: number): Promise<ScheduleConflict[]> => {
+	const params = new URLSearchParams();
+
+	pensumIds.forEach(id => params.append("pensumIds", id.toString()));
+
+	const response = await api.get(`/group/schedule/${scheduleId}/conflict-detection?${params.toString()}`);
+	return response.data;
+};
+
+export const getGroupsToEsxport = async (scheduleId: number, pensumId: number): Promise<GroupResponse[]> => {
+	const response = await api.get(`/group/schedule/${scheduleId}/pensum/${pensumId}/`);
 	return response.data;
 };

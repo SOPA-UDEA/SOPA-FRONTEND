@@ -1,5 +1,5 @@
 import { GroupRequestUpdate } from "@/interface/Group";
-import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, getRelatedGroupsLevel, getRelatedGroupsSchedule, markMirrorGroups, updateGroupById, updateGroupSchedule } from "@/services/groupService";
+import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, getGroupsToEsxport, getRelatedGroupsLevel, getRelatedGroupsSchedule, getScheduleConflicts, markMirrorGroups, updateGroupById, updateGroupSchedule } from "@/services/groupService";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
  type UpdateGroupPayload = {
@@ -80,7 +80,9 @@ export function useGroupsBySchedulePaginated({
 	pensumIds,
 	skip = 0,
 	take = 20,
+	
 }: UseGroupsPaginatedPayload) {
+	// const isValid = take
 	return useQuery({
 		queryKey: ["groups", academicScheduleId, pensumIds, skip, take],
 		queryFn: () =>
@@ -135,5 +137,22 @@ export function useRelatedGroupsLevel(groupId: number, pensumIds: number[], sche
 		queryKey: ["relatedGroupsLevel", groupId, pensumIds, scheduleId],
 		queryFn: () => getRelatedGroupsLevel(groupId, pensumIds, scheduleId),
 		enabled: pensumIds.length > 0 && scheduleId != 0,
+	});
+}
+
+export function useGetScheduleConflicts(pensumIds: number[], scheduleId: number) {
+	return useQuery({
+		queryKey: ["relatedGroupsLevel", pensumIds, scheduleId],
+		queryFn: () => getScheduleConflicts(pensumIds, scheduleId),
+		enabled: pensumIds.length > 0 && scheduleId != 0,
+	});
+}
+
+export function useGetGroupsToExport(pensumId?: number, scheduleId?: number) {
+	const isEnabled = !!pensumId && !!scheduleId && scheduleId !== 0;
+	return useQuery({
+		queryKey: ["relatedGroupsLevel", pensumId, scheduleId],
+		queryFn: () => getGroupsToEsxport(scheduleId!, pensumId!),
+		enabled: isEnabled,
 	});
 }

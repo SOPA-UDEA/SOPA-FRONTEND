@@ -15,3 +15,9 @@ export const getAcademicScheduleBySemester = async (semester: string): Promise<A
   const response = await api.get(`/academic_schedule/semester/${semester}`);
   return response.data;
 }
+
+export const getSchedulesToExport = async (pensumId: number): Promise<AcademicScheduleResponse[]> => {
+  const response = await api.get(`/academic_schedule/all/by-pensum/${pensumId}`);
+  return response.data;
+}
+

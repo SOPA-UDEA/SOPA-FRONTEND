@@ -56,6 +56,7 @@ export const DataAnalysis = ({
                 setSelectedAnalyses={setSelectedAnalyses}
                 action={action}
             />
+            
         </>
     );
 }

@@ -47,10 +47,7 @@ export const CustomDataGrid = ({
     onPageChange,
 }: CustomDataGridProps) => {
 
-    if (!Array.isArray(data)) {
-        console.error("CustomDataGrid: la prop 'data' debe ser un array.");
-        return <div className="p-4 text-center text-red-500">Error: Datos inválidos.</div>;
-    }
+    
 
     // const [searchTerm, setSearchTerm] = useState("");
     const [hiddenColumns, setHiddenColumns] = useState(false)
@@ -66,6 +63,11 @@ export const CustomDataGrid = ({
         label: col.headerName,
         renderActions: col.renderActions,
     }));
+
+    if (!Array.isArray(data)) {
+        console.error("CustomDataGrid: la prop 'data' debe ser un array.");
+        return <div className="p-4 text-center text-red-500">Error: Datos inválidos.</div>;
+    }
 
     return (
         <div className='mb-4'>

@@ -95,3 +95,15 @@ export interface PaginatedGroupResponse {
   offset: number;
   data: GroupResponse[];
 }
+
+export interface ScheduleConflict {
+  type: "name" | "level"; 
+  key: string;
+  groupA_id: number;
+  groupA_code: number;
+  groupB_id: number;
+  groupB_code: number;
+  conflicting_schedules: string[];
+  groupA_name: string
+  groupB_name: string
+}
