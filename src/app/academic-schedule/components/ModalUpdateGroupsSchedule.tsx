@@ -1,17 +1,31 @@
-import { useUpdateGroupSchedules } from "@/hooks/useGroups";
-import { Form, Button, Input, ModalContent, Modal, ModalBody, ModalHeader, Select, SelectItem } from "@heroui/react";
+import { useRelatedGroupsLevel, useRelatedGroupsSchedule, useUpdateGroupSchedules } from "@/hooks/useGroups";
+import { Form, Button, ModalContent, Modal, ModalBody, ModalHeader, Select, SelectItem, } from "@heroui/react";
 import { useState, useEffect } from "react";
+import {ScheduleCountLevel, SeparateSchedules, countSchedules, getInitialsLetters, scheduleCount} from "../helpers/separeteSchedules";
+import TableSchedules from "./tableSchedules";
+import TableSchedulesLevel from "./tableSchedulesLevel";
 
+interface subjectGroup {
+    name: string;
+    count: number;
+}
 interface Props {
     onOpenChange: () => void;
     isOpen: boolean;
     selectedGroupId: number;
+    selectedPensumsIds: number[];
+    academicScheduleId: number;
 }
 
-export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, selectedGroupId }: Props) {
+export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, selectedGroupId, selectedPensumsIds, academicScheduleId }: Props) {
 
     const [scheduleCount, setScheduleCount] = useState(1); 
     const { mutateAsync } = useUpdateGroupSchedules()
+    const { data, isLoading } = useRelatedGroupsSchedule(selectedGroupId, selectedPensumsIds, academicScheduleId);
+    const { data: dataLevel, isLoading: isLoadingLevel } = useRelatedGroupsLevel(selectedGroupId, selectedPensumsIds, academicScheduleId);
+    const [currentSchedules, setCurrentSchedules] = useState<scheduleCount[] | null>(null);
+    const [currentSchedulesLevel, setCurrentSchedulesLevel] = useState<ScheduleCountLevel[] | null>(null);
+    const [changeType, setChangeType] = useState(false);
 
     const updateScheduleCount = (type: string) => {
         if (type === 'more') {
@@ -20,6 +34,47 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
             setScheduleCount(prev => prev - 1);
         } 
     };
+
+    useEffect(() => {
+        if (data) {
+            const allSchedules: string[] = [];
+            data.forEach(group => {
+                group.classroom_x_group.forEach(classroom => {
+                    const schedules = SeparateSchedules(classroom.mainSchedule);
+                    allSchedules.push(...schedules);
+                });
+            });
+
+            setCurrentSchedules(countSchedules(allSchedules))
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (dataLevel) {
+            const scheduleMap = new Map<string, ScheduleCountLevel>();
+
+            dataLevel.forEach(group => {
+                const name = group.subject.name;
+                const code = group.code;
+
+                group.classroom_x_group.forEach(classroom => {
+                    const schedules = SeparateSchedules(classroom.mainSchedule); 
+
+                    schedules.forEach(schedule => {
+                        const key = `${name}-${schedule}`;
+                        scheduleMap.set(key, {
+                            name,
+                            schedule,
+                            code
+                        })
+                    })
+                });
+            });
+
+            const result: ScheduleCountLevel[] = Array.from(scheduleMap.values());
+            setCurrentSchedulesLevel(result);
+        }
+    }, [dataLevel]);
 
     const [selectedSchedules, setSelectedSchedules] = useState<Array<{
         day: string | null;
@@ -37,10 +92,6 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
         const startHours = selectedSchedules.map(s => s.startHour!);
         const endHours = selectedSchedules.map(s => s.endHour!);
         
-        // Validar días únicos
-        if (new Set(days).size !== days.length)
-            return alert("Debes seleccionar días distintos.");
-
         // Validar que cada hora de inicio sea menor que la de fin
         const invalidHours = selectedSchedules.some(s => Number(s.startHour) >= Number(s.endHour));
         if (invalidHours) return alert("Las horas de inicio deben ser menor a las horas de fin.");
@@ -60,6 +111,17 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
             formattedSchedules = selectedSchedules.map(s =>
                 `${getDayLetter(s.day!)}${s.startHour}-${s.endHour}`
             );
+        }
+
+        const schedulesFromLevel = (currentSchedulesLevel ?? []).map(s => s.schedule);
+
+        const hasAnyMatch = formattedSchedules.some(schedule =>
+            schedulesFromLevel.includes(schedule)
+        );
+
+        if (hasAnyMatch) {
+            const confirmUpdate = window.confirm("Uno o más horarios ya existen para materias de este nivel. ¿Deseas continuar?");
+            if (!confirmUpdate) return;
         }
 
         await mutateAsync({
@@ -94,11 +156,26 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
         setSelectedSchedules(updated);
     };
 
-    const hours = ["6-8", "8-10", "10-12", "12-14", "14-16", "16-18", "18-20", "20-22"];
     const hoursStart = ["6", "8", "10", "12", "14", "16", "18", "20"];
     const hoursEnd = ["8", "10", "12", "14", "16", "18", "20", "22"];
     const days = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sábado"];
-  
+
+    if (isLoading || isLoadingLevel) return <div>Cargando...</div>;
+    
+    const scheduleMap = new Map<string, number>(
+        currentSchedules?.map(s => [s.schedule, s.count])
+    );
+
+    const scheduleMapLevel = new Map<string, subjectGroup>(
+        (currentSchedulesLevel ?? []).map(s => [
+            s.schedule,
+            {
+                name: getInitialsLetters(s.name),
+                count: s.code
+            }
+        ])
+    );
+
     return (
         <Modal
             isOpen={isOpen}
@@ -108,7 +185,7 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
                 <ModalHeader className="flex flex-col gap-1 text-center">
                     Actualizar Horario
                 </ModalHeader>
-                <ModalBody>
+                <ModalBody className="max-h-[80vh] overflow-y-auto">
 
                     <Form onSubmit={ handleSubmit }>
                         <div className="flex gap-3 w-full">
@@ -172,38 +249,32 @@ export default function ModalUpdateGroupsSchedule({ onOpenChange, isOpen, select
                             </div>
                         ))}
 
-                        <table className="table-auto border border-gray-300 text-center">
-                            <thead>
-                                <tr>
-                                    <th className="border px-4 py-2">Horas</th>
-                                    {days.map((day) => (
-                                        <th key={day} className="border px-4 py-2">
-                                            {day}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {hours.map((hour) => (
-                                    <tr key={hour}>
-                                        <td className="border px-4 py-2">{hour}</td>
-                                        {days.map((day) => {
-                                            return(
-                                                <td key={`${hour}-${day}`} className="border px-4 py-2">
-                                                    <Input
-                                                        type="text"
-                                                        readOnly
-                                                        name={`${day}-${hour}`}
-                                                        placeholder=""
-                                                        className="w-full px-2 py-1 border rounded text-center"
-                                                    />
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {
+                            !changeType && <TableSchedules scheduleMap={scheduleMap} />
+                        }
+
+                        {
+                            changeType && <TableSchedulesLevel scheduleMap={scheduleMapLevel} />
+                        }
+
+                         <div className="flex justify-center items-center gap-6 my-4 w-full">
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={!changeType}
+                                    onChange={() => setChangeType(false)}
+                                />
+                                <label>Materia</label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={changeType}
+                                    onChange={() => setChangeType(true)}
+                                />
+                                <label>Nivel</label>
+                            </div>
+                        </div>
                         
                         <div className="flex flex-wrap gap-4 items-center">
                             <Button color="secondary" type="submit">

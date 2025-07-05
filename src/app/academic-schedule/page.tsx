@@ -13,8 +13,12 @@ import ModalUpdateGroup from "./components/ModalUpdateGroup";
 import { GroupRequestUpdate, GroupResponse } from "@/interface/Group";
 import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
 import { DataAnalysis } from "./components/DataAnalysis";
-import { useGroupsBySchedulePaginated, useMarkMirrorGroups } from "@/hooks/useGroups";
+import { useGroupsBySchedulePaginated, useMarkMirrorGroups, useMarkMirrorGroupsAny } from "@/hooks/useGroups";
 import { tableData } from "./helpers/groupTableData";
+import ModalScheduleConflicts from "./components/ModalScheduleConflicts";
+import ExportSchedule from "./components/exportSchdeule";
+import ModalSemesterSelector from "./components/ModalSemesterSelector";
+import ModalExport from "./components/ModalExport";
 
 const Page = () => {
 	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
@@ -29,25 +33,33 @@ const Page = () => {
 	const [file, setFile] = useState<File | null>(null);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>([]);
 	const { mutateAsync } = useMarkMirrorGroups();
+	const { mutateAsync: mutateAsyncAny } = useMarkMirrorGroupsAny();
+	const {isOpen: isOpenExport, onOpenChange: onOpenChangeExport} = useDisclosure();
+	const [scheduleId, setScheduleId] = useState(0);
 
+	const [currentPage, setCurrentPage] = useState(1);
+	
 	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
 	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule } = useDisclosure();
+	const { isOpen: isOpenSelectSchedule, onOpenChange: onOpenChangeSelectSchedule, onOpen: onOpenSelectSchedule } = useDisclosure();
+	const { isOpen: isOpenDownload, onOpenChange: onOpenChangeDownload, onClose: onCloseDownload } = useDisclosure();
 
 	const stablePensumIds = useMemo(() => [...selectedPensumsIds], [selectedPensumsIds]);
 
 	const requestBase = useMemo(() => ({
 		academicScheduleId: academicSchedule?.id,
 		pensumIds: stablePensumIds,
-		skip: 0,
-		take: 20
-	}), [academicSchedule?.id, stablePensumIds]);
-
+		skip: (currentPage - 1) * 15,
+		take: 15
+	}), [academicSchedule?.id, stablePensumIds, currentPage]);
 
 	const { data, isPending } = useGroupsBySchedulePaginated(requestBase);
+	const [totalPages, setTotalPages] = useState(1);
 
 	useEffect(() => {
 		if (data) {
 			setGroups(data.data)
+			setTotalPages(Math.ceil(data.total / 15))
 		}
 	}, [data, updated, academicSchedule]);
 
@@ -61,7 +73,15 @@ const Page = () => {
 		mutateAsync(selectedGroupIds, {
 			onSuccess(data) {
 				if (data === "groups are not mirrors") {
-					alert('los grupos no cumplen las condiciones para ser espejos');
+					const confirmed = window.confirm("Los grupos no cumplen las condiciones para ser espejos, ¿Deseas marcarlos de todas formas?");
+					if (confirmed) {
+						mutateAsyncAny(selectedGroupIds, {
+							onSuccess: () => {
+								alert('Grupos marcados como espejo');
+								setUpdated(true)
+							}
+						});
+					}
 					return
 				}
 				setUpdated(true)
@@ -118,6 +138,13 @@ const Page = () => {
 							setFile={setFile}
 						/>
 					)}
+					{groups.length > 0 && academicSchedule && (
+						<ModalScheduleConflicts
+							key={`${academicSchedule.id}-${selectedPensumsIds.join(",")}-${groups.length}`}
+							selectedPesnums={selectedPensumsIds}
+							scheduleId={academicSchedule.id}
+						/>
+					)}
 					{groups.length > 0 && (
 						<DataAnalysis action="ANALYSIS"
 						/>
@@ -156,8 +183,7 @@ const Page = () => {
 											group={item}
 											onOpenChange={onOpenUpdate}
 											setUpdated={setUpdated}
-											onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
-										/>
+											onOpenChangeUpdateSchedule={onOpenUpdateSchedule} />
 									),
 								},
 							]}
@@ -168,9 +194,12 @@ const Page = () => {
 									const numericIds = Array.from(keys).map((k) => Number(k));
 									setSelectedGroupIds(numericIds);
 								}
-							}}
-							selectedKeys={new Set(selectedGroupIds.map(String))}
-						/>
+							} }
+							selectedKeys={new Set(selectedGroupIds.map(String))} 
+							currentPage={currentPage} 
+							totalPages={totalPages} 
+							onPageChange={(page) => setCurrentPage(page)}
+							/>
 					)
 				)}
 				{isPending && academicSchedule !== null && (
@@ -195,12 +224,38 @@ const Page = () => {
 				<ModalUpdateGroupsSchedule
 					onOpenChange={onOpenChangeUpdateSchedule}
 					isOpen={isOpenUpdateSchedule}
-					selectedGroupId={selectedGroupId}
-				/>)
-			}
+					selectedGroupId={selectedGroupId} 
+					selectedPensumsIds={selectedPensumsIds} 
+					academicScheduleId={academicSchedule?.id || 0} 
+				/>
+			)}
 			{groups.length > 0 && (
 				<DataAnalysis action="EXPORT" />
 			)}
+			
+			{ 	enrichedGroups.length < 1 && (
+					<ExportSchedule 
+						setPensums={setSelectedPensumsIds}
+						onOpenSchedule={onOpenSelectSchedule} 
+						isOpen={isOpenExport} 
+						onOpenChange={onOpenChangeExport}
+					/>
+			)}
+
+			<ModalSemesterSelector 
+				pensumId={selectedPensumsIds[0]} 
+				isOpen={isOpenSelectSchedule} 
+				onOpenChange={onOpenChangeSelectSchedule} 
+				setScheduleId={ setScheduleId }
+				onOpenChangeDownload={ onOpenChangeDownload }
+			/>
+			<ModalExport 
+				scheduleId={scheduleId} 
+				pensumId={selectedPensumsIds[0]} 
+				isOpen={isOpenDownload} 
+				onOpenChange={onOpenChangeDownload} 
+				onClose={onCloseDownload}
+			/>
 		</>
 	);
 };
