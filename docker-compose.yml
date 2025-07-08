@@ -1,0 +1,36 @@
+services:
+  # Development service
+  sopa-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+    container_name: sopa-frontend-dev
+    networks:
+      - sopa-network
+
+  # Production service
+  sopa-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    container_name: sopa-frontend-prod
+    networks:
+      - sopa-network
+    profiles:
+      - production
+
+networks:
+  sopa-network:
+    driver: bridge
