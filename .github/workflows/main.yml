@@ -1,0 +1,99 @@
+name: Deploy SOPA Frontend
+
+on:
+  push:
+    branches:
+      - feat/devops
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: feat/devops  
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+            
+            echo "🚀 Starting deployment from feat/devops branch..."
+            
+            # Navigate to project directory
+            cd ${{ secrets.WORK_DIR }}
+            
+            # Pull latest changes from feat/devops
+            echo "📥 Pulling latest changes from feat/devops..."
+            git fetch origin
+            git checkout feat/devops
+            git reset --hard origin/feat/devops
+            
+            # Stop existing containers
+            echo "🛑 Stopping existing containers..."
+            docker compose down --remove-orphans || true
+            
+            # Build and start containers
+            echo "🔨 Building and starting containers..."
+            docker compose up -d --build
+            
+            # Wait for containers to be ready
+            echo "⏳ Waiting for containers to start..."
+            sleep 30
+            
+            # Check container status
+            echo "✅ Checking container status..."
+            docker compose ps
+            
+            # Clean up unused resources
+            echo "🧹 Cleaning up Docker resources..."
+            docker image prune -f
+            
+            echo "🎉 Deployment from feat/devops completed successfully!"
+            echo "🌐 Frontend available at: http://192.168.30.114:3000"
+          EOF
+
+      - name: Verify deployment
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ secrets.WORK_DIR }}
+            
+            # Check if containers are running
+            if docker compose ps | grep -q "Up"; then
+              echo "✅ Containers are running successfully"
+              echo "📋 Container status:"
+              docker compose ps
+              echo "🌿 Current branch: $(git branch --show-current)"
+              echo "📝 Last commit: $(git log -1 --oneline)"
+            else
+              echo "❌ Containers failed to start"
+              echo "📋 Container logs:"
+              docker compose logs --tail=50
+              exit 1
+            fi
+          EOF
+
+      - name: Cleanup SSH
+        if: always()
+        run: |
+          rm -rf ~/.ssh/id_rsa
+
+      - name: Deployment Summary
+        if: success()
+        run: |
+          echo "🎉 ¡Deployment exitoso!"
+          echo "🌿 Rama: feat/devops"
+          echo "🔗 URL: http://192.168.30.114:3000"
+          echo "📂 Directorio: ~/sopa-front"
