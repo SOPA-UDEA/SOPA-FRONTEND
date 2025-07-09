@@ -3,7 +3,7 @@ name: Deploy SOPA Frontend
 on:
   push:
     branches:
-      - feat/devops  # Cambio aquí para la rama de devops
+      - feat/devops
   workflow_dispatch:
 
 jobs:
@@ -15,15 +15,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: feat/devops  # Asegurar que se use la rama correcta
+          ref: feat/devops
 
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
+          
+          # Crear archivo de clave privada
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          
+          # Verificar que la clave se creó correctamente
+          if [ ! -s ~/.ssh/id_rsa ]; then
+            echo "❌ Error: SSH private key is empty or not found"
+            exit 1
+          fi
+          
+          # Agregar host a known_hosts
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          
+          # Verificar que el host se agregó
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            echo "❌ Error: Failed to add host to known_hosts"
+            exit 1
+          fi
+          
+          echo "✅ SSH setup completed successfully"
+
+      - name: Test SSH connection
+        run: |
+          ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo '✅ SSH connection successful'"
 
       - name: Deploy to server
         run: |
@@ -33,7 +55,7 @@ jobs:
             echo "🚀 Starting deployment from feat/devops branch..."
             
             # Navigate to project directory
-            cd ${{ secrets.WORK_DIR }}
+            cd ~/sopa-front
             
             # Pull latest changes from feat/devops
             echo "📥 Pulling latest changes from feat/devops..."
@@ -68,18 +90,14 @@ jobs:
       - name: Verify deployment
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ secrets.WORK_DIR }}
+            cd ~/sopa-front
             
             # Check if containers are running
             if docker compose ps | grep -q "Up"; then
               echo "✅ Containers are running successfully"
-              echo "📋 Container status:"
               docker compose ps
-              echo "🌿 Current branch: $(git branch --show-current)"
-              echo "📝 Last commit: $(git log -1 --oneline)"
             else
               echo "❌ Containers failed to start"
-              echo "📋 Container logs:"
               docker compose logs --tail=50
               exit 1
             fi
@@ -89,11 +107,3 @@ jobs:
         if: always()
         run: |
           rm -rf ~/.ssh/id_rsa
-
-      - name: Deployment Summary
-        if: success()
-        run: |
-          echo "🎉 ¡Deployment exitoso!"
-          echo "🌿 Rama: feat/devops"
-          echo "🔗 URL: http://192.168.30.114:3000"
-          echo "📂 Directorio: ~/sopa-front"
