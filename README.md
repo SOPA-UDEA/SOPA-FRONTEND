@@ -247,7 +247,7 @@ This project is licensed under the MIT License.
    - Run Docker as administrator on Windows
 
 4. **Build failures:**
-   - Clear Docker cache: `docker system prune -a`
+   - Clear Docker cache: `docker system prune -a` 
    - Check network connectivity for package downloads
 
 ### Getting Help
