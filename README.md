@@ -35,7 +35,7 @@ This project includes a complete Docker setup for both development and productio
 1. **Start development environment:**
 
    ```bash
-   docker-compose up sopa-dev
+   docker-compose up sopa-dev 
    ```
 
    Or use the startup script:
