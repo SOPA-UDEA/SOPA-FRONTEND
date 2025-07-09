@@ -34,21 +34,21 @@ jobs:
             
             # Navigate to project directory or clone if doesn't exist
             if [ ! -d "~/sopa-front" ]; then
-              echo "📁 Repository not found, cloning..."
+              echo "📁 Repository not found, cloning feat/devops branch..."
               cd ~
-              git clone https://github.com/TU_USUARIO/SOPA-FRONTEND.git sopa-front
+              # Clone específicamente la rama feat/devops
+              git clone --branch feat/devops --single-branch https://github.com/SOPA-UDEA/SOPA-FRONTEND.git sopa-front
               cd sopa-front
-              git checkout feat/devops
+              echo "✅ Repository cloned with feat/devops branch"
             else
               echo "📁 Repository found, updating..."
               cd ~/sopa-front
+              
+              # Asegurar que estamos en la rama correcta
+              git fetch origin
+              git checkout feat/devops
+              git reset --hard origin/feat/devops
             fi
-            
-            # Ensure we're on the correct branch and pull latest changes
-            echo "📥 Pulling latest changes from feat/devops..."
-            git fetch origin
-            git checkout feat/devops
-            git reset --hard origin/feat/devops
             
             echo "📝 Current commit: $(git log -1 --oneline)"
             echo "🌿 Current branch: $(git branch --show-current)"
@@ -68,7 +68,7 @@ jobs:
             
             # Wait for containers to be ready
             echo "⏳ Waiting for containers to start..."
-            sleep 20
+            sleep 30
             
             # Check container status
             echo "✅ Checking container status..."
@@ -99,6 +99,7 @@ jobs:
             echo "   - Internal: http://192.168.30.114:3000"
             echo "   - Local: http://localhost:3000"
             echo "📊 Deployment summary:"
+            echo "   - Repository: SOPA-UDEA/SOPA-FRONTEND"
             echo "   - Branch: feat/devops"
             echo "   - Commit: $(git log -1 --format='%h - %s')"
             echo "   - Time: $(date)"
@@ -134,16 +135,3 @@ jobs:
               docker compose logs --tail=30
               exit 1
             fi
-
-      - name: Deployment notification
-        if: always()
-        run: |
-          if [ ${{ job.status }} == 'success' ]; then
-            echo "🎉 ¡Deployment exitoso!"
-            echo "✅ SOPA Frontend desplegado correctamente"
-            echo "🔗 URL: http://192.168.30.114:3000"
-            echo "🌿 Rama: feat/devops"
-          else
-            echo "❌ Deployment falló"
-            echo "🔍 Revisa los logs para más detalles"
-          fi
