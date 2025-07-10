@@ -1,0 +1,137 @@
+name: Deploy SOPA Frontend
+
+on:
+  push:
+    branches:
+      - feat/devops
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: feat/devops
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 300s
+          command_timeout: 30m
+          script: |
+            set -e
+            
+            echo "🚀 Starting deployment from feat/devops branch..."
+            echo "📍 Connected to: $(hostname -I | awk '{print $1}') - $(whoami)"
+            echo "📅 Deployment time: $(date)"
+            
+            # Navigate to project directory or clone if doesn't exist
+            if [ ! -d "~/sopa-front" ]; then
+              echo "📁 Repository not found, cloning feat/devops branch..."
+              cd ~
+              # Clone específicamente la rama feat/devops
+              git clone --branch feat/devops --single-branch https://github.com/SOPA-UDEA/SOPA-FRONTEND.git sopa-front
+              cd sopa-front
+              echo "✅ Repository cloned with feat/devops branch"
+            else
+              echo "📁 Repository found, updating..."
+              cd ~/sopa-front
+              
+              # Asegurar que estamos en la rama correcta
+              git fetch origin
+              git checkout feat/devops
+              git reset --hard origin/feat/devops
+            fi
+            
+            echo "📝 Current commit: $(git log -1 --oneline)"
+            echo "🌿 Current branch: $(git branch --show-current)"
+            
+            # Stop existing containers gracefully
+            echo "🛑 Stopping existing containers..."
+            if docker compose ps -q | grep -q .; then
+              docker compose down --remove-orphans
+              echo "✅ Containers stopped"
+            else
+              echo "ℹ️ No running containers found"
+            fi
+            
+            # Build and start containers
+            echo "🔨 Building and starting containers..."
+            docker compose up -d --build
+            
+            # Wait for containers to be ready
+            echo "⏳ Waiting for containers to start..."
+            sleep 30
+            
+            # Check container status
+            echo "✅ Checking container status..."
+            docker compose ps
+            
+            # Verify application is responding
+            echo "🌐 Testing application health..."
+            for i in {1..6}; do
+              if curl -f -s http://localhost:3000 >/dev/null 2>&1; then
+                echo "✅ Application is responding on port 3000"
+                break
+              else
+                echo "⏳ Attempt $i/6: Application not ready yet, waiting..."
+                sleep 10
+              fi
+            done
+            
+            # Show container logs for debugging
+            echo "📋 Container logs (last 10 lines):"
+            docker compose logs --tail=10
+            
+            # Clean up unused Docker resources
+            echo "🧹 Cleaning up unused Docker resources..."
+            docker image prune -f || true
+            
+            echo "🎉 Deployment completed successfully!"
+            echo "🌐 Frontend available at:"
+            echo "   - Internal: http://192.168.30.114:3000"
+            echo "   - Local: http://localhost:3000"
+            echo "📊 Deployment summary:"
+            echo "   - Repository: SOPA-UDEA/SOPA-FRONTEND"
+            echo "   - Branch: feat/devops"
+            echo "   - Commit: $(git log -1 --format='%h - %s')"
+            echo "   - Time: $(date)"
+
+      - name: Verify deployment health
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 60s
+          script: |
+            cd ~/sopa-front
+            
+            # Final health check
+            if docker compose ps | grep -q "Up"; then
+              echo "✅ Final verification: Containers are running"
+              
+              # Try to get response from application
+              if curl -f -s http://localhost:3000 >/dev/null 2>&1; then
+                echo "✅ Application health check passed"
+                echo "🚀 Deployment verification successful!"
+              else
+                echo "⚠️ Application might still be starting up"
+                echo "📋 Container status:"
+                docker compose ps
+                echo "📋 Recent logs:"
+                docker compose logs --tail=20
+              fi
+            else
+              echo "❌ Container health check failed"
+              docker compose ps
+              docker compose logs --tail=30
+              exit 1
+            fi

@@ -35,7 +35,7 @@ Este proyecto incluye una configuración completa de Docker para entornos de des
 1. **Iniciar entorno de desarrollo:**
 
    ```bash
-   docker-compose up sopa-dev
+   docker-compose up sopa-dev 
    ```
 
    O usar el script de inicio:
@@ -242,6 +242,12 @@ docker-compose logs -f sopa-dev
    - En Linux/Mac: `chmod +x start.sh`
    - Ejecutar Docker como administrador en Windows
 
-4. **Fallas en la construcción:**
-   - Limpiar caché de Docker: `docker system prune -a`
-   - Verificar conectividad de red para descargas de paquetes
+4. **Build failures:**
+   - Clear Docker cache: `docker system prune -a` 
+   - Check network connectivity for package downloads
+
+### Getting Help
+
+- Check the [DOCKER.md](./DOCKER.md) for detailed Docker instructions
+- Review container logs: `docker-compose logs [service-name]`
+- Access container shell: `docker-compose exec [service-name] sh`
