@@ -6,7 +6,8 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Button
+  Button,
+  SharedSelection
 } from "@heroui/react"; 
 import { Pensum } from '../../../interface/Pensum';
 import { AcademicProgram } from '../../../interface/AcademicProgram';
@@ -38,7 +39,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     }
   }, [selectedPensum]);
 
-  const handleSelectionChange = (keys: any) => {
+  const handleSelectionChange = (keys: SharedSelection) => {
     const newSelectedKey = Array.from(keys as Set<string>)[0];
     setSelectedKeys(new Set([newSelectedKey]));
     const newPensum = pensums.find(p => String(p.id) === newSelectedKey) || null;

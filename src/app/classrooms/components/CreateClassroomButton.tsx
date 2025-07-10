@@ -109,6 +109,7 @@ export default function ClassroomCreator() {
         virtualMode: newVirtual,
         enabled: true,
         hasRoom: !!classroomValue,
+        isPointer: false, // Default value for isPointer
 
       },
       {

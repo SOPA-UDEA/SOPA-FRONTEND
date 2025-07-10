@@ -1,17 +1,17 @@
 # SOPA Frontend
 
-This is a Next.js application for the SOPA (Sistema de Organización de Programación Académica) system.
+Esta es una aplicación Next.js para el sistema SOPA (Sistema de Organización de Programación Académica).
 
-## 🚀 Quick Start
+## 🚀 Inicio Rápido
 
-### Local Development
+### Desarrollo Local
 
 ```bash
 npm install
 npm run dev
 ```
 
-### Docker Development
+### Desarrollo con Docker
 
 ```bash
 # Windows
@@ -21,24 +21,24 @@ start.bat dev
 ./start.sh dev
 ```
 
-## 🐳 Docker Setup
+## 🐳 Configuración de Docker
 
-This project includes a complete Docker setup for both development and production environments.
+Este proyecto incluye una configuración completa de Docker para entornos de desarrollo y producción.
 
-### Prerequisites
+### Requisitos Previos
 
-- Docker Desktop installed and running
+- Docker Desktop instalado y ejecutándose
 - Docker Compose
 
-### Development with Docker
+### Desarrollo con Docker
 
-1. **Start development environment:**
+1. **Iniciar entorno de desarrollo:**
 
    ```bash
    docker-compose up sopa-dev
    ```
 
-   Or use the startup script:
+   O usar el script de inicio:
 
    ```bash
    # Windows
@@ -48,19 +48,19 @@ This project includes a complete Docker setup for both development and productio
    ./start.sh dev
    ```
 
-2. **Access the application:**
-   - Open [http://localhost:3000](http://localhost:3000) in your browser
-   - Changes to your code will automatically reload the application
+2. **Acceder a la aplicación:**
+   - Abrir [http://localhost:3000](http://localhost:3000) en su navegador
+   - Los cambios en el código se recargarán automáticamente en la aplicación
 
-### Production with Docker
+### Producción con Docker
 
-1. **Start production environment:**
+1. **Iniciar entorno de producción:**
 
    ```bash
    docker-compose -f docker-compose.prod.yml up --build sopa-frontend
    ```
 
-   Or use the startup script:
+   O usar el script de inicio:
 
    ```bash
    # Windows
@@ -70,13 +70,13 @@ This project includes a complete Docker setup for both development and productio
    ./start.sh prod
    ```
 
-2. **Start production with Nginx (recommended):**
+2. **Iniciar producción con Nginx (recomendado):**
 
    ```bash
    docker-compose -f docker-compose.prod.yml --profile with-nginx up --build
    ```
 
-   Or use the startup script:
+   O usar el script de inicio:
 
    ```bash
    # Windows
@@ -86,49 +86,49 @@ This project includes a complete Docker setup for both development and productio
    ./start.sh nginx
    ```
 
-### Docker Commands Reference
+### Referencia de Comandos Docker
 
-| Command                                                      | Description                        |
-| ------------------------------------------------------------ | ---------------------------------- |
-| `docker-compose up sopa-dev`                                 | Start development server           |
-| `docker-compose -f docker-compose.prod.yml up sopa-frontend` | Start production server            |
-| `docker-compose down`                                        | Stop all containers                |
-| `docker-compose logs sopa-dev`                               | View development logs              |
-| `docker-compose exec sopa-dev sh`                            | Access development container shell |
+| Comando                                                      | Descripción                     |
+| ------------------------------------------------------------ | ------------------------------- |
+| `docker-compose up sopa-dev`                                 | Iniciar servidor de desarrollo  |
+| `docker-compose -f docker-compose.prod.yml up sopa-frontend` | Iniciar servidor de producción  |
+| `docker-compose down`                                        | Detener todos los contenedores  |
+| `docker-compose logs sopa-dev`                               | Ver logs de desarrollo          |
+| `docker-compose exec sopa-dev sh`                            | Acceder al shell del contenedor |
 
-## 🏗️ Architecture
+## 🏗️ Arquitectura
 
-### Tech Stack
+### Stack Tecnológico
 
 - **Framework:** Next.js 15
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **UI Components:** HeroUI
-- **Icons:** Heroicons
-- **State Management:** TanStack Query
-- **HTTP Client:** Axios
+- **Lenguaje:** TypeScript
+- **Estilos:** Tailwind CSS
+- **Componentes UI:** HeroUI
+- **Iconos:** Heroicons
+- **Gestión de Estado:** TanStack Query
+- **Cliente HTTP:** Axios
 
-### Project Structure
+### Estructura del Proyecto
 
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── academic-program/   # Academic program management
-│   ├── academic-schedule/  # Schedule management
-│   ├── classrooms/        # Classroom management
-│   ├── groups/            # Group management
-│   ├── pensum/            # Curriculum management
-│   └── subjects/          # Subject management
-├── components/            # Reusable UI components
-├── hooks/                 # Custom React hooks
-├── services/              # API services
-├── interfaces/            # TypeScript interfaces
-└── utils/                 # Utility functions
+│   ├── academic-program/   # Gestión de programas académicos
+│   ├── academic-schedule/  # Gestión de horarios
+│   ├── classrooms/        # Gestión de aulas
+│   ├── groups/            # Gestión de grupos
+│   ├── pensum/            # Gestión de currículos
+│   └── subjects/          # Gestión de materias
+├── components/            # Componentes UI reutilizables
+├── hooks/                 # Hooks personalizados de React
+├── services/              # Servicios de API
+├── interfaces/            # Interfaces de TypeScript
+└── utils/                 # Funciones utilitarias
 ```
 
-## 📝 Environment Variables
+## 📝 Variables de Entorno
 
-Create a `.env.local` file in the root directory:
+Crear un archivo `.env.local` en el directorio raíz:
 
 ```env
 NODE_ENV=development
@@ -136,122 +136,112 @@ API_URL=http://localhost:8080
 DATABASE_URL=postgresql://user:password@localhost:5432/sopa
 ```
 
-## 🔧 Development
+## 🔧 Desarrollo
 
-### Available Scripts
+### Scripts Disponibles
 
-| Script          | Description              |
-| --------------- | ------------------------ |
-| `npm run dev`   | Start development server |
-| `npm run build` | Build for production     |
-| `npm run start` | Start production server  |
-| `npm run lint`  | Run ESLint               |
+| Script          | Descripción                    |
+| --------------- | ------------------------------ |
+| `npm run dev`   | Iniciar servidor de desarrollo |
+| `npm run build` | Construir para producción      |
+| `npm run start` | Iniciar servidor de producción |
+| `npm run lint`  | Ejecutar ESLint                |
 
-### Docker Development Features
+### Características de Desarrollo con Docker
 
-- **Hot reloading:** Changes are automatically reflected
-- **Volume mounting:** Source code is mounted for instant updates
-- **Port mapping:** Access the app on `localhost:3000`
-- **Network isolation:** Containers run in their own network
+- **Recarga en caliente:** Los cambios se reflejan automáticamente
+- **Montaje de volúmenes:** El código fuente se monta para actualizaciones instantáneas
+- **Mapeo de puertos:** Acceso a la aplicación en `localhost:3000`
+- **Aislamiento de red:** Los contenedores se ejecutan en su propia red
 
-## 🚀 Production Deployment
+## 🚀 Despliegue en Producción
 
-### Docker Production Features
+### Características de Producción con Docker
 
-- **Multi-stage builds:** Optimized image size
-- **Security:** Non-root user execution
-- **Health checks:** Automatic container health monitoring
-- **Nginx proxy:** Optional reverse proxy with caching
-- **SSL ready:** Easy HTTPS setup with certificate mounting
+- **Construcciones multi-etapa:** Tamaño de imagen optimizado
+- **Seguridad:** Ejecución de usuario no root
+- **Verificaciones de salud:** Monitoreo automático de salud del contenedor
+- **Proxy Nginx:** Proxy reverso opcional con caché
+- **Listo para SSL:** Configuración fácil de HTTPS con montaje de certificados
 
-### Deployment Steps
+### Pasos de Despliegue
 
-1. **Build production image:**
+1. **Construir imagen de producción:**
 
    ```bash
    docker build -t sopa-frontend:prod .
    ```
 
-2. **Run production container:**
+2. **Ejecutar contenedor de producción:**
 
    ```bash
    docker run -p 3000:3000 --name sopa-prod sopa-frontend:prod
    ```
 
-3. **With Nginx (recommended):**
+3. **Con Nginx (recomendado):**
    ```bash
    docker-compose -f docker-compose.prod.yml --profile with-nginx up -d
    ```
 
-## 📊 Monitoring
+## 📊 Monitoreo
 
-### Health Check
+### Verificación de Salud
 
-The application includes a health check endpoint at `/api/health` that provides:
+La aplicación incluye un endpoint de verificación de salud en `/api/health` que proporciona:
 
-- Application uptime
-- Environment information
-- Timestamp
-- Version information
+- Tiempo de actividad de la aplicación
+- Información del entorno
+- Marca de tiempo
+- Información de versión
 
 ### Logs
 
-Access container logs:
+Acceder a los logs del contenedor:
 
 ```bash
 docker-compose logs -f sopa-dev
 ```
 
-## 🔒 Security
+## 🔒 Seguridad
 
-- **Non-root user:** Production containers run as non-root
-- **Security headers:** Nginx adds security headers
-- **Rate limiting:** API rate limiting via Nginx
-- **Image scanning:** Use `docker scan` for vulnerability checks
+- **Usuario no root:** Los contenedores de producción se ejecutan como no root
+- **Headers de seguridad:** Nginx agrega headers de seguridad
+- **Limitación de velocidad:** Limitación de velocidad de API vía Nginx
+- **Escaneo de imágenes:** Usar `docker scan` para verificaciones de vulnerabilidades
 
-## 📦 Docker Images
+## 📦 Imágenes Docker
 
-- **Development:** `node:18-alpine` with development dependencies
-- **Production:** Multi-stage build with optimized image size
-- **Nginx:** `nginx:alpine` for reverse proxy
+- **Desarrollo:** `node:18-alpine` con dependencias de desarrollo
+- **Producción:** Construcción multi-etapa con tamaño de imagen optimizado
+- **Nginx:** `nginx:alpine` para proxy reverso
 
-## 🤝 Contributing
+## 🤝 Contribuir
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Hacer fork del repositorio
+2. Crear tu rama de característica (`git checkout -b feature/CaracteristicaIncreible`)
+3. Hacer commit de tus cambios (`git commit -m 'Agregar alguna CaracteristicaIncreible'`)
+4. Hacer push a la rama (`git push origin feature/CaracteristicaIncreible`)
+5. Abrir un Pull Request
 
-## 📄 License
+## 🆘 Solución de Problemas
 
-This project is licensed under the MIT License.
+### Problemas Comunes
 
-## 🆘 Troubleshooting
+1. **Docker no inicia:**
 
-### Common Issues
+   - Asegurar que Docker Desktop esté ejecutándose
+   - Verificar recursos del sistema (RAM, espacio en disco)
 
-1. **Docker not starting:**
+2. **Puerto ya en uso:**
 
-   - Ensure Docker Desktop is running
-   - Check system resources (RAM, disk space)
+   - Detener otros servicios usando el puerto 3000
+   - Usar puerto diferente: `docker run -p 3001:3000 ...`
 
-2. **Port already in use:**
+3. **Problemas de permisos:**
 
-   - Stop other services using port 3000
-   - Use different port: `docker run -p 3001:3000 ...`
+   - En Linux/Mac: `chmod +x start.sh`
+   - Ejecutar Docker como administrador en Windows
 
-3. **Permission issues:**
-
-   - On Linux/Mac: `chmod +x start.sh`
-   - Run Docker as administrator on Windows
-
-4. **Build failures:**
-   - Clear Docker cache: `docker system prune -a`
-   - Check network connectivity for package downloads
-
-### Getting Help
-
-- Check the [DOCKER.md](./DOCKER.md) for detailed Docker instructions
-- Review container logs: `docker-compose logs [service-name]`
-- Access container shell: `docker-compose exec [service-name] sh`
+4. **Fallas en la construcción:**
+   - Limpiar caché de Docker: `docker system prune -a`
+   - Verificar conectividad de red para descargas de paquetes

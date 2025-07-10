@@ -13,7 +13,7 @@ export const CustomNotification = ({ message, type, show }: CustomNotificationPr
       if (type === 'success') toast.success(message);
       if (type === 'error') toast.error(message);
     }
-  }, [show]);
+  }, [show, message, type]);
 
   return null; 
 };

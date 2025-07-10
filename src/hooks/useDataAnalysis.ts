@@ -14,7 +14,7 @@ export const useCheckCollisions = () => {
                 color: "success",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
 
             const description = handleErrorMessage(error);
 
@@ -40,7 +40,7 @@ export const useCheckScheduleClassroomModified = () => {
                 color: "success",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
 
             const description = handleErrorMessage(error);
 
@@ -67,7 +67,7 @@ export const useCheckCapacity = () => {
                 color: "success",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             const description = handleErrorMessage(error);
 
 
@@ -93,7 +93,7 @@ export const useCheckMirrorGroup = () => {
                 color: "success",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             const description = handleErrorMessage(error);
 
 

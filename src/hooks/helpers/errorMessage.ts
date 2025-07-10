@@ -1,7 +1,20 @@
-export const handleErrorMessage = (error: any) => {
+interface ErrorResponse {
+    error?: string;
+    detail?: string;
+}
+
+interface AxiosError {
+    isAxiosError: boolean;
+    message: string;
+    response?: {
+        data?: ErrorResponse;
+    };
+}
+
+export const handleErrorMessage = (error: AxiosError | Error) => {
     let description = error.message;
-    if (error.isAxiosError) {
-        const axiosError = error as any;
+    if ('isAxiosError' in error && error.isAxiosError) {
+        const axiosError = error as AxiosError;
 
         const data = axiosError.response?.data;
 

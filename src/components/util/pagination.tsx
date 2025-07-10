@@ -1,18 +1,19 @@
 import { Pagination } from "@heroui/react";
 
-interface Props{
-    
+interface PaginationProps {
+    total?: number;
+    initialPage?: number;
+    onPageChange?: (page: number) => void;
 }
 
-export default function PaginationCustom (){
+export default function PaginationCustom ({ total = 1, initialPage = 1, onPageChange }: PaginationProps){
 
     return(
         <Pagination
-            total={totalPages}
-            initialPage={1}
-            page={currentPage}
-            onChange={}
+            total={total}
+            initialPage={initialPage}
+            onChange={onPageChange}
             color="primary"
         />
-    )
+    );
 }

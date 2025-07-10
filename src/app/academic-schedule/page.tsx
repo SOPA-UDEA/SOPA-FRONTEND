@@ -16,6 +16,23 @@ import { DataAnalysis } from "./components/DataAnalysis";
 import { useGroupsBySchedulePaginated, useMarkMirrorGroups } from "@/hooks/useGroups";
 import { tableData } from "./helpers/groupTableData";
 
+// Type for enriched group data
+type EnrichedGroupData = {
+  id: number;
+  professorsN: string;
+  professors: number[];
+  mirrorGroup: string;
+  subjectName: string;
+  subjectCode: string;
+  subjectLevel: number;
+  subjectModality: string;
+  classrooms: string;
+  schedules: string;
+  baseGroup: string | number;
+  notifications: React.ReactNode;
+  [key: string]: unknown;
+};
+
 const Page = () => {
 	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
 	const { isOpen, onOpenChange, onOpen } = useDisclosure();
@@ -148,17 +165,21 @@ const Page = () => {
 								{
 									field: "actions",
 									headerName: "Acciones",
-									renderActions: (item) => (
-										<CustomDropdownActions
-											groupId={item.id}
-											setSelectedGroup={setSelectedGroup}
-											setSelectedGroupId={setSelectedGroupId}
-											group={item}
-											onOpenChange={onOpenUpdate}
-											setUpdated={setUpdated}
-											onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
-										/>
-									),
+									renderActions: (item: unknown) => {
+										const groupItem = item as EnrichedGroupData;
+										return (
+											<CustomDropdownActions
+												groupId={groupItem.id}
+												setSelectedGroup={setSelectedGroup}
+												setSelectedGroupId={setSelectedGroupId}
+												// eslint-disable-next-line @typescript-eslint/no-explicit-any
+												group={groupItem as any}
+												onOpenChange={onOpenUpdate}
+												setUpdated={setUpdated}
+												onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
+											/>
+										);
+									},
 								},
 							]}
 							onSelectionChange={(keys) => {

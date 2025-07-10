@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createAcademicSchedule } from "@/services/academicScheduleService";
-import { AcademicSchedule } from "@/interface/AcademicSchedule";
+import { AcademicScheduleRequest } from "@/interface/AcademicSchedule";
 
 export const useCreateAcademicSchedule = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (schedule: AcademicSchedule) => createAcademicSchedule(schedule),
+    mutationFn: (schedule: AcademicScheduleRequest) => createAcademicSchedule(schedule),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["academicSchedules"] });

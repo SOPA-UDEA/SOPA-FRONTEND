@@ -9,7 +9,7 @@ interface Props {
     groupId: number | null;
     setSelectedGroup: React.Dispatch<React.SetStateAction<GroupRequestUpdate | null>>;
     setSelectedGroupId: React.Dispatch<React.SetStateAction<number | null>>;
-    group: any; 
+    group: GroupRequestUpdate; 
     onOpenChange: () => void;
     setUpdated: (a: boolean) => void;
     onOpenChangeUpdateSchedule: () => void

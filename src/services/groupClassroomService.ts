@@ -49,8 +49,9 @@ export const exportGroupClassroom = async (
     }
 
     return { blob: response.data, filename };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Aquí puedes propagar el error personalizado
-    throw new Error(error.message || "Error al exportar el archivo.");
+    const errorMessage = error instanceof Error ? error.message : "Error al exportar el archivo.";
+    throw new Error(errorMessage);
   }
 };

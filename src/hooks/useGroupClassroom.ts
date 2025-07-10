@@ -15,7 +15,7 @@ export const useUploadExcel = () => {
                 color: "success",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
 
             const description = handleErrorMessage(error);
 
@@ -43,7 +43,7 @@ export const useUpdateExcel = () => {
                 color: "success",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             const description = handleErrorMessage(error);
 
 
@@ -78,7 +78,7 @@ export const useExportExcel = () => {
                 color: "success",
             });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             const description = handleErrorMessage(error);
 
             addToast({

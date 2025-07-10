@@ -1,4 +1,4 @@
-import { getGroupByAcademicScheduleId } from "@/services/groupService"
+import { getGroupByAcdemicScheduleId } from "@/services/groupService"
 import { useQuery } from "@tanstack/react-query"
 
 export const useGroupsByScheduleId = ( academicScheduleId: number  ) => {
@@ -9,7 +9,7 @@ export const useGroupsByScheduleId = ( academicScheduleId: number  ) => {
         error,
     } = useQuery({
         queryKey: ["groups", academicScheduleId],
-        queryFn: () => getGroupByAcademicScheduleId(academicScheduleId as number),
+        queryFn: () => getGroupByAcdemicScheduleId(academicScheduleId as number),
         enabled: !!academicScheduleId,
       });
 

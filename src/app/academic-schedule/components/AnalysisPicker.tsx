@@ -32,7 +32,7 @@ export const AnalysisPicker = ({
     } else {
       setIsCollisionOnly(false);
     }
-  }, [selectedAnalyses]);
+  }, [selectedAnalyses, setIsCollisionOnly]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
