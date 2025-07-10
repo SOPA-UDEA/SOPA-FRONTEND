@@ -3,11 +3,11 @@ import { getAcademicProgram } from "@/services/academicProgramService";
 
 export const useAcademicProgram = () => {
   const {
-    data: academicPrograms= [],
+    data: academicPrograms = [],
     isLoading,
     isError,
     error,
- } = useQuery({
+  } = useQuery({
     queryKey: ["academicPrograms"],
     queryFn: getAcademicProgram,
   });

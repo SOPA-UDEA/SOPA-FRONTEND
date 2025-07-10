@@ -1,14 +1,27 @@
 import { useAcademicProgram } from "@/app/academic-program/hooks/useAcademicProgram";
 import { ClockLoader } from "react-spinners";
 import { getAcademicProgramById } from "@/helpers/getAcademicProgramById";
-import { useCheckCollisions, useCheckMirrorGroup, useCheckCapacity, useCheckScheduleClassroomModified } from "@/hooks/useDataAnalysis";
+import {
+  useCheckCollisions,
+  useCheckMirrorGroup,
+  useCheckCapacity,
+  useCheckScheduleClassroomModified,
+} from "@/hooks/useDataAnalysis";
 import { usePensums } from "@/hooks/usePensums";
 import {
-  Button, Modal, Radio, RadioGroup, ModalContent, ModalBody, ModalFooter, ModalHeader, Input,
+  Button,
+  Modal,
+  Radio,
+  RadioGroup,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Input,
 } from "@heroui/react";
 import { useState } from "react";
 import { useExportExcel } from "@/hooks/useGroupClassroom";
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   onOpenChange: (isOpen: boolean) => void;
@@ -32,11 +45,18 @@ export const ModalAnalysis = ({
   const [selectedPensums, setSelectedPensums] = useState<number[]>([]);
   const [currentAnalysis, setCurrentAnalysis] = useState<string | null>(null);
 
-  const { mutateAsync: checkCollisions, isPending: isPendingCollisions } = useCheckCollisions();
-  const { mutateAsync: checkMirrorGroup, isPending: isPendingMirrorGroups } = useCheckMirrorGroup();
-  const { mutateAsync: checkCapacity, isPending: isPendingCapacity } = useCheckCapacity();
-  const { mutateAsync: checkScheduleClassroomModified, isPending: isPendingScheduleClassroomModified } = useCheckScheduleClassroomModified();
-  const { mutateAsync: exportExcel, isPending: isPendingExport } = useExportExcel();
+  const { mutateAsync: checkCollisions, isPending: isPendingCollisions } =
+    useCheckCollisions();
+  const { mutateAsync: checkMirrorGroup, isPending: isPendingMirrorGroups } =
+    useCheckMirrorGroup();
+  const { mutateAsync: checkCapacity, isPending: isPendingCapacity } =
+    useCheckCapacity();
+  const {
+    mutateAsync: checkScheduleClassroomModified,
+    isPending: isPendingScheduleClassroomModified,
+  } = useCheckScheduleClassroomModified();
+  const { mutateAsync: exportExcel, isPending: isPendingExport } =
+    useExportExcel();
 
   const QueryClient = useQueryClient();
 
@@ -59,8 +79,7 @@ export const ModalAnalysis = ({
         }
       }
       // Invalidate queries to refresh data after analysis
-      QueryClient.invalidateQueries({ queryKey: ['groupNotifications'] });
-
+      QueryClient.invalidateQueries({ queryKey: ["groupNotifications"] });
     } else if (action === "EXPORT") {
       // Handle export logic here if needed
       await exportExcel({ semester, pensumId });
@@ -69,7 +88,6 @@ export const ModalAnalysis = ({
     setSelectedAnalyses([]);
     onOpenChange(false);
   };
-
 
   const handleMessage = () => {
     switch (currentAnalysis) {
@@ -86,13 +104,17 @@ export const ModalAnalysis = ({
     }
   };
 
-
   const handleIsLoading = () => {
-    return isPendingCollisions || isPendingMirrorGroups || isPendingCapacity || isPendingScheduleClassroomModified || isPendingExport;
-  }
+    return (
+      isPendingCollisions ||
+      isPendingMirrorGroups ||
+      isPendingCapacity ||
+      isPendingScheduleClassroomModified ||
+      isPendingExport
+    );
+  };
 
   return (
-
     <>
       <Modal
         isOpen={isOpen}
@@ -101,13 +123,14 @@ export const ModalAnalysis = ({
             onOpenChange(!isOpen);
           }
         }}
-        className="overflow-y-auto"
-      >
+        className="overflow-y-auto">
         <ModalContent>
           {() => (
             <form onSubmit={handleSubmit}>
               <ModalHeader>
-                {isCollisionOnly ? "Ingrese un semestre" : "Seleccione un pensum y semestre"}
+                {isCollisionOnly
+                  ? "Ingrese un semestre"
+                  : "Seleccione un pensum y semestre"}
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col space-y-4">
@@ -115,25 +138,29 @@ export const ModalAnalysis = ({
                     <RadioGroup
                       isRequired
                       name="pensums"
-                      onValueChange={(value) => setSelectedPensums([parseInt(value)])}
-                      className="space-y-2"
-                    >
+                      onValueChange={(value) =>
+                        setSelectedPensums([parseInt(value)])
+                      }
+                      className="space-y-2">
                       {pensums.map((pensum) => {
-                        const program = getAcademicProgramById(pensum.academicProgramId, academicPrograms);
+                        const program = getAcademicProgramById(
+                          pensum.academicProgramId,
+                          academicPrograms
+                        );
                         return (
                           <Radio
                             key={pensum.id}
                             value={pensum.id.toString()}
-                            className="px-4 py-2 rounded-md hover:bg-green-50"
-                          >
+                            className="px-4 py-2 rounded-md hover:bg-green-50">
                             <span className="text-sm text-gray-700">
-                              {program.code} - {program.name} - {program.modalityAcademic} - {pensum.version}
+                              {program.code} - {program.name} -{" "}
+                              {program.modalityAcademic} - {pensum.version}
                             </span>
                           </Radio>
                         );
                       })}
-                    </RadioGroup>)
-                  }
+                    </RadioGroup>
+                  )}
                   <Input
                     name="semester"
                     type="text"
@@ -143,15 +170,15 @@ export const ModalAnalysis = ({
                     isRequired
                   />
                 </div>
-
-
               </ModalBody>
               <ModalFooter>
                 {!handleIsLoading() && (
                   <>
-                    <Button type="submit" color="secondary">{
-                      action === "ANALYSIS" ? "Ejecutar análisis" : "Exportar a Excel"
-                    }</Button>
+                    <Button type="submit" color="secondary">
+                      {action === "ANALYSIS"
+                        ? "Ejecutar análisis"
+                        : "Exportar a Excel"}
+                    </Button>
                     <Button color="danger" onPress={() => onOpenChange(false)}>
                       Cancelar
                     </Button>
@@ -168,12 +195,11 @@ export const ModalAnalysis = ({
                     </div>
                   </div>
                 )}
-
               </ModalFooter>
             </form>
           )}
         </ModalContent>
-      </Modal >
+      </Modal>
     </>
-  )
-}
+  );
+};
