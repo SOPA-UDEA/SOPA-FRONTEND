@@ -110,7 +110,6 @@ export default function ClassroomCreator() {
         enabled: true,
         hasRoom: !!classroomValue,
         isPointer: false, // Default value for isPointer
-
       },
       {
         onSuccess: () => {
@@ -171,8 +170,7 @@ export default function ClassroomCreator() {
         backdrop="opaque"
         size="lg"
         isDismissable={false}
-        isKeyboardDismissDisabled={false}
-      >
+        isKeyboardDismissDisabled={false}>
         <ModalContent>
           <ModalHeader>Crear nueva aula</ModalHeader>
           <ModalBody>
@@ -186,8 +184,7 @@ export default function ClassroomCreator() {
                   value={newVirtual ? "si" : "no"}
                   onChange={(e) =>
                     setNewVirtual((e.target as HTMLInputElement).value === "si")
-                  }
-                >
+                  }>
                   <Radio value="si">Sí</Radio>
                   <Radio value="no">No</Radio>
                 </RadioGroup>
@@ -226,8 +223,7 @@ export default function ClassroomCreator() {
                       value={newOwn ? "si" : "no"}
                       onChange={(e) =>
                         setNewOwn((e.target as HTMLInputElement).value === "si")
-                      }
-                    >
+                      }>
                       <Radio value="si">Sí</Radio>
                       <Radio value="no">No</Radio>
                     </RadioGroup>

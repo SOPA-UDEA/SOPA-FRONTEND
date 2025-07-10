@@ -6,7 +6,8 @@ export const useCreateAcademicSchedule = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (schedule: AcademicScheduleRequest) => createAcademicSchedule(schedule),
+    mutationFn: (schedule: AcademicScheduleRequest) =>
+      createAcademicSchedule(schedule),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["academicSchedules"] });

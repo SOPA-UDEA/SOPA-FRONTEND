@@ -7,10 +7,10 @@ import {
   DropdownMenu,
   DropdownItem,
   Button,
-  SharedSelection
-} from "@heroui/react"; 
-import { Pensum } from '../../../interface/Pensum';
-import { AcademicProgram } from '../../../interface/AcademicProgram';
+  SharedSelection,
+} from "@heroui/react";
+import { Pensum } from "../../../interface/Pensum";
+import { AcademicProgram } from "../../../interface/AcademicProgram";
 
 interface CustomDropdownProps {
   pensums: Pensum[];
@@ -25,7 +25,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   selectedPensum,
   onSelect,
   academicPrograms,
-  ariaLabel = "Seleccionar Pensum"
+  ariaLabel = "Seleccionar Pensum",
 }) => {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
     new Set(selectedPensum ? [String(selectedPensum.id)] : [])
@@ -42,7 +42,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   const handleSelectionChange = (keys: SharedSelection) => {
     const newSelectedKey = Array.from(keys as Set<string>)[0];
     setSelectedKeys(new Set([newSelectedKey]));
-    const newPensum = pensums.find(p => String(p.id) === newSelectedKey) || null;
+    const newPensum =
+      pensums.find((p) => String(p.id) === newSelectedKey) || null;
     onSelect(newPensum);
   };
 
@@ -50,26 +51,30 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     if (!selectedPensum) {
       return "Seleccione un pensum";
     }
-    const program = academicPrograms.find(ap => ap.id === selectedPensum.academicProgramId);
+    const program = academicPrograms.find(
+      (ap) => ap.id === selectedPensum.academicProgramId
+    );
     if (program) {
-      return `${program.name} - ${program.modalityAcademic} - ${selectedPensum.version || `Plan ${selectedPensum.id}`}`;
+      return `${program.name} - ${program.modalityAcademic} - ${
+        selectedPensum.version || `Plan ${selectedPensum.id}`
+      }`;
     }
-    return `Pensum ID: ${selectedPensum.id} - Versión: ${selectedPensum.version || 'N/A'}`;
+    return `Pensum ID: ${selectedPensum.id} - Versión: ${
+      selectedPensum.version || "N/A"
+    }`;
   }, [selectedPensum, academicPrograms]);
 
   return (
     <Dropdown>
       <DropdownTrigger>
         <Button
-
           className="capitalize min-w-[300px] w-full md:w-auto justify-between 
                      bg-neutral-100 dark:bg-neutral-1000                     /* Fondo blanco/oscuro */
                      text-primary-foreground dark:text-neutral-100          /* Texto principal */
                      border border-neutral-50 dark:border-neutral-500/50    /* Borde sutil */
                      hover:bg-neutral-10 dark:hover:bg-neutral-500/20       /* Efecto hover */
                      focus:outline-none focus:ring-2 focus:ring-primary-361 focus:ring-opacity-50 /* Estilos de foco */
-                     px-4 py-2 rounded-md shadow-sm" 
-        >
+                     px-4 py-2 rounded-md shadow-sm">
           {selectedValueText}
         </Button>
       </DropdownTrigger>
@@ -80,18 +85,17 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         selectionMode="single"
         selectedKeys={selectedKeys}
         onSelectionChange={handleSelectionChange}
-        items={pensums}
-      >
+        items={pensums}>
         {(item) => {
-          const program = academicPrograms.find(ap => ap.id === item.academicProgramId);
-          const itemLabel = program
-            ? `${program.name} - ${program.modalityAcademic} - ${item.version || `Plan ${item.id}`}`
-            : `Pensum ID: ${item.id} - Versión: ${item.version || 'N/A'}`;
-          return (
-            <DropdownItem key={String(item.id)}>
-              {itemLabel}
-            </DropdownItem>
+          const program = academicPrograms.find(
+            (ap) => ap.id === item.academicProgramId
           );
+          const itemLabel = program
+            ? `${program.name} - ${program.modalityAcademic} - ${
+                item.version || `Plan ${item.id}`
+              }`
+            : `Pensum ID: ${item.id} - Versión: ${item.version || "N/A"}`;
+          return <DropdownItem key={String(item.id)}>{itemLabel}</DropdownItem>;
         }}
       </DropdownMenu>
     </Dropdown>

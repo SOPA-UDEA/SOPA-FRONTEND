@@ -1,27 +1,40 @@
 import api from "../db/config";
-import { GroupClassroomDrai, ExportGroupClassroom } from "../interface/GroupClassroom";
+import {
+  GroupClassroomDrai,
+  ExportGroupClassroom,
+} from "../interface/GroupClassroom";
 
-export const uploadGroupClassroomDrai = async (data: GroupClassroomDrai): Promise<string> => {
-    const formData = new FormData();
-    formData.append("semester", data.semester);
-    formData.append("pensumId", data.pensumId.toString());
-    formData.append("file", data.file);
+export const uploadGroupClassroomDrai = async (
+  data: GroupClassroomDrai
+): Promise<string> => {
+  const formData = new FormData();
+  formData.append("semester", data.semester);
+  formData.append("pensumId", data.pensumId.toString());
+  formData.append("file", data.file);
 
-    const response = await api.post<string>("/group_classroom/upload-excel-drai", formData);
+  const response = await api.post<string>(
+    "/group_classroom/upload-excel-drai",
+    formData
+  );
 
-    return response.data;
+  return response.data;
 };
 
-export const updateGroupClassroomDrai = async (data: GroupClassroomDrai): Promise<string> => {
-    const formData = new FormData();
-    formData.append("semester", data.semester);
-    formData.append("pensumId", data.pensumId.toString());
-    formData.append("file", data.file);
+export const updateGroupClassroomDrai = async (
+  data: GroupClassroomDrai
+): Promise<string> => {
+  const formData = new FormData();
+  formData.append("semester", data.semester);
+  formData.append("pensumId", data.pensumId.toString());
+  formData.append("file", data.file);
 
-    const response = await api.post<string>("/group_classroom/update-excel-drai", formData);
+  const response = await api.post<string>(
+    "/group_classroom/update-excel-drai",
+    formData
+  );
 
-    return response.data;
-}
+  return response.data;
+};
 
 export const exportGroupClassroom = async (
   data: ExportGroupClassroom
@@ -51,7 +64,8 @@ export const exportGroupClassroom = async (
     return { blob: response.data, filename };
   } catch (error: unknown) {
     // Aquí puedes propagar el error personalizado
-    const errorMessage = error instanceof Error ? error.message : "Error al exportar el archivo.";
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al exportar el archivo.";
     throw new Error(errorMessage);
   }
 };
