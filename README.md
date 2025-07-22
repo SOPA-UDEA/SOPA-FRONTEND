@@ -35,7 +35,7 @@ Este proyecto incluye una configuración completa de Docker para entornos de des
 1. **Iniciar entorno de desarrollo:**
 
    ```bash
-   docker-compose up sopa-dev 
+   docker-compose up sopa-dev
    ```
 
    O usar el script de inicio:
@@ -237,14 +237,15 @@ docker-compose logs -f sopa-dev
    - Detener otros servicios usando el puerto 3000
    - Usar puerto diferente: `docker run -p 3001:3000 ...`
 
-3. **Problemas de permisos:**
+3. **Docker Compose not found:**
 
-   - En Linux/Mac: `chmod +x start.sh`
-   - Ejecutar Docker como administrador en Windows
+   - Install docker-compose: `sudo apt install docker-compose`
+   - Or use Docker Compose V2: `docker compose` (with space instead of hyphen)
 
 4. **Build failures:**
-   - Clear Docker cache: `docker system prune -a` 
+   - Clear Docker cache: `docker system prune -a`
    - Check network connectivity for package downloads
+   - Ensure you're on the correct branch with latest code: `git pull origin production/v1`
 
 ### Getting Help
 
