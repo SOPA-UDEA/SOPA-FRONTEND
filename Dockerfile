@@ -18,6 +18,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Set build-time environment variables
+ENV NEXT_PUBLIC_API_URL=http://192.168.30.114:8080
+
 # Build the application
 RUN npm run build
 
