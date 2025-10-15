@@ -56,7 +56,6 @@ export default function PesnumSelector({
     <Form onSubmit={handleSubmit}>
       {isFromDrai && (
         <RadioGroup
-          isRequired
           name="pensums"
           onValueChange={(value) => setSelectedPensums([parseInt(value)])}
           className="mb-4">
