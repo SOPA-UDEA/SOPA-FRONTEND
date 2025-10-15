@@ -67,7 +67,7 @@ export default function PesnumSelector({ setSelectedPensumsIds, onOpenChange, on
                     const program = getAcademicProgramById(pensum.academicProgramId, academicPrograms);
                     return (
                         <Checkbox
-                            isRequired
+                            
                             key={pensum.id}
                             defaultChecked={false}
                             onChange={(e) => handleCheckboxChange(pensum.id, e.target.checked)}
