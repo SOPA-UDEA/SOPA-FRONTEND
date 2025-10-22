@@ -37,13 +37,13 @@ export const ModalSchedule = ({ setAcademicSchedule, selectedPensumsIds,
 		if (action === "create") {
 			mutate(scheduleRequest,
 				{
-					onSuccess: (data) => {
+					onSuccess: async (data) => {
 						onOpenChange(false);
 						const requestBase = {
 							'scheduleId': data.id,
 							'pensumIds': selectedPensumsIds
 						}
-						mutateAsync(requestBase)
+						await mutateAsync(requestBase)
 						setAcademicSchedule(data);
 					},
 					onError: () => {
