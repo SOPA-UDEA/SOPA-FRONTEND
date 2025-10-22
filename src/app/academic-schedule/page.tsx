@@ -15,6 +15,7 @@ import ModalUpdateGroupsSchedule from "./components/ModalUpdateGroupsSchedule";
 import { DataAnalysis } from "./components/DataAnalysis";
 import { useGroupsBySchedulePaginated, useMarkMirrorGroups } from "@/hooks/useGroups";
 import { tableData } from "./helpers/groupTableData";
+import { usePensums } from "@/hooks/usePensums";
 
 const Page = () => {
 	const [academicSchedule, setAcademicSchedule] = useState<AcademicScheduleResponse | null>(null);
@@ -23,7 +24,7 @@ const Page = () => {
 	const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 	const [groups, setGroups] = useState<GroupResponse[]>([]);
 	const [selectedPensumsIds, setSelectedPensumsIds] = useState<number[]>([]);
-	const [updated, setUpdated] = useState(false)
+	const [updated, setUpdated] = useState(false);
 	const [action, setAction] = useState("");
 	const [importType, setImportType] = useState<"CREATE" | "UPDATE">("CREATE");
 	const [file, setFile] = useState<File | null>(null);
@@ -32,6 +33,8 @@ const Page = () => {
 
 	const { isOpen: isOpenUpdate, onOpenChange: onOpenChangeUpdate, onOpen: onOpenUpdate } = useDisclosure();
 	const { isOpen: isOpenUpdateSchedule, onOpenChange: onOpenChangeUpdateSchedule, onOpen: onOpenUpdateSchedule } = useDisclosure();
+
+	const { pensums } = usePensums();
 
 	const stablePensumIds = useMemo(() => [...selectedPensumsIds], [selectedPensumsIds]);
 
@@ -42,12 +45,11 @@ const Page = () => {
 		take: 20
 	}), [academicSchedule?.id, stablePensumIds]);
 
-
 	const { data, isPending } = useGroupsBySchedulePaginated(requestBase);
 
 	useEffect(() => {
 		if (data) {
-			setGroups(data.data)
+			setGroups(data.data);
 		}
 	}, [data, updated, academicSchedule]);
 
@@ -56,18 +58,18 @@ const Page = () => {
 	const handleMarkMirrorGroups = () => {
 		if (selectedGroupIds.length < 2) {
 			alert('Debes seleccionar al menos dos grupos');
-			return
+			return;
 		}
 		mutateAsync(selectedGroupIds, {
 			onSuccess(data) {
 				if (data === "groups are not mirrors") {
-					alert('los grupos no cumplen las condiciones para ser espejos');
-					return
+					alert('Los grupos no cumplen las condiciones para ser espejos');
+					return;
 				}
-				setUpdated(true)
+				setUpdated(true);
 			},
-		})
-	}
+		});
+	};
 
 	const columns = [
 		{ field: "id", headerName: "ID" },
@@ -79,7 +81,7 @@ const Page = () => {
 		{ field: "maxSize", headerName: "Max. cupos" },
 		{ field: "groupSize", headerName: "Cupos" },
 		{ field: "registeredPlaces", headerName: "Matriculados" },
-		{ field: "baseGroup", headerName: "Numero del grupo" },
+		{ field: "baseGroup", headerName: "Número del grupo" },
 		{ field: "classrooms", headerName: "Aulas" },
 		{ field: "schedules", headerName: "Horarios" },
 		{ field: "professorsN", headerName: "Profesores" },
@@ -87,14 +89,40 @@ const Page = () => {
 		{ field: "notifications", headerName: "Notificaciones" }
 	];
 
+	// ✅ Mostrar nombre y modalidad según academicProgramId
+	const selectedPensumNames = useMemo(() => {
+		if (selectedPensumsIds.length === 0) return null;
+		return pensums
+			.filter((p) => selectedPensumsIds.includes(p.id))
+			.map((p) => {
+				const modalidad =
+					p.academicProgramId === 1
+						? "Presencial"
+						: p.academicProgramId === 2
+							? "Virtual"
+							: "Desconocida";
+				return `Pensum (versión ${p.version}, ${modalidad})`;
+			})
+			.join(", ");
+	}, [selectedPensumsIds, pensums]);
+
 	return (
 		<>
 			<Toaster position="top-right" />
 			<div>
-				<h1 className="text-h-2 text-primary-7740 mb-6">
+				<h1 className="text-h-2 text-primary-7740 mb-2">
 					Programación Académica
 				</h1>
+
+				{/* 🔹 Texto dinámico de pensums y semestre */}
+				{academicSchedule && selectedPensumNames && (
+					<p className="text-gray-700 mb-6">
+						<b>Programación académica:</b> {selectedPensumNames} — Semestre{" "}
+						{academicSchedule.semester || "No especificado"}
+					</p>
+				)}
 			</div>
+
 			<div className="flex justify-between mb-4">
 				<div className="flex gap-4">
 					<ModalPensums
@@ -119,8 +147,7 @@ const Page = () => {
 						/>
 					)}
 					{groups.length > 0 && (
-						<DataAnalysis action="ANALYSIS"
-						/>
+						<DataAnalysis action="ANALYSIS" />
 					)}
 				</div>
 				{academicSchedule &&
@@ -128,6 +155,7 @@ const Page = () => {
 						Marcar espejos
 					</Button>}
 			</div>
+
 			<ModalSchedule
 				setAcademicSchedule={setAcademicSchedule}
 				selectedPensumsIds={selectedPensumsIds}
@@ -137,42 +165,42 @@ const Page = () => {
 				importType={importType}
 				file={file}
 			/>
+
 			<div className="mt-4">
-				{!isPending && (
-					academicSchedule && (
-						<CustomDataGrid
-							data={[...enrichedGroups].sort((a, b) => a.subjectLevel - b.subjectLevel)}
-							checkbox={true}
-							columns={[
-								...columns,
-								{
-									field: "actions",
-									headerName: "Acciones",
-									renderActions: (item) => (
-										<CustomDropdownActions
-											groupId={item.id}
-											setSelectedGroup={setSelectedGroup}
-											setSelectedGroupId={setSelectedGroupId}
-											group={item}
-											onOpenChange={onOpenUpdate}
-											setUpdated={setUpdated}
-											onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
-										/>
-									),
-								},
-							]}
-							onSelectionChange={(keys) => {
-								if (keys === "all") {
-									setSelectedGroupIds(enrichedGroups.map((g) => g.id));
-								} else {
-									const numericIds = Array.from(keys).map((k) => Number(k));
-									setSelectedGroupIds(numericIds);
-								}
-							}}
-							selectedKeys={new Set(selectedGroupIds.map(String))}
-						/>
-					)
+				{!isPending && academicSchedule && (
+					<CustomDataGrid
+						data={[...enrichedGroups].sort((a, b) => a.subjectLevel - b.subjectLevel)}
+						checkbox={true}
+						columns={[
+							...columns,
+							{
+								field: "actions",
+								headerName: "Acciones",
+								renderActions: (item) => (
+									<CustomDropdownActions
+										groupId={item.id}
+										setSelectedGroup={setSelectedGroup}
+										setSelectedGroupId={setSelectedGroupId}
+										group={item}
+										onOpenChange={onOpenUpdate}
+										setUpdated={setUpdated}
+										onOpenChangeUpdateSchedule={onOpenUpdateSchedule}
+									/>
+								),
+							},
+						]}
+						onSelectionChange={(keys) => {
+							if (keys === "all") {
+								setSelectedGroupIds(enrichedGroups.map((g) => g.id));
+							} else {
+								const numericIds = Array.from(keys).map((k) => Number(k));
+								setSelectedGroupIds(numericIds);
+							}
+						}}
+						selectedKeys={new Set(selectedGroupIds.map(String))}
+					/>
 				)}
+
 				{isPending && academicSchedule !== null && (
 					<div className="flex flex-col items-center justify-center mt-2 mb-2 space-y-2">
 						<ClipLoader color="#4A5568" size={60} />
@@ -181,26 +209,27 @@ const Page = () => {
 						</p>
 					</div>
 				)}
-
 			</div>
+
 			{selectedGroup && selectedGroupId && (
 				<ModalUpdateGroup
 					isOpen={isOpenUpdate}
 					onOpenChange={onOpenChangeUpdate}
 					selectedGroup={selectedGroup}
 					groupId={selectedGroupId}
-					setUpdated={setUpdated} />
+					setUpdated={setUpdated}
+				/>
 			)}
+
 			{selectedGroupId && (
 				<ModalUpdateGroupsSchedule
 					onOpenChange={onOpenChangeUpdateSchedule}
 					isOpen={isOpenUpdateSchedule}
 					selectedGroupId={selectedGroupId}
-				/>)
-			}
-			{groups.length > 0 && (
-				<DataAnalysis action="EXPORT" />
+				/>
 			)}
+
+			{groups.length > 0 && <DataAnalysis action="EXPORT" />}
 		</>
 	);
 };
