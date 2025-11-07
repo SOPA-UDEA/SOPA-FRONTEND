@@ -91,7 +91,7 @@ export interface GetGroupsParams {
 
 export interface PaginatedGroupResponse {
   total: number;
-  limit: number;
-  offset: number;
+  skip: number;
+  take: number;
   data: GroupResponse[];
 }
