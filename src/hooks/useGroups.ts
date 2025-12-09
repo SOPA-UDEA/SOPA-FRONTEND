@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { GroupRequestUpdate } from "@/interface/Group";
-import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, markMirrorGroups, updateGroupById, updateGroupSchedule } from "@/services/groupService";
+import { createBaseGroups, createGroupOf, deleteGroupById, getBySchedulePensum, markMirrorGroups, updateGroupById, updateGroupClassroom, updateGroupSchedule } from "@/services/groupService";
 
 type UpdateGroupPayload = {
   groupId: number;
@@ -23,6 +23,12 @@ interface UpdateSchedule {
   group_id: number;
   schedules: string[];
 }
+
+export const useUpdateGroupClassroom = () => {
+  return useMutation({
+    mutationFn: (group_id: number) => updateGroupClassroom(group_id)
+  });
+};
 
 export function useDeleteGroupById() {
   const queryClient = useQueryClient();

@@ -1,4 +1,4 @@
-import { useCreateGroupOf, useDeleteGroupById } from "@/hooks/useGroups";
+import { useCreateGroupOf, useDeleteGroupById, useUpdateGroupClassroom } from "@/hooks/useGroups";
 import { GroupRequestUpdate } from "@/interface/Group";
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react";
 
@@ -62,6 +62,17 @@ export default function CustomDropdownActions({
     setUpdated(true);
   };
 
+  const { mutateAsync: mutateAsyncUpdateClassroom } = useUpdateGroupClassroom();
+
+  const handleSearchClassroom = async () => {
+    if (!groupId) return;
+    await mutateAsyncUpdateClassroom(groupId); // o como se llame tu mutation
+    setUpdated(true); // <- esto ahora dispara el refetch
+  };
+
+
+
+
   return (
     <Dropdown>
       <DropdownTrigger>
@@ -72,6 +83,7 @@ export default function CustomDropdownActions({
         <DropdownItem key="editGroup" onPress={handleUpdate}>Modificar Grupo</DropdownItem>
         <DropdownItem key="editSchedule" onPress={handleUpdateSchedule}>Modificar Horario</DropdownItem>
         <DropdownItem key="editClassRoom" onPress={handleUpdateClassroom}>Modificar Aula</DropdownItem>
+        <DropdownItem key="searchClassRoom" onPress={handleSearchClassroom}>Buscar Aula</DropdownItem>
         <DropdownItem key="deleteGroup" onPress={() => handleDelete(groupId)} className="text-danger" color="danger">
           Eliminar Grupo
         </DropdownItem>

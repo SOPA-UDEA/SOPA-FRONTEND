@@ -65,6 +65,15 @@ const Page = () => {
     if (data) setGroups(data.data);
   }, [data, updated, academicSchedule]);
 
+  useEffect(() => {
+    if (!updated) return;
+
+    // Usas el mismo key que ya cancelas arriba: ["groups"]
+    queryClient.invalidateQueries({ queryKey: ["groups"] });
+
+    // Reseteas el flag para no entrar en bucle
+    setUpdated(false);
+  }, [updated, queryClient]);
   const enrichedGroups = tableData(groups);
 
   const groupById = useMemo(() => {
@@ -194,7 +203,12 @@ const Page = () => {
         file={file}
         onDone={() => setCanQuery(true)}
       />
-
+      {showOverlay && (
+          <div className="flex flex-col items-center justify-center mt-2 mb-2 space-y-2">
+            <ClipLoader color="#4A5568" size={60} />
+            <p className="text-gray-600 text-sm text-center">Cargando programación académica...</p>
+          </div>
+        )}
       <div className="mt-4 relative">
         {showTable && (
           <CustomDataGrid
@@ -240,12 +254,7 @@ const Page = () => {
           />
         )}
 
-        {showOverlay && (
-          <div className="flex flex-col items-center justify-center mt-2 mb-2 space-y-2">
-            <ClipLoader color="#4A5568" size={60} />
-            <p className="text-gray-600 text-sm text-center">Cargando programación académica...</p>
-          </div>
-        )}
+        
       </div>
 
       {selectedGroupId && (

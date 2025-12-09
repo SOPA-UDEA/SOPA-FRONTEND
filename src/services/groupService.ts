@@ -27,6 +27,10 @@ export const createBaseGroups = async (pensums: number[], scheduleId: number) =>
 	return response.data
 }
 
+export const updateGroupClassroom = async (group_id: number) => {
+	const response = await api.put(`/group/update/classroom/${group_id}`);
+	return response.data;
+}
 
 export const getBySchedulePensum = async (
   	{ academicScheduleId, pensumIds, skip = 0, take = 15 }: GetGroupsParams
