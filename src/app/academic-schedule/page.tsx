@@ -273,6 +273,15 @@ const Page = () => {
           selectedGroupId={selectedGroupId}
         />
       )}
+      
+      {selectedGroup && selectedGroupId && (
+				<ModalUpdateGroup
+					isOpen={isOpenUpdate}
+					onOpenChange={onOpenChangeUpdate}
+					selectedGroup={selectedGroup}
+					groupId={selectedGroupId}
+					setUpdated={setUpdated} />
+			)}
 
       {displayRows.length > 0 && <DataAnalysis action="EXPORT" />}
     </>
